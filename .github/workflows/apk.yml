@@ -1,0 +1,64 @@
+name: Fabricar APK de Senda
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el proyecto
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Leer la versión
+        run: echo "SENDA_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+
+      - name: Poner la firma de Senda (desde Secrets)
+        env:
+          SENDA_KEYSTORE: ${{ secrets.SENDA_KEYSTORE }}
+        run: |
+          if [ -z "$SENDA_KEYSTORE" ]; then echo "Falta el secret SENDA_KEYSTORE"; exit 1; fi
+          echo "$SENDA_KEYSTORE" | base64 -d > android/app/senda-release.keystore
+
+      - name: Instalar Capacitor
+        run: npm ci
+
+      - name: Copiar la app al proyecto Android
+        run: npx cap sync android
+
+      - name: Fabricar el APK
+        working-directory: android
+        env:
+          SENDA_KEYSTORE_PASSWORD: ${{ secrets.SENDA_KEYSTORE_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Poner nombre al APK
+        run: |
+          mkdir -p salida
+          cp android/app/build/outputs/apk/release/app-release.apk "salida/Senda-${SENDA_VERSION}.apk"
+
+      - name: Publicar el APK en Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: senda-${{ env.SENDA_VERSION }}-${{ github.run_number }}
+          name: Senda ${{ env.SENDA_VERSION }} (fabricación ${{ github.run_number }})
+          files: salida/*.apk
+          make_latest: true
