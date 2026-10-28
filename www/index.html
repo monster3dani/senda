@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E2B2A">
+<meta name="author" content="DanLab">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Senda · mis caminatas</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="lib/leaflet/leaflet.css">
+<style>
+:root {
+  --bg: #E8EDEB;
+  --panel: #F7F9F8;
+  --ink: #1E2B2A;
+  --muted: #5C6B69;
+  --line: #CBD5D2;
+  --gr: #C8102E;
+  --pr: #F2B705;
+  --white: #FFFFFF;
+  --chip: rgba(247, 249, 248, 0.94);
+  --danlab: #0B5F6A;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131B1A;
+    --panel: #1B2625;
+    --ink: #E4EBE9;
+    --muted: #92A29F;
+    --line: #2F3D3B;
+    --gr: #E5484D;
+    --pr: #F5C542;
+    --white: #F2F5F4;
+    --chip: rgba(27, 38, 37, 0.94);
+    --danlab: #7CC3CC;
+    color-scheme: dark;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 16px/1.5 Barlow, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 2000; background: var(--ink);
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--pr); outline-offset: 2px; }
+.num, h1, h2, .brand { font-family: "Barlow Semi Condensed", "Arial Narrow", Barlow, sans-serif; }
+
+/* Barra superior */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 1000;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--ink); color: var(--bg);
+}
+@media (prefers-color-scheme: dark) { .top { color: #131B1A; background: #E4EBE9; } body::before { background: #E4EBE9; } }
+.brand { font-weight: 700; font-size: 22px; letter-spacing: .02em; display: flex; align-items: center; gap: 8px; margin-right: auto; }
+.brand-icon { width: 28px; height: 28px; border-radius: 7px; display: block; flex: none; }
+.top button {
+  border: 0; background: transparent; padding: 8px 10px; border-radius: 8px; font-weight: 600;
+}
+.top button:hover { background: rgba(127,127,127,.18); }
+
+/* Inicio */
+.section h2 { font-size: 22px; margin: 0 0 10px; font-weight: 600; }
+.brand { border: 0; background: none; padding: 4px 0; color: inherit; cursor: pointer; }
+.btn-main {
+  border: 0; border-radius: 10px; padding: 14px 22px; font-weight: 600; font-size: 17px;
+  background: var(--gr); color: #fff;
+}
+.home-map-wrap { position: relative; height: 42vh; min-height: 260px; max-height: 460px; }
+#homeMap { position: absolute; inset: 0; background: var(--line); }
+.home { max-width: 760px; margin: 0 auto; padding: 0 16px 60px; }
+.home-head { padding: 22px 0 4px; }
+.home-head h1 { font-size: clamp(34px, 8vw, 50px); line-height: 1; margin: 0; font-weight: 700; }
+.home-head p { color: var(--muted); margin: 6px 0 0; }
+.home .signpost { margin-top: 18px; }
+.welcome { padding: 36px 0 10px; }
+.welcome-sign { display: grid; gap: 6px; margin-bottom: 26px; max-width: 360px; }
+.welcome-sign .plate { padding-top: 14px; padding-bottom: 14px; }
+.welcome-sign .plate b { font-size: 24px; font-weight: 600; }
+.welcome h1 { font-size: clamp(34px, 8vw, 52px); line-height: 1.02; margin: 0 0 14px; font-weight: 700; }
+.welcome p { color: var(--muted); margin: 0 0 22px; max-width: 46ch; }
+.welcome .steps { margin: 0 0 26px; padding-left: 1.3em; color: var(--ink); max-width: 46ch; }
+.welcome .steps li { margin-bottom: 6px; }
+.list-title { font-size: 24px; font-weight: 600; margin: 30px 0 4px; }
+.walk-row {
+  width: 100%; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 14px;
+  text-align: left; border: 0; border-top: 1px solid var(--line); background: none; padding: 13px 0;
+}
+.walk-row strong { font-weight: 600; font-size: 17px; }
+.walk-row .w-sub { grid-column: 1; color: var(--muted); font-size: 14px; }
+.walk-row .w-km { grid-row: 1 / span 2; grid-column: 2; text-align: right; font: 600 24px/1 "Barlow Semi Condensed", sans-serif; }
+.walk-row .w-km small { font-size: 14px; font-weight: 500; margin-left: 2px; }
+.walk-row .tag { display: inline-block; margin-left: 8px; font-size: 13px; font-weight: 600; color: var(--gr); vertical-align: 2px; }
+
+/* Firma DanLab */
+.dl-sym { display: block; width: 100%; height: 100%; }
+.danlab-sign { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
+.danlab-sign .dl-box { width: 22px; height: 22px; color: var(--danlab); flex: none; }
+.danlab-sign b { color: var(--danlab); font-weight: 600; }
+.home-foot { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line); }
+.about-logo { width: 84px; height: 84px; color: var(--danlab); margin: 4px 0 14px; }
+.about-box h2 { margin-bottom: 2px; }
+.about-box .ver { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+.about-box .by { color: var(--danlab); font-weight: 600; margin: 0 0 10px; }
+
+/* Aviso de versión nueva */
+.update-bar { position: fixed; z-index: 2300; left: 10px; right: 10px; bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; background: var(--panel); color: var(--ink);
+  border-left: 5px solid var(--danlab); border-radius: 12px; padding: 12px 14px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+.update-bar div { flex: 1 1 200px; }
+.update-bar b { display: block; }
+.update-bar span { color: var(--muted); font-size: 14px; }
+.update-bar .btn-main { padding: 9px 14px; font-size: 15px; }
+.update-bar .btn-line { padding: 9px 12px; }
+
+/* Menú lateral */
+.scrim { position: fixed; inset: 0; z-index: 2400; background: rgba(0,0,0,.45); opacity: 0; pointer-events: none; transition: opacity .2s; }
+.scrim.on { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed; z-index: 2500; top: 0; right: 0; bottom: 0; width: min(320px, 86vw);
+  background: var(--panel); color: var(--ink); transform: translateX(100%); transition: transform .22s ease, visibility .22s;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 0 calc(16px + env(safe-area-inset-bottom, 0px));
+  display: flex; flex-direction: column; overflow-y: auto; visibility: hidden;
+}
+.drawer.on { transform: none; visibility: visible; box-shadow: -6px 0 24px rgba(0,0,0,.25); }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 0 18px 12px; }
+.drawer-head .brand { font-size: 24px; }
+.drawer-close { border: 0; background: none; font-size: 15px; font-weight: 600; padding: 8px; color: var(--muted); }
+.drawer h3 { margin: 18px 18px 4px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.drawer button.item { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 13px 18px; font-size: 17px; font-weight: 500; }
+.drawer button.item:hover { background: rgba(127,127,127,.12); }
+.drawer button.item.primary { color: var(--gr); font-weight: 600; }
+.drawer .drawer-note { margin: 14px 18px 0; color: var(--muted); font-size: 14px; }
+.drawer .drawer-foot { margin-top: auto; padding: 18px; color: var(--muted); font-size: 13px; }
+
+/* Ventana para crear viaje */
+.modal { position: fixed; inset: 0; z-index: 2600; display: none; place-items: center; padding: 20px; background: rgba(0,0,0,.45); }
+.modal.on { display: grid; }
+.modal-box { width: min(440px, 100%); background: var(--panel); border-radius: 14px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.modal-box h2 { margin: 0 0 6px; font-size: 26px; }
+.modal-box p { margin: 0 0 14px; color: var(--muted); }
+.modal-box input { width: 100%; border: 2px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--bg); font-size: 17px; }
+.modal-box input:focus { border-color: var(--gr); outline: none; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.modal-actions .btn-main { padding: 10px 16px; font-size: 16px; }
+
+/* Vista de actividad */
+.view { display: none; }
+.view.on { display: block; }
+.layout { display: grid; grid-template-columns: 1fr; }
+.map-wrap { position: relative; height: 56vh; min-height: 320px; }
+#map { position: absolute; inset: 0; background: var(--line); }
+.map-tools {
+  position: absolute; z-index: 500; left: 10px; right: 10px; bottom: 30px;
+  display: flex; gap: 6px; flex-wrap: nowrap; align-items: center; pointer-events: none; overflow-x: auto;
+}
+.map-tools > * { pointer-events: auto; }
+.pill {
+  border: 0; background: var(--chip); color: var(--ink); border-radius: 999px;
+  padding: 8px 12px; font-weight: 600; font-size: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.25);
+}
+.pill.play { background: var(--gr); color: #fff; min-width: 96px; }
+.map-tools .pill { flex: none; }
+select.pill { appearance: none; padding-right: 14px; }
+.live {
+  position: absolute; z-index: 500; bottom: 80px; left: 10px;
+  background: var(--chip); border-radius: 10px; padding: 8px 12px; display: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25); font-size: 14px;
+}
+.live.on { display: flex; gap: 14px; }
+.live b { font-family: "Barlow Semi Condensed", sans-serif; font-size: 20px; display: block; line-height: 1.1; }
+.legend {
+  position: absolute; z-index: 500; top: 10px; right: 54px; background: var(--chip);
+  border-radius: 8px; padding: 6px 10px; font-size: 12px; display: none; box-shadow: 0 1px 4px rgba(0,0,0,.25);
+}
+.legend.on { display: block; }
+.legend .bar { height: 8px; width: 120px; border-radius: 4px; margin: 3px 0; }
+.legend .ends { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); }
+.photo-pop {
+  position: absolute; z-index: 600; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(.96);
+  max-width: min(80vw, 420px); background: var(--white); padding: 8px 8px 30px; border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
+}
+.place-bar { position: absolute; z-index: 650; left: 8px; right: 8px; bottom: 76px; display: flex; align-items: center; gap: 10px;
+  background: var(--panel); color: var(--ink); border-radius: 12px; padding: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.35); }
+.place-bar img { width: 52px; height: 52px; object-fit: cover; border-radius: 6px; flex: none; }
+.place-bar div { flex: 1; min-width: 0; font-size: 14px; line-height: 1.3; }
+.place-bar b { display: block; font-size: 15px; }
+.place-bar span { display: block; color: var(--muted); }
+.place-bar button { flex: none; border: 1px solid var(--line); background: none; border-radius: 8px; padding: 7px 9px; font-weight: 600; font-size: 14px; }
+#map.placing { cursor: crosshair; }
+.photo-pop.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.photo-pop img { display: block; max-width: 100%; max-height: 50vh; }
+.photo-pop span { position: absolute; left: 10px; bottom: 6px; color: #333; font-size: 14px; }
+
+.panel { padding: 0 16px 40px; }
+.title-block { padding: 18px 0 6px; }
+.title-block h1 { font-size: clamp(28px, 6vw, 38px); line-height: 1.05; margin: 0; font-weight: 700; }
+.title-block p { margin: 4px 0 0; color: var(--muted); }
+.title-row { display: flex; align-items: flex-start; gap: 10px; }
+.title-row h1 { flex: 1; }
+.rename { flex: none; margin-top: 4px; border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 6px 10px; font-size: 14px; font-weight: 600; }
+.title-input { flex: 1; font: 700 clamp(24px, 6vw, 34px)/1.1 "Barlow Semi Condensed", "Arial Narrow", sans-serif; padding: 4px 8px;
+  border: 2px solid var(--gr); border-radius: 8px; background: var(--panel); min-width: 0; }
+.trip-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; }
+.trip-bar label { color: var(--muted); font-size: 14px; }
+.trip-bar select { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; padding: 7px 10px; font-weight: 600; max-width: 100%; }
+.trip-bar .del-act { margin-left: auto; border: 1px solid var(--line); background: none; border-radius: 8px; padding: 6px 10px; font-size: 14px; color: var(--muted); }
+.trip-new { display: flex; gap: 8px; width: 100%; }
+.trip-new input { flex: 1; min-width: 0; border: 2px solid var(--gr); border-radius: 8px; padding: 8px 10px; background: var(--panel); }
+.trip-link { border: 0; background: none; padding: 0; margin-top: 6px; color: var(--gr); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.stages { list-style: none; margin: 0; padding: 0; }
+.stages li + li { border-top: 1px solid var(--line); }
+.stages button { width: 100%; display: grid; grid-template-columns: 34px 1fr auto; gap: 2px 12px; align-items: center;
+  text-align: left; border: 0; background: none; padding: 10px 0; }
+.stage-n { grid-row: span 2; width: 34px; height: 34px; display: grid; place-items: center; color: #fff; border-radius: 50%;
+  font: 700 16px "Barlow Semi Condensed", sans-serif; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); }
+.stages strong { font-weight: 600; }
+.stages .st-date { color: var(--muted); font-size: 14px; }
+.stages .st-num { grid-row: span 2; text-align: right; font-family: "Barlow Semi Condensed", sans-serif; font-size: 18px; font-weight: 600; line-height: 1.15; }
+.stages .st-num small { display: block; color: var(--muted); font-size: 14px; font-weight: 500; }
+.trip-actions { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+.hist-group { margin-top: 30px; }
+.hist-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+.hist-head h2 { margin: 0; }
+.stagemk { width: 24px; height: 24px; border-radius: 50%; color: #fff; display: grid; place-items: center; border: 2px solid #fff;
+  font: 700 12px "Barlow Semi Condensed", sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,.5); }
+.backup { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.backup p { width: 100%; margin: 0; color: var(--muted); font-size: 14px; }
+
+/* Poste indicador con los tres datos principales */
+.signpost { display: grid; gap: 6px; margin: 16px 0 8px; }
+.plate {
+  position: relative; display: flex; align-items: baseline; justify-content: space-between;
+  background: var(--gr); color: #fff; padding: 10px 40px 10px 16px;
+  clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 50%, calc(100% - 26px) 100%, 0 100%);
+}
+.plate:nth-child(2) { background: var(--pr); color: #1E2B2A; margin-right: 22px; }
+.plate:nth-child(3) { background: var(--ink); color: var(--bg); margin-right: 44px; }
+.plate span { font-weight: 500; font-size: 16px; }
+.plate b { font-family: "Barlow Semi Condensed", sans-serif; font-weight: 700; font-size: 34px; line-height: 1; }
+.plate b small { font-size: 18px; font-weight: 600; margin-left: 3px; }
+
+.section { margin-top: 26px; }
+.section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.section-head h2 { margin: 0; }
+.toggle { font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.chart-box { position: relative; background: var(--panel); border-radius: 10px; padding: 8px 6px 4px; }
+#profile { display: block; width: 100%; height: 170px; touch-action: none; }
+.tip {
+  position: absolute; top: 6px; pointer-events: none; background: var(--ink); color: var(--bg);
+  font-size: 13px; padding: 4px 8px; border-radius: 6px; white-space: nowrap; display: none;
+}
+.facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1px; background: var(--line); border-radius: 10px; overflow: hidden; }
+.fact { background: var(--panel); padding: 10px 12px; }
+.fact span { display: block; color: var(--muted); font-size: 14px; }
+.fact b { font-family: "Barlow Semi Condensed", sans-serif; font-size: 24px; font-weight: 600; }
+
+.places { margin: 0; padding: 0; list-style: none; }
+.places li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); }
+.places li span { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.places li button { border: 0; background: none; padding: 0; text-align: left; font-weight: 500; }
+.note { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
+.btn-line { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 10px 14px; font-weight: 600; }
+.photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; margin-top: 10px; }
+.photos button { border: 0; padding: 0; background: var(--line); aspect-ratio: 1; border-radius: 6px; overflow: hidden; }
+.photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.lightbox { position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,.88); display: none; place-items: center; padding: 20px; }
+.lightbox.on { display: grid; }
+.lightbox img { max-width: 100%; max-height: 82vh; }
+.lightbox p { color: #fff; text-align: center; margin: 10px 0 0; }
+.lightbox .lb-actions { display: flex; justify-content: center; gap: 10px; margin-top: 12px; }
+.lightbox .lb-actions button { border: 1px solid rgba(255,255,255,.5); background: none; color: #fff; border-radius: 8px; padding: 8px 14px; font-weight: 600; }
+.pick-box { width: min(640px, 100%); max-height: 88vh; display: flex; flex-direction: column; }
+.pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; overflow-y: auto; padding: 2px; margin: 4px 0 0; }
+.pick-grid button { position: relative; border: 0; padding: 0; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: var(--line); }
+.pick-grid img { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity .15s; }
+.pick-grid button[aria-pressed="false"] img { opacity: .35; }
+.pick-grid button::after { content: ""; position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid #fff; background: rgba(0,0,0,.25); box-shadow: 0 1px 3px rgba(0,0,0,.5); }
+.pick-grid button[aria-pressed="true"]::after { background: var(--gr) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E") center / 16px no-repeat; }
+.pick-grid .pt { position: absolute; left: 4px; bottom: 4px; background: rgba(0,0,0,.6); color: #fff; font-size: 12px; padding: 1px 5px; border-radius: 4px; }
+.pick-tools { display: flex; gap: 8px; margin: 2px 0 8px; }
+.pick-tools button { border: 0; background: none; padding: 4px 0; color: var(--gr); font-weight: 600; font-size: 14px; }
+.busy { color: var(--muted); font-size: 14px; margin-top: 8px; }
+
+.toast {
+  position: fixed; z-index: 3000; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px; display: none; max-width: 90vw;
+}
+.toast.on { display: block; }
+
+/* Marcadores del mapa */
+.mk { width: 18px; height: 18px; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.5); }
+.mk.start { background: #2E7D4F; border-radius: 50%; }
+.mk.end { background: repeating-conic-gradient(#111 0 25%, #fff 0 50%) 0 0 / 8px 8px; }
+.km { background: #fff; color: #1E2B2A; border: 2px solid #C8102E; border-radius: 50%; width: 22px; height: 22px;
+  display: grid; place-items: center; font: 700 11px "Barlow Semi Condensed", sans-serif; }
+.walker { width: 20px; height: 20px; border-radius: 50%; background: #F2B705; border: 3px solid #1E2B2A; box-shadow: 0 0 0 4px rgba(242,183,5,.35); }
+.ph { width: 40px; height: 40px; border: 3px solid #fff; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,.45); background: #ccc; }
+.ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.town { background: none; border: 0; }
+.town div {
+  transform: translate(-50%, -50%); white-space: nowrap; font: 600 13px Barlow, sans-serif; color: #1E2B2A;
+  text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; display: inline-block;
+}
+.town div::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #1E2B2A; margin-right: 4px; vertical-align: 1px; }
+
+@media (min-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr) 440px; height: calc(100vh - 58px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+  .map-wrap { height: 100%; }
+  .panel { overflow-y: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .photo-pop { transition: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="brand" id="btnBrand" type="button" aria-label="Ir al inicio"><img class="brand-icon" src="icon-senda-192.png" alt="" width="28" height="28">Senda</button>
+  <button id="btnBack" type="button" hidden>Inicio</button>
+  <button id="btnMenu" type="button" aria-haspopup="true" aria-controls="drawer">Menú</button>
+</header>
+<input id="fileInput" type="file" multiple hidden>
+<input id="photoInput" type="file" accept="image/*" multiple hidden>
+<input id="backupInput" type="file" hidden>
+
+<main>
+  <section id="homeView" class="view on">
+    <div class="home-map-wrap" id="homeMapWrap" hidden><div id="homeMap"></div></div>
+    <div class="home">
+      <div id="homeHead" class="home-head" hidden>
+        <h1>Mis caminatas</h1>
+        <p id="homeSub"></p>
+        <div class="signpost" id="homeTotals"></div>
+      </div>
+      <div id="welcome" class="welcome" hidden>
+        <div class="welcome-sign" aria-hidden="true">
+          <div class="plate"><b>Cada ruta en su mapa</b></div>
+          <div class="plate"><b>Viajes por etapas</b></div>
+          <div class="plate"><b>Fotos y pueblos</b></div>
+        </div>
+        <h1>Tus caminatas, sobre el mapa</h1>
+        <p>Guarda cada ruta que haces con el reloj y revívela con su mapa, su perfil, tus fotos y los pueblos por los que pasaste.</p>
+        <ol class="steps">
+          <li>En Zepp, abre la actividad y expórtala, mejor en formato FIT.</li>
+          <li>Añádela aquí desde el menú.</li>
+          <li>Si haces varias etapas, como el Camino de Santiago, agrúpalas en un viaje.</li>
+        </ol>
+        <button class="btn-main" id="btnFirst" type="button">Añadir mi primera caminata</button>
+      </div>
+      <div id="homeList"></div>
+      <div class="home-foot danlab-sign"><span class="dl-box"><svg class="dl-sym" viewBox="-20 -20 280 280" aria-hidden="true" focusable="false"><defs><clipPath id="dlc3"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc3)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg></span><span>Senda, por <b>DanLab</b></span></div>
+    </div>
+  </section>
+
+  <section id="actView" class="view">
+    <div class="layout">
+      <div class="map-wrap">
+        <div id="map"></div>
+        <div class="live" id="live"></div>
+        <div class="legend" id="legend"></div>
+        <div class="photo-pop" id="photoPop"><img alt=""><span></span></div>
+        <div class="place-bar" id="placeBar" hidden>
+          <img alt="">
+          <div><b>¿Dónde hiciste esta foto?</b><span>Toca el punto en el mapa o en el perfil.</span><span class="pl-count"></span></div>
+          <button type="button" id="placeSkip">Saltar</button>
+          <button type="button" id="placeCancel">Terminar</button>
+        </div>
+        <div class="map-tools">
+          <button class="pill play" id="btnPlay" type="button">Reproducir</button>
+          <button class="pill" id="btnSpeed" type="button" aria-label="Velocidad de la animación">x1</button>
+          <select class="pill" id="colorMode" aria-label="Colorear la ruta por">
+            <option value="slope" selected>Color: pendiente</option>
+            <option value="stage" hidden>Color: etapas</option>
+            <option value="trail">Color: sendero</option>
+            <option value="ele">Color: altitud</option>
+            <option value="v">Color: velocidad</option>
+            <option value="hr">Color: pulso</option>
+          </select>
+          <button class="pill" id="btnFit" type="button">Encuadrar</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel">
+        <div class="title-block">
+          <div class="title-row" id="titleRow">
+            <h1 id="actTitle"></h1>
+            <button class="rename" id="btnRename" type="button">Cambiar título</button>
+          </div>
+          <p id="actSub"></p>
+          <button class="trip-link" id="tripLink" type="button" hidden></button>
+          <div class="trip-bar" id="tripBar">
+            <label for="tripSelect">Viaje</label>
+            <select id="tripSelect"></select>
+            <button class="del-act" id="btnDelAct" type="button">Borrar caminata</button>
+            <div class="trip-new" id="tripNew" hidden>
+              <input id="tripNewName" type="text" maxlength="60" placeholder="Nombre del viaje, p. ej. Camino Francés 2027" aria-label="Nombre del nuevo viaje">
+              <button class="btn-line" id="tripNewOk" type="button">Crear</button>
+            </div>
+          </div>
+        </div>
+        <div class="signpost" id="signpost"></div>
+
+        <div class="section" id="stagesSection" hidden>
+          <div class="section-head">
+            <h2>Etapas</h2>
+            <button class="btn-line" id="btnAddStage" type="button">Añadir etapa</button>
+          </div>
+          <ol class="stages" id="stages"></ol>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <h2>Perfil</h2>
+            <label class="toggle" id="hrToggleWrap"><input type="checkbox" id="hrToggle"> Ver pulso</label>
+          </div>
+          <div class="chart-box">
+            <canvas id="profile"></canvas>
+            <div class="tip" id="tip"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Más datos</h2>
+          <div class="facts" id="facts"></div>
+        </div>
+
+        <div class="section" id="photosSection">
+          <div class="section-head">
+            <h2>Fotos</h2>
+            <button class="btn-line" id="btnPhotos" type="button">Buscar fotos</button>
+          </div>
+          <div class="photos" id="photos"></div>
+          <p class="note" id="photoNote">Pulsa «Buscar fotos» y elige en la galería todas las fotos de ese día, sin preocuparte de cuáles: Senda se queda con las que hiciste durante la caminata y te deja marcar las que quieres publicar.</p>
+          <p class="busy" id="photoBusy" hidden></p>
+          <button class="trip-link" id="btnPhotosManual" type="button" hidden>Elegir fotos a mano</button>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <h2 id="townsTitle">Poblaciones cercanas</h2>
+            <label class="toggle"><input type="checkbox" id="townToggle" checked> En el mapa</label>
+          </div>
+          <ul class="places" id="places"></ul>
+          <p class="note" id="placesNote">Buscando…</p>
+        </div>
+
+        <div class="trip-actions" id="tripActions" hidden>
+          <button class="btn-line" id="btnDelTrip" type="button">Borrar viaje</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<nav class="drawer" id="drawer" aria-label="Menú" aria-hidden="true">
+  <div class="drawer-head">
+    <span class="brand"><img class="brand-icon" src="icon-senda-192.png" alt="" width="28" height="28">Senda</span>
+    <button class="drawer-close" id="drawerClose" type="button">Cerrar</button>
+  </div>
+  <button class="item" data-act="home" type="button">Inicio</button>
+  <h3>Añadir</h3>
+  <button class="item primary" data-act="add" type="button">Añadir caminata</button>
+  <button class="item" data-act="trip" type="button">Nuevo viaje</button>
+  <h3>Copias de seguridad</h3>
+  <button class="item" data-act="backup" type="button">Guardar copia</button>
+  <button class="item" data-act="backupPhotos" type="button">Guardar copia con fotos</button>
+  <button class="item" data-act="restore" type="button">Recuperar copia</button>
+  <button class="item" data-act="install" type="button" id="menuInstall" hidden>Instalar en el móvil</button>
+  <h3>Senda</h3>
+  <button class="item" data-act="about" type="button">Acerca de Senda</button>
+  <p class="drawer-note">Tus caminatas se guardan en este navegador. Guarda una copia de vez en cuando por si borras los datos o cambias de móvil. La copia con fotos ocupa más, pero lo guarda todo.</p>
+  <div class="drawer-foot">
+    <div class="danlab-sign"><span class="dl-box"><svg class="dl-sym" viewBox="-20 -20 280 280" aria-hidden="true" focusable="false"><defs><clipPath id="dlc1"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc1)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg></span><span>Senda, por <b>DanLab</b></span></div>
+    <p style="margin:8px 0 0">Versión <span class="app-ver"></span></p>
+  </div>
+</nav>
+<div class="modal" id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
+  <div class="modal-box about-box">
+    <div class="about-logo"><svg class="dl-sym" viewBox="-20 -20 280 280" aria-hidden="true" focusable="false"><defs><clipPath id="dlc2"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc2)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg></div>
+    <h2 id="aboutTitle">Senda</h2>
+    <p class="ver">Versión <span class="app-ver"></span></p>
+    <p class="by">Una app de DanLab</p>
+    <p>Tus caminatas y viajes por etapas sobre el mapa, con su perfil, su animación, tus fotos y los pueblos por los que pasaste. Lee los archivos GPX, TCX y FIT que exporta Zepp.</p>
+    <p>Mapas de OpenStreetMap y OpenTopoMap. Poblaciones de OpenStreetMap.</p>
+    <div class="modal-actions"><button class="btn-line" id="aboutUpdate" type="button" hidden>Buscar actualizaciones</button><button class="btn-main" id="aboutClose" type="button">Cerrar</button></div>
+  </div>
+</div>
+<div class="modal" id="tripModal" role="dialog" aria-modal="true" aria-labelledby="tripModalTitle">
+  <div class="modal-box">
+    <h2 id="tripModalTitle">Nuevo viaje</h2>
+    <p>Un viaje agrupa varias caminatas como etapas, por ejemplo el Camino de Santiago.</p>
+    <input id="tripModalName" type="text" maxlength="60" placeholder="Camino Francés 2027" aria-label="Nombre del viaje">
+    <div class="modal-actions">
+      <button class="btn-line" id="tripModalCancel" type="button">Cancelar</button>
+      <button class="btn-main" id="tripModalOk" type="button">Crear y elegir etapas</button>
+    </div>
+  </div>
+</div>
+<div class="update-bar" id="updateBar" hidden role="status">
+  <div><b>Hay una versión nueva de Senda</b><span id="updateText"></span></div>
+  <button type="button" class="btn-main" id="updateGo">Descargar</button>
+  <button type="button" class="btn-line" id="updateLater">Ahora no</button>
+</div>
+<div class="lightbox" id="lightbox" role="dialog" aria-label="Foto"><div><img alt=""><p></p>
+  <div class="lb-actions"><button id="lbClose" type="button">Cerrar</button><button id="lbDelete" type="button">Quitar foto</button></div></div></div>
+<div class="modal" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+  <div class="modal-box pick-box">
+    <h2 id="pickTitle">Fotos de esta caminata</h2>
+    <p id="pickInfo"></p>
+    <div class="pick-tools"><button id="pickAll" type="button">Marcar todas</button><button id="pickNone" type="button">Desmarcar todas</button></div>
+    <div class="pick-grid" id="pickGrid"></div>
+    <div class="modal-actions">
+      <button class="btn-line" id="pickCancel" type="button">Cancelar</button>
+      <button class="btn-main" id="pickOk" type="button">Publicar</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="capacitor.js"></script>
+<script src="lib/leaflet/leaflet.js"></script>
+<script src="lib/exifr/lite.umd.js"></script>
+<script>
+// ===== Lectura de archivos de actividad (GPX, TCX, FIT) =====
+const FIT_EPOCH = 631065600; // 1989-12-31 en segundos Unix
+
+function parseFIT(buffer) {
+  const dv = new DataView(buffer);
+  const headerSize = dv.getUint8(0);
+  const dataSize = dv.getUint32(4, true);
+  const sig = String.fromCharCode(dv.getUint8(8), dv.getUint8(9), dv.getUint8(10), dv.getUint8(11));
+  if (sig !== '.FIT') throw new Error('El archivo no parece un FIT válido.');
+  let p = headerSize;
+  const end = Math.min(headerSize + dataSize, buffer.byteLength - 2);
+  const defs = {};
+  let lastTs = 0;
+  const points = [];
+  let session = null;
+  let deviceName = null;
+
+  const SIZES = { 0: 1, 1: 1, 2: 1, 3: 2, 4: 2, 5: 4, 6: 4, 7: 1, 8: 4, 9: 8, 10: 1, 11: 2, 12: 4, 13: 1, 14: 8, 15: 8, 16: 8 };
+  function readVal(off, base, size, le) {
+    const t = base & 0x1f;
+    if (t === 7) {
+      let s = '';
+      for (let i = 0; i < size; i++) { const c = dv.getUint8(off + i); if (!c) break; s += String.fromCharCode(c); }
+      return s || null;
+    }
+    const bs = SIZES[t] || 1;
+    if (size < bs) return null;
+    let v;
+    switch (t) {
+      case 0: case 2: case 10: case 13: v = dv.getUint8(off); if ((t !== 10 && v === 0xff) || (t === 10 && v === 0)) return null; return v;
+      case 1: v = dv.getInt8(off); return v === 0x7f ? null : v;
+      case 3: v = dv.getInt16(off, le); return v === 0x7fff ? null : v;
+      case 4: case 11: v = dv.getUint16(off, le); if ((t === 4 && v === 0xffff) || (t === 11 && v === 0)) return null; return v;
+      case 5: v = dv.getInt32(off, le); return v === 0x7fffffff ? null : v;
+      case 6: case 12: v = dv.getUint32(off, le); if ((t === 6 && v === 0xffffffff) || (t === 12 && v === 0)) return null; return v;
+      case 8: v = dv.getFloat32(off, le); return isFinite(v) ? v : null;
+      case 9: v = dv.getFloat64(off, le); return isFinite(v) ? v : null;
+      default: return null;
+    }
+  }
+
+  while (p < end) {
+    const h = dv.getUint8(p++);
+    if (h & 0x80) { // cabecera de tiempo comprimido
+      const local = (h >> 5) & 3;
+      const off = h & 0x1f;
+      let ts = (lastTs & ~0x1f) + off;
+      if (off < (lastTs & 0x1f)) ts += 0x20;
+      lastTs = ts;
+      p = readData(local, p, ts);
+    } else if (h & 0x40) { // definición
+      const local = h & 0x0f;
+      const hasDev = h & 0x20;
+      p++; // reservado
+      const le = dv.getUint8(p++) === 0;
+      const global = dv.getUint16(p, le); p += 2;
+      const n = dv.getUint8(p++);
+      const fields = [];
+      for (let i = 0; i < n; i++) { fields.push([dv.getUint8(p), dv.getUint8(p + 1), dv.getUint8(p + 2)]); p += 3; }
+      let devBytes = 0;
+      if (hasDev) {
+        const nd = dv.getUint8(p++);
+        for (let i = 0; i < nd; i++) { devBytes += dv.getUint8(p + 1); p += 3; }
+      }
+      defs[local] = { le, global, fields, devBytes };
+    } else {
+      p = readData(h & 0x0f, p, null);
+    }
+  }
+
+  function readData(local, p, compTs) {
+    const d = defs[local];
+    if (!d) throw new Error('FIT dañado: falta una definición.');
+    const v = {};
+    for (const [num, size, base] of d.fields) {
+      v[num] = readVal(p, base, size, d.le);
+      p += size;
+    }
+    p += d.devBytes;
+    if (v[253] != null) lastTs = v[253];
+    const ts = v[253] != null ? v[253] : compTs;
+    if (d.global === 20) {
+      const lat = v[0] != null ? v[0] * 180 / 2147483648 : null;
+      const lon = v[1] != null ? v[1] * 180 / 2147483648 : null;
+      let ele = v[78] != null ? v[78] / 5 - 500 : (v[2] != null ? v[2] / 5 - 500 : null);
+      let spd = v[73] != null ? v[73] / 1000 : (v[6] != null ? v[6] / 1000 : null);
+      points.push({
+        lat, lon, ele,
+        t: ts != null ? (ts + FIT_EPOCH) * 1000 : null,
+        hr: v[3] || null,
+        cad: v[4] != null ? v[4] : null,
+        dist: v[5] != null ? v[5] / 100 : null,
+        spd
+      });
+    } else if (d.global === 18) {
+      session = {
+        elapsed: v[7] != null ? v[7] / 1000 : null,
+        timer: v[8] != null ? v[8] / 1000 : null,
+        distance: v[9] != null ? v[9] / 100 : null,
+        calories: v[11],
+        avgHr: v[16], maxHr: v[17],
+        ascent: v[22], descent: v[23],
+        sport: v[5]
+      };
+    } else if (d.global === 23 || d.global === 0) {
+      // device_info (23) / file_id (0): nombre de producto en campo 27 / 8
+      const nm = v[27] || v[8];
+      if (typeof nm === 'string' && !deviceName) deviceName = nm;
+    }
+    return p;
+  }
+
+  const SPORTS = { 1: 'Carrera', 2: 'Ciclismo', 11: 'Caminata', 16: 'Montañismo', 17: 'Senderismo', 31: 'Escalada' };
+  return {
+    name: null,
+    sport: session && SPORTS[session.sport] || null,
+    device: deviceName,
+    points: points.filter(q => q.lat != null && q.lon != null),
+    session
+  };
+}
+
+function parseXML(text) {
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) throw new Error('El archivo XML está dañado.');
+  return doc;
+}
+function firstNum(el, local) {
+  const n = el.getElementsByTagNameNS('*', local)[0];
+  if (!n) return null;
+  const v = parseFloat(n.textContent);
+  return isFinite(v) ? v : null;
+}
+
+function parseGPX(text) {
+  const doc = parseXML(text);
+  const pts = [...doc.getElementsByTagNameNS('*', 'trkpt')];
+  const usePts = pts.length ? pts : [...doc.getElementsByTagNameNS('*', 'rtept')];
+  const nameEl = doc.getElementsByTagNameNS('*', 'name')[0];
+  const gpx = doc.documentElement;
+  const points = usePts.map(el => {
+    const tEl = el.getElementsByTagNameNS('*', 'time')[0];
+    return {
+      lat: parseFloat(el.getAttribute('lat')),
+      lon: parseFloat(el.getAttribute('lon')),
+      ele: firstNum(el, 'ele'),
+      t: tEl ? Date.parse(tEl.textContent) : null,
+      hr: firstNum(el, 'hr'),
+      cad: firstNum(el, 'cad'),
+      spd: firstNum(el, 'speed'),
+      dist: null
+    };
+  }).filter(q => isFinite(q.lat) && isFinite(q.lon));
+  return {
+    name: nameEl ? nameEl.textContent.trim() : null,
+    sport: null,
+    device: gpx.getAttribute('creator'),
+    points,
+    session: null
+  };
+}
+
+function parseTCX(text) {
+  const doc = parseXML(text);
+  const tps = [...doc.getElementsByTagNameNS('*', 'Trackpoint')];
+  const points = tps.map(el => {
+    const tEl = el.getElementsByTagNameNS('*', 'Time')[0];
+    const hrEl = el.getElementsByTagNameNS('*', 'HeartRateBpm')[0];
+    return {
+      lat: firstNum(el, 'LatitudeDegrees'),
+      lon: firstNum(el, 'LongitudeDegrees'),
+      ele: firstNum(el, 'AltitudeMeters'),
+      t: tEl ? Date.parse(tEl.textContent) : null,
+      hr: hrEl ? firstNum(hrEl, 'Value') : null,
+      cad: firstNum(el, 'Cadence') ?? firstNum(el, 'RunCadence'),
+      dist: firstNum(el, 'DistanceMeters'),
+      spd: firstNum(el, 'Speed')
+    };
+  }).filter(q => q.lat != null && q.lon != null);
+  const act = doc.getElementsByTagNameNS('*', 'Activity')[0];
+  let cal = 0;
+  for (const l of doc.getElementsByTagNameNS('*', 'Lap')) cal += firstNum(l, 'Calories') || 0;
+  return {
+    name: null,
+    sport: act ? act.getAttribute('Sport') : null,
+    device: null,
+    points,
+    session: cal ? { calories: cal } : null
+  };
+}
+
+// ===== Cálculos =====
+function haversine(a, b) {
+  const R = 6371000, r = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * r, dLon = (b.lon - a.lon) * r;
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
+function smooth(arr, win) {
+  const out = new Array(arr.length);
+  const half = Math.floor(win / 2);
+  for (let i = 0; i < arr.length; i++) {
+    // ventana centrada (implementación simple)
+    let s = 0, c = 0;
+    for (let j = Math.max(0, i - half); j <= Math.min(arr.length - 1, i + half); j++) {
+      if (arr[j] != null) { s += arr[j]; c++; }
+    }
+    out[i] = c ? s / c : null;
+  }
+  return out;
+}
+
+function analyze(act) {
+  const P = act.points;
+  if (P.length < 2) throw new Error('El archivo no tiene puntos de ruta suficientes.');
+  // Distancia acumulada: la del reloj si existe, si no, calculada
+  const hasDevDist = P.filter(q => q.dist != null).length > P.length * 0.8;
+  let acc = 0;
+  P[0].d = hasDevDist ? (P[0].dist || 0) : 0;
+  for (let i = 1; i < P.length; i++) {
+    if (hasDevDist && P[i].dist != null) {
+      P[i].d = Math.max(P[i].dist, P[i - 1].d);
+    } else {
+      acc = P[i - 1].d + haversine(P[i - 1], P[i]);
+      P[i].d = acc;
+    }
+  }
+  // Altitud suavizada y desnivel con histéresis
+  const eleS = smooth(P.map(q => q.ele), 5);
+  P.forEach((q, i) => q.es = eleS[i]);
+  let up = 0, down = 0, ref = null;
+  const TH = 1;
+  for (const q of P) {
+    if (q.es == null) continue;
+    if (ref == null) { ref = q.es; continue; }
+    const diff = q.es - ref;
+    if (diff >= TH) { up += diff; ref = q.es; }
+    else if (diff <= -TH) { down -= diff; ref = q.es; }
+  }
+  // Velocidad suavizada (ventana de ~30 puntos) y pendiente
+  const hasTime = P[0].t != null && P[P.length - 1].t != null;
+  for (let i = 0; i < P.length; i++) {
+    const a = P[Math.max(0, i - 15)], b = P[Math.min(P.length - 1, i + 15)];
+    const dt = hasTime ? (b.t - a.t) / 1000 : 0;
+    P[i].v = dt > 0 ? (b.d - a.d) / dt : null;
+    const dd = b.d - a.d;
+    P[i].slope = dd > 5 && a.es != null && b.es != null ? (b.es - a.es) / dd * 100 : 0;
+  }
+  // Tiempos
+  let elapsed = hasTime ? (P[P.length - 1].t - P[0].t) / 1000 : null;
+  let moving = 0;
+  if (hasTime) {
+    for (let i = 1; i < P.length; i++) {
+      const dt = (P[i].t - P[i - 1].t) / 1000;
+      const dd = P[i].d - P[i - 1].d;
+      if (dt > 0 && dt < 60 && dd / dt > 0.15) moving += dt;
+    }
+  }
+  const S = act.session || {};
+  const distance = S.distance || P[P.length - 1].d - P[0].d;
+  const hrs = P.map(q => q.hr).filter(Boolean);
+  const eles = P.map(q => q.ele).filter(v => v != null);
+  return {
+    name: act.name,
+    sport: act.sport,
+    device: act.device,
+    start: P[0].t,
+    end: P[P.length - 1].t,
+    points: P,
+    distance,
+    elapsed: S.elapsed || elapsed,
+    moving: hasTime ? moving : null,
+    ascent: S.ascent != null ? S.ascent : Math.round(up),
+    descent: S.descent != null ? S.descent : Math.round(down),
+    eleMax: eles.length ? Math.max(...eles) : null,
+    eleMin: eles.length ? Math.min(...eles) : null,
+    hrAvg: S.avgHr || (hrs.length ? Math.round(hrs.reduce((a, b) => a + b, 0) / hrs.length) : null),
+    hrMax: S.maxHr || (hrs.length ? Math.max(...hrs) : null),
+    calories: S.calories || null,
+    hasHr: hrs.length > P.length * 0.3,
+    hasTime
+  };
+}
+
+
+
+</script>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const STORE_KEY = 'senda.historial.v1';
+const TRIP_KEY = 'senda.viajes.v1';
+const APP_VERSION = '1.6';
+// Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
+const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
+const CAP = window.Capacitor;
+const NATIVE = !!(CAP && CAP.isNativePlatform && CAP.isNativePlatform());
+const NativePhotos = NATIVE ? CAP.registerPlugin('SendaPhotos') : null;
+const NativeFS = NATIVE ? CAP.registerPlugin('Filesystem') : null;
+const NativeShare = NATIVE ? CAP.registerPlugin('Share') : null;
+document.querySelectorAll('.app-ver').forEach(el => el.textContent = APP_VERSION);
+const STAGE_COLORS = ['#C8102E', '#2F6DB5', '#E8A100', '#2E7D4F', '#7B4FA0', '#E8711A', '#1C8C9C', '#B0306E'];
+let pendingTripId = null;
+let A = null;          // actividad analizada
+let map, routeLayer, markersLayer, townLayer, photoLayer, progressLine, walker;
+let photos = [];       // {url, idx, time, name}
+let towns = [];
+let anim = { on: false, f: 0, speedIdx: 1, last: 0, pauseUntil: 0, shown: new Set() };
+const SPEEDS = [0.5, 1, 2, 4];
+const baseSeconds = () => !A ? 40 : A.isTrip ? Math.min(180, 60 + A.stages.length * 3) : Math.min(180, Math.max(40, 20 + A.distance / 1000 * 8));
+
+// ---------- Fotos guardadas (IndexedDB) ----------
+const PHOTO_DB = 'senda-fotos', PHOTO_STORE = 'fotos';
+let dbPromise = null;
+function photoDb() {
+  if (!dbPromise) dbPromise = new Promise((res, rej) => {
+    const r = indexedDB.open(PHOTO_DB, 1);
+    r.onupgradeneeded = () => { const s = r.result.createObjectStore(PHOTO_STORE, { keyPath: 'id' }); s.createIndex('act', 'act'); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  return dbPromise;
+}
+async function photoTx(mode, fn) {
+  const db = await photoDb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(PHOTO_STORE, mode);
+    const out = fn(tx.objectStore(PHOTO_STORE));
+    tx.oncomplete = () => res(out && out.result !== undefined ? out.result : undefined);
+    tx.onerror = () => rej(tx.error);
+    tx.onabort = () => rej(tx.error);
+  });
+}
+const photoPut = rec => photoTx('readwrite', s => s.put(rec));
+const photoDelete = id => photoTx('readwrite', s => s.delete(id));
+async function photosForActivity(actId) {
+  try { return await photoTx('readonly', s => s.index('act').getAll(actId)) || []; }
+  catch (e) { console.error(e); return []; }
+}
+async function photosDeleteActivity(actId) {
+  const list = await photosForActivity(actId);
+  for (const p of list) await photoDelete(p.id);
+}
+async function resizeImage(file, max, quality) {
+  let bmp;
+  try { bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+  catch { bmp = await createImageBitmap(file); }
+  const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas');
+  c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close && bmp.close();
+  return new Promise(res => c.toBlob(res, 'image/jpeg', quality));
+}
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+
+// ---------- Formato ----------
+const fmtKm = m => (m / 1000).toLocaleString('es-ES', { minimumFractionDigits: m >= 10000 ? 1 : 2, maximumFractionDigits: m >= 10000 ? 1 : 2 });
+const fmtNum = n => n == null ? '–' : Math.round(n).toLocaleString('es-ES');
+function fmtDur(s) {
+  if (s == null) return '–';
+  s = Math.round(s);
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60;
+  return h ? `${h} h ${String(m).padStart(2, '0')} min` : `${m} min ${String(ss).padStart(2, '0')} s`;
+}
+function fmtClock(s) {
+  s = Math.max(0, Math.round(s));
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60;
+  return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(ss).padStart(2, '0');
+}
+function fmtPace(secPerKm) {
+  if (!secPerKm || !isFinite(secPerKm)) return '–';
+  const m = Math.floor(secPerKm / 60), s = Math.round(secPerKm % 60);
+  return `${m}:${String(s).padStart(2, '0')} /km`;
+}
+const fmtDate = t => t ? new Date(t).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '';
+const fmtHour = t => t ? new Date(t).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
+
+function toast(msg, ms = 3500) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), ms);
+}
+
+// ---------- Historial ----------
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch { return []; }
+}
+function saveHistory(list) {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(list)); return true; }
+  catch { toast('No queda espacio para guardar más caminatas en el historial.'); return false; }
+}
+function packActivity(a) {
+  const step = Math.max(1, Math.ceil(a.points.length / 1500));
+  const pts = [];
+  for (let i = 0; i < a.points.length; i += step) {
+    const q = a.points[i];
+    pts.push([+q.lat.toFixed(6), +q.lon.toFixed(6), q.ele == null ? null : +q.ele.toFixed(1), q.t, q.hr || 0, +q.d.toFixed(1)]);
+  }
+  const lastP = a.points[a.points.length - 1];
+  if (step > 1) pts.push([lastP.lat, lastP.lon, lastP.ele, lastP.t, lastP.hr || 0, lastP.d]);
+  return {
+    id: String(a.start || Date.now()) + '-' + Math.round(a.distance),
+    name: a.name, title: a.title || null, sport: a.sport, device: a.device,
+    session: { distance: a.distance, elapsed: a.elapsed, ascent: a.ascent, descent: a.descent, calories: a.calories, avgHr: a.hrAvg, maxHr: a.hrMax },
+    moving: a.moving, pts
+  };
+}
+function unpackActivity(e) {
+  const act = {
+    name: e.name, sport: e.sport, device: e.device, session: e.session,
+    points: e.pts.map(p => ({ lat: p[0], lon: p[1], ele: p[2], t: p[3], hr: p[4] || null, dist: p[5], cad: null, spd: null }))
+  };
+  const a = analyze(act);
+  if (e.moving != null) a.moving = e.moving;
+  a.id = e.id; a.title = e.title || null; a.tripId = e.tripId || null; a.cachedTowns = e.towns || null;
+  return a;
+}
+function storeActivity(a) {
+  const list = loadHistory();
+  const packed = packActivity(a);
+  a.id = packed.id;
+  const i = list.findIndex(x => x.id === packed.id);
+  if (i >= 0) { packed.towns = list[i].towns; packed.title = packed.title || list[i].title || null; packed.tripId = list[i].tripId || null; list[i] = packed; } else list.unshift(packed);
+  if (pendingTripId && loadTrips().some(x => x.id === pendingTripId)) packed.tripId = pendingTripId;
+  a.title = packed.title; a.tripId = packed.tripId || null;
+  list.sort((x, y) => (y.pts[0][3] || 0) - (x.pts[0][3] || 0));
+  saveHistory(list);
+}
+function loadTrips() {
+  try { return JSON.parse(localStorage.getItem(TRIP_KEY)) || []; } catch { return []; }
+}
+function saveTrips(list) {
+  try { localStorage.setItem(TRIP_KEY, JSON.stringify(list)); return true; }
+  catch { toast('No queda espacio para guardar el viaje.'); return false; }
+}
+function createTrip(name) {
+  const trip = { id: 'v' + Date.now(), name, created: Date.now() };
+  const list = loadTrips(); list.push(trip); saveTrips(list);
+  return trip;
+}
+function tripStages(tripId, list = loadHistory()) {
+  return list.filter(e => e.tripId === tripId).sort((x, y) => (x.pts[0][3] || 0) - (y.pts[0][3] || 0));
+}
+function setActivityTrip(actId, tripId) {
+  const list = loadHistory(); const e = list.find(x => x.id === actId);
+  if (e) { e.tripId = tripId || null; saveHistory(list); }
+}
+
+let homeMap = null, homeLayer = null;
+function renderHistory() {
+  const list = loadHistory();
+  const trips = loadTrips();
+  const has = list.length > 0 || trips.length > 0;
+  $('welcome').hidden = has; $('homeHead').hidden = !list.length; $('homeMapWrap').hidden = !list.length;
+  const box = $('homeList'); box.innerHTML = '';
+  if (!has) return;
+
+  // Totales
+  const km = list.reduce((s, e) => s + (e.session.distance || 0), 0);
+  const up = list.reduce((s, e) => s + (e.session.ascent || 0), 0);
+  const secs = list.reduce((s, e) => s + (e.session.elapsed || 0), 0);
+  $('homeSub').textContent = `${list.length} ${list.length === 1 ? 'caminata guardada' : 'caminatas guardadas'}` +
+    (trips.length ? ` y ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : '');
+  const tot = $('homeTotals'); tot.innerHTML = '';
+  const hh = Math.floor(secs / 3600), mm = Math.round(secs % 3600 / 60);
+  for (const [l, v, u] of [['Distancia total', fmtKm(km), 'km'], ['Tiempo total', `${hh}:${String(mm).padStart(2, '0')}`, 'h'], ['Desnivel total', '+' + fmtNum(up), 'm']]) {
+    const d = document.createElement('div'); d.className = 'plate';
+    const s = document.createElement('span'); s.textContent = l;
+    const b = document.createElement('b'); b.textContent = v;
+    const sm = document.createElement('small'); sm.textContent = u; b.appendChild(sm);
+    d.append(s, b); tot.appendChild(d);
+  }
+
+  // Lista combinada: viajes y caminatas sueltas, lo más reciente primero
+  const tripIds = new Set(trips.map(x => x.id));
+  const items = [];
+  for (const trip of trips) {
+    const st = tripStages(trip.id, list);
+    items.push({ kind: 'trip', trip, st, date: st.length ? st[st.length - 1].pts[0][3] : trip.created });
+  }
+  for (const e of list) if (!e.tripId || !tripIds.has(e.tripId)) items.push({ kind: 'walk', e, date: e.pts[0][3] || 0 });
+  items.sort((a, b) => (b.date || 0) - (a.date || 0));
+
+  const h = document.createElement('h2'); h.className = 'list-title'; h.textContent = 'Historial'; box.appendChild(h);
+  const shortDate = t => t ? new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  for (const it of items) {
+    const row = document.createElement('button'); row.type = 'button'; row.className = 'walk-row';
+    const st = document.createElement('strong');
+    const sub = document.createElement('span'); sub.className = 'w-sub';
+    const kmEl = document.createElement('span'); kmEl.className = 'w-km';
+    if (it.kind === 'trip') {
+      row.classList.add('is-trip');
+      const n = it.st.length;
+      const tkm = it.st.reduce((s, e) => s + (e.session.distance || 0), 0);
+      const tup = it.st.reduce((s, e) => s + (e.session.ascent || 0), 0);
+      st.textContent = it.trip.name;
+      const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = 'Viaje'; st.appendChild(tag);
+      sub.textContent = n ? `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${shortDate(it.st[0].pts[0][3])} al ${shortDate(it.st[n - 1].pts[0][3])}, +${fmtNum(tup)} m` : 'Sin etapas todavía';
+      kmEl.textContent = n ? fmtKm(tkm) : '';
+      row.onclick = () => showTrip(it.trip.id);
+    } else {
+      const e = it.e;
+      st.textContent = titleFor(e.name, e.pts[0][3], e.sport, e.title);
+      sub.textContent = `${shortDate(e.pts[0][3])}, ${fmtDur(e.session.elapsed)}, +${fmtNum(e.session.ascent)} m`;
+      kmEl.textContent = fmtKm(e.session.distance);
+      row.onclick = () => showActivity(unpackActivity(e), false);
+    }
+    if (kmEl.textContent) { const sm = document.createElement('small'); sm.textContent = 'km'; kmEl.appendChild(sm); }
+    row.append(st, kmEl, sub); box.appendChild(row);
+  }
+  drawHomeMap(list, tripIds);
+}
+function drawHomeMap(list, tripIds) {
+  if (!list.length) return;
+  if (!homeMap) {
+    homeMap = L.map('homeMap', { preferCanvas: true, zoomControl: false, attributionControl: true });
+    satelliteLayer().addTo(homeMap);
+    homeLayer = L.layerGroup().addTo(homeMap);
+  }
+  setTimeout(() => {
+    homeMap.invalidateSize();
+    homeLayer.clearLayers();
+    const all = [];
+    for (const e of list) {
+      const ll = e.pts.filter((_, i) => i % 4 === 0).map(p => [p[0], p[1]]);
+      if (ll.length < 2) continue;
+      all.push(...ll);
+      const open = () => {
+        if (e.tripId && tripIds.has(e.tripId)) showTrip(e.tripId); else showActivity(unpackActivity(e), false);
+      };
+      L.polyline(ll, { color: '#ffffff', weight: 7, opacity: .9 }).addTo(homeLayer).on('click', open);
+      L.polyline(ll, { color: '#C8102E', weight: 3.5 }).addTo(homeLayer).on('click', open);
+      L.circleMarker(ll[0], { radius: 5, color: '#fff', weight: 2, fillColor: '#C8102E', fillOpacity: 1 }).addTo(homeLayer).on('click', open);
+    }
+    if (all.length) homeMap.fitBounds(L.latLngBounds(all), { padding: [28, 28], maxZoom: 15 });
+  }, 30);
+}
+function blobToB64(blob) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
+}
+function b64ToBlob(b64, type = 'image/jpeg') {
+  const bin = atob(b64); const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type });
+}
+async function allPhotoRecords() {
+  try { return await photoTx('readonly', s => s.getAll()) || []; } catch { return []; }
+}
+async function exportBackup(withPhotos) {
+  const name = 'senda-copia-' + (withPhotos ? 'con-fotos-' : '') + new Date().toISOString().slice(0, 10) + '.json';
+  const head = '{"app":"senda","version":3,"caminatas":' + JSON.stringify(loadHistory()) + ',"viajes":' + JSON.stringify(loadTrips()) + ',"fotos":[';
+  const recs = withPhotos ? await allPhotoRecords() : [];
+  if (withPhotos) toast(recs.length ? `Preparando la copia con ${recs.length} fotos…` : 'No hay fotos guardadas; la copia irá sin fotos.', 8000);
+  try {
+    if (NATIVE) {
+      await NativeFS.writeFile({ path: name, data: head, directory: 'CACHE', encoding: 'utf8' });
+      for (let i = 0; i < recs.length; i++) {
+        const r = recs[i];
+        const item = (i ? ',' : '') + JSON.stringify({ id: r.id, act: r.act, time: r.time, lat: r.lat, lon: r.lon, src: r.src || null, data: await blobToB64(r.blob) });
+        await NativeFS.appendFile({ path: name, data: item, directory: 'CACHE', encoding: 'utf8' });
+      }
+      await NativeFS.appendFile({ path: name, data: ']}', directory: 'CACHE', encoding: 'utf8' });
+      const { uri } = await NativeFS.getUri({ path: name, directory: 'CACHE' });
+      await NativeShare.share({ title: 'Copia de Senda', text: 'Copia de seguridad de Senda', files: [uri], dialogTitle: 'Guardar la copia de Senda' });
+      toast('Elige dónde guardar la copia: Drive, Archivos, correo…', 5000);
+      return;
+    }
+    const parts = [head];
+    for (let i = 0; i < recs.length; i++) {
+      const r = recs[i];
+      parts.push((i ? ',' : '') + JSON.stringify({ id: r.id, act: r.act, time: r.time, lat: r.lat, lon: r.lon, src: r.src || null, data: await blobToB64(r.blob) }));
+    }
+    parts.push(']}');
+    const blob = new Blob(parts, { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast('Copia guardada en Descargas.');
+  } catch (e) {
+    console.error(e);
+    if (e && /cancel/i.test(String(e.message || e))) return;
+    toast('No se pudo guardar la copia.');
+  }
+}
+async function importBackup(file) {
+  try {
+    const data = JSON.parse(await file.text());
+    const incoming = Array.isArray(data.caminatas) ? data.caminatas : null;
+    if (!incoming) throw new Error();
+    const list = loadHistory();
+    let added = 0;
+    for (const e of incoming) {
+      if (!e || !e.id || !Array.isArray(e.pts)) continue;
+      if (!list.some(x => x.id === e.id)) { list.push(e); added++; }
+    }
+    list.sort((x, y) => (y.pts[0][3] || 0) - (x.pts[0][3] || 0));
+    if (Array.isArray(data.viajes)) {
+      const tl = loadTrips();
+      for (const v of data.viajes) if (v && v.id && !tl.some(x => x.id === v.id)) tl.push(v);
+      saveTrips(tl);
+    }
+    let photosAdded = 0;
+    if (Array.isArray(data.fotos) && data.fotos.length) {
+      const have = new Set((await allPhotoRecords()).map(r => r.id));
+      for (const f of data.fotos) {
+        if (!f || !f.id || !f.data || have.has(f.id)) continue;
+        try { await photoPut({ id: f.id, act: f.act, time: f.time, lat: f.lat, lon: f.lon, src: f.src || null, blob: b64ToBlob(f.data) }); photosAdded++; } catch (e) { console.error(e); }
+      }
+    }
+    if (saveHistory(list)) toast((added ? `${added} caminata(s) recuperadas` : 'Las caminatas ya estaban en el historial') + (photosAdded ? ` y ${photosAdded} foto(s).` : '.'), 5000);
+    renderHistory();
+  } catch {
+    toast('Ese archivo no es una copia de Senda.');
+  }
+}
+function startRename() {
+  const row = $('titleRow');
+  if (row.querySelector('input')) return;
+  const h = $('actTitle');
+  const input = document.createElement('input');
+  input.className = 'title-input'; input.type = 'text'; input.maxLength = 80;
+  input.value = h.textContent; input.setAttribute('aria-label', 'Título de la caminata');
+  h.style.display = 'none'; $('btnRename').textContent = 'Guardar';
+  row.insertBefore(input, h);
+  input.focus(); input.select();
+  let done = false;
+  const finish = save => {
+    if (done) return; done = true;
+    if (save) {
+      const v = input.value.trim();
+      if (A.isTrip) {
+        if (v) {
+          const tl = loadTrips(); const tr = tl.find(x => x.id === A.trip.id);
+          if (tr) { tr.name = v; saveTrips(tl); A.trip.name = v; A.name = v; }
+        }
+      } else {
+        A.title = v || null;
+        const list = loadHistory(); const e = list.find(x => x.id === A.id);
+        if (e) { e.title = A.title; saveHistory(list); }
+      }
+    }
+    input.remove(); h.style.display = ''; $('btnRename').textContent = A.isTrip ? 'Cambiar nombre' : 'Cambiar título';
+    h.textContent = A.isTrip ? A.name : titleFor(A.name, A.start, A.sport, A.title);
+  };
+  input.addEventListener('keydown', ev => { if (ev.key === 'Enter') finish(true); if (ev.key === 'Escape') finish(false); });
+  input.addEventListener('blur', () => finish(true));
+}
+function titleFor(name, t, sport, custom) {
+  if (custom) return custom;
+  if (name && !/^\d{8}\s/.test(name)) return name;
+  const d = t ? new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : '';
+  const word = name ? name.replace(/^\d{8}\s*/, '') : (sport || 'Caminata');
+  return `${word || 'Caminata'} del ${d}`;
+}
+
+// ---------- Carga de archivos ----------
+async function readActivityFile(file) {
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  let act;
+  if (ext === 'fit') act = parseFIT(await file.arrayBuffer());
+  else {
+    const text = await file.text();
+    if (ext === 'tcx' || text.includes('<TrainingCenterDatabase')) act = parseTCX(text);
+    else if (ext === 'gpx' || text.includes('<gpx')) act = parseGPX(text);
+    else throw new Error(`${file.name}: formato no reconocido. Usa un archivo GPX, TCX o FIT.`);
+  }
+  return analyze(act);
+}
+async function openFiles(files) {
+  const tripId = pendingTripId;
+  const done = [];
+  let failed = 0, lastErr = '';
+  for (const f of files) {
+    try { const a = await readActivityFile(f); storeActivity(a); done.push(a); }
+    catch (err) { console.error(err); failed++; lastErr = err.message || ''; }
+  }
+  pendingTripId = null;
+  if (!done.length) { toast(lastErr || 'No se pudo leer el archivo.'); if (tripId) renderHistory(); return; }
+  if (tripId) {
+    showTrip(tripId);
+    toast(`${done.length} ${done.length === 1 ? 'etapa añadida' : 'etapas añadidas'} al viaje.` + (failed ? ` ${failed} archivo(s) no se pudieron leer.` : ''), 4500);
+    fetchTownsInBackground(done);
+  } else if (done.length === 1) {
+    showActivity(done[0], true);
+  } else {
+    showHome();
+    toast(`${done.length} caminatas guardadas.` + (failed ? ` ${failed} archivo(s) no se pudieron leer.` : ''), 4500);
+    fetchTownsInBackground(done);
+  }
+}
+async function fetchTownsInBackground(acts) {
+  for (const a of acts) {
+    const list = loadHistory(); const e = list.find(x => x.id === a.id);
+    if (!e || e.towns) continue;
+    const res = await queryTowns(a.points, a.distance);
+    if (!res) continue;
+    const l2 = loadHistory(); const e2 = l2.find(x => x.id === a.id);
+    if (e2) { e2.towns = res; saveHistory(l2); }
+  }
+  if (A && A.isTrip) { A.stages = A.stages.map(s => { const e = loadHistory().find(x => x.id === s.id); if (e) s.cachedTowns = e.towns || null; return s; }); loadTowns(); }
+}
+// ---------- Viajes ----------
+function buildTrip(tripId) {
+  const trip = loadTrips().find(x => x.id === tripId);
+  if (!trip) return null;
+  const stages = tripStages(tripId).map(unpackActivity);
+  if (!stages.length) return { isTrip: true, trip, stages, empty: true };
+  const points = []; let off = 0;
+  stages.forEach((s, k) => {
+    const d0 = s.points[0].d;
+    for (const q of s.points) points.push({ ...q, d: q.d - d0 + off, stage: k });
+    off += s.points[s.points.length - 1].d - d0;
+  });
+  const sum = key => stages.reduce((acc, s) => acc + (s[key] || 0), 0);
+  const eles = stages.flatMap(s => [s.eleMax, s.eleMin]).filter(v => v != null);
+  const hrS = stages.filter(s => s.hrAvg);
+  return {
+    isTrip: true, trip, stages, points, id: trip.id, name: trip.name,
+    start: stages[0].start, end: stages[stages.length - 1].end,
+    distance: sum('distance'), elapsed: sum('elapsed'),
+    moving: stages.every(s => s.moving) ? sum('moving') : null,
+    ascent: sum('ascent'), descent: sum('descent'),
+    eleMax: eles.length ? Math.max(...eles) : null, eleMin: eles.length ? Math.min(...eles) : null,
+    hrAvg: hrS.length ? Math.round(hrS.reduce((a, s) => a + s.hrAvg, 0) / hrS.length) : null,
+    hrMax: Math.max(0, ...stages.map(s => s.hrMax || 0)) || null,
+    calories: sum('calories') || null,
+    hasHr: stages.some(s => s.hasHr), hasTime: stages.every(s => s.hasTime)
+  };
+}
+function showTrip(tripId) {
+  const T = buildTrip(tripId);
+  if (!T) { toast('Ese viaje ya no existe.'); showHome(); return; }
+  if (T.empty) {
+    showHome();
+    pendingTripId = tripId;
+    toast('Este viaje aún no tiene etapas. Elige sus archivos.');
+    $('fileInput').click();
+    return;
+  }
+  showActivity(T, false);
+}
+function renderStages() {
+  const ol = $('stages'); ol.innerHTML = '';
+  A.stages.forEach((s, k) => {
+    const li = document.createElement('li');
+    const b = document.createElement('button'); b.type = 'button';
+    const n = document.createElement('span'); n.className = 'stage-n'; n.textContent = k + 1;
+    n.style.background = STAGE_COLORS[k % STAGE_COLORS.length];
+    const st = document.createElement('strong'); st.textContent = titleFor(s.name, s.start, s.sport, s.title);
+    const num = document.createElement('span'); num.className = 'st-num'; num.textContent = fmtKm(s.distance) + ' km';
+    const sm = document.createElement('small'); sm.textContent = '+' + fmtNum(s.ascent) + ' m'; num.appendChild(sm);
+    const dt = document.createElement('span'); dt.className = 'st-date';
+    dt.textContent = s.start ? new Date(s.start).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }) + ', ' + fmtDur(s.elapsed) : fmtDur(s.elapsed);
+    b.append(n, st, num, dt);
+    b.onclick = () => showActivity(s, false);
+    li.appendChild(b); ol.appendChild(li);
+  });
+}
+function renderTripBar() {
+  const sel = $('tripSelect'); sel.innerHTML = '';
+  const add = (v, txt) => { const o = document.createElement('option'); o.value = v; o.textContent = txt; sel.appendChild(o); };
+  add('', 'Caminata suelta');
+  for (const tr of loadTrips()) add(tr.id, tr.name);
+  add('__new', 'Nuevo viaje…');
+  sel.value = A.tripId && loadTrips().some(x => x.id === A.tripId) ? A.tripId : '';
+  $('tripNew').hidden = true;
+  const link = $('tripLink');
+  if (sel.value) {
+    const st = tripStages(sel.value);
+    const k = st.findIndex(e => e.id === A.id);
+    const tr = loadTrips().find(x => x.id === sel.value);
+    link.textContent = `Etapa ${k + 1} de ${st.length}, ${tr.name}. Ver el viaje completo`;
+    link.onclick = () => showTrip(sel.value);
+    link.hidden = false;
+  } else link.hidden = true;
+}
+function changeTrip() {
+  const v = $('tripSelect').value;
+  if (v === '__new') { $('tripNew').hidden = false; $('tripNewName').value = ''; $('tripNewName').focus(); return; }
+  setActivityTrip(A.id, v || null); A.tripId = v || null;
+  renderTripBar();
+  toast(v ? 'Caminata añadida al viaje.' : 'La caminata ya no forma parte de ningún viaje.');
+}
+function confirmNewTrip() {
+  const name = $('tripNewName').value.trim();
+  if (!name) { $('tripNewName').focus(); return; }
+  const tr = createTrip(name);
+  setActivityTrip(A.id, tr.id); A.tripId = tr.id;
+  renderTripBar();
+  toast('Viaje creado con esta caminata como primera etapa.');
+}
+
+// ---------- Mapa ----------
+function satelliteLayer() {
+  // Foto de satélite con calles y nombres de pueblos encima
+  const img = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19, maxNativeZoom: 19, attribution: 'Imágenes © Esri'
+  });
+  const roads = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19, maxNativeZoom: 19, opacity: 0.85
+  });
+  const names = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19, maxNativeZoom: 19
+  });
+  return L.layerGroup([img, roads, names]);
+}
+function initMap() {
+  if (map) return;
+  map = L.map('map', { preferCanvas: true, zoomControl: true, attributionControl: true, maxZoom: 19 });
+  const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, maxNativeZoom: 17, subdomains: 'abc',
+    attribution: '© OpenStreetMap, SRTM | © OpenTopoMap (CC-BY-SA)'
+  });
+  const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '© OpenStreetMap'
+  });
+  const sat = satelliteLayer();
+  sat.addTo(map);
+  L.control.layers({ 'Satélite': sat, 'Topográfico': topo, 'Callejero': osm }, null, { position: 'topright' }).addTo(map);
+  L.control.scale({ imperial: false }).addTo(map);
+  map.on('click', e => { if (placing) placeAt(nearestIdx(e.latlng.lat, e.latlng.lng)); });
+  routeLayer = L.layerGroup().addTo(map);
+  townLayer = L.layerGroup().addTo(map);
+  markersLayer = L.layerGroup().addTo(map);
+  photoLayer = L.layerGroup().addTo(map);
+}
+
+const SCALE = ['#2E7D6B', '#8DB33A', '#F2B705', '#E8711A', '#C8102E'];
+const SLOPE_SCALE = ['#2F6DB5', '#7FA6D6', '#A3ADAB', '#E8711A', '#C8102E'];
+function lerpColor(stops, f) {
+  f = Math.min(1, Math.max(0, f));
+  const x = f * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(x)), k = x - i;
+  const a = stops[i].match(/\w\w/g).map(h => parseInt(h, 16)), b = stops[i + 1].match(/\w\w/g).map(h => parseInt(h, 16));
+  return '#' + a.map((v, j) => Math.round(v + (b[j] - v) * k).toString(16).padStart(2, '0')).join('');
+}
+function quantile(arr, q) {
+  const s = arr.filter(v => v != null && isFinite(v)).sort((a, b) => a - b);
+  if (!s.length) return 0;
+  return s[Math.min(s.length - 1, Math.floor(q * s.length))];
+}
+function drawRoute() {
+  routeLayer.clearLayers();
+  const mode = $('colorMode').value;
+  const P = A.points;
+  const ll = P.map(q => [q.lat, q.lon]);
+  const legend = $('legend');
+  if (mode === 'stage' && A.isTrip) {
+    L.polyline(ll, { color: '#ffffff', weight: 8, opacity: .95, lineJoin: 'round' }).addTo(routeLayer);
+    let cur = [], k = P[0].stage;
+    for (let i = 0; i < P.length; i++) {
+      if (P[i].stage !== k) {
+        L.polyline(cur, { color: STAGE_COLORS[k % STAGE_COLORS.length], weight: 5, lineJoin: 'round' }).addTo(routeLayer);
+        cur = []; k = P[i].stage;
+      }
+      cur.push(ll[i]);
+    }
+    if (cur.length > 1) L.polyline(cur, { color: STAGE_COLORS[k % STAGE_COLORS.length], weight: 5, lineJoin: 'round' }).addTo(routeLayer);
+    legend.classList.remove('on');
+  } else if (mode === 'trail') {
+    L.polyline(ll, { color: '#ffffff', weight: 8, opacity: .95, lineJoin: 'round' }).addTo(routeLayer);
+    L.polyline(ll, { color: '#C8102E', weight: 4, opacity: 1, lineJoin: 'round' }).addTo(routeLayer);
+    legend.classList.remove('on');
+  } else {
+    const key = mode === 'ele' ? 'es' : mode;
+    let lo, hi, stops = SCALE, unit, fmt = v => Math.round(v);
+    if (mode === 'slope') { lo = -25; hi = 25; stops = SLOPE_SCALE; unit = '%'; }
+    else { lo = quantile(P.map(q => q[key]), .05); hi = quantile(P.map(q => q[key]), .95); }
+    if (mode === 'ele') unit = ' m';
+    if (mode === 'hr') unit = ' ppm';
+    if (mode === 'v') { unit = ' km/h'; fmt = v => (v * 3.6).toFixed(1); }
+    if (hi - lo < 1e-6) hi = lo + 1;
+    L.polyline(ll, { color: '#ffffff', weight: 8, opacity: .9 }).addTo(routeLayer);
+    const BINS = 24;
+    let cur = [], curBin = null;
+    for (let i = 0; i < P.length; i++) {
+      const v = P[i][key];
+      const bin = v == null ? 0 : Math.round(Math.min(1, Math.max(0, (v - lo) / (hi - lo))) * (BINS - 1));
+      if (curBin !== null && bin !== curBin) {
+        cur.push(ll[i]);
+        L.polyline(cur, { color: lerpColor(stops, curBin / (BINS - 1)), weight: 5, opacity: 1 }).addTo(routeLayer);
+        cur = [];
+      }
+      curBin = bin; cur.push(ll[i]);
+    }
+    if (cur.length > 1) L.polyline(cur, { color: lerpColor(stops, curBin / (BINS - 1)), weight: 5 }).addTo(routeLayer);
+    legend.innerHTML = '';
+    const bar = document.createElement('div'); bar.className = 'bar';
+    bar.style.background = `linear-gradient(90deg, ${stops.join(',')})`;
+    const ends = document.createElement('div'); ends.className = 'ends';
+    const a = document.createElement('span'), b = document.createElement('span');
+    a.textContent = fmt(lo) + unit; b.textContent = fmt(hi) + unit;
+    if (mode === 'slope') { a.textContent = 'Bajada'; b.textContent = 'Subida'; }
+    ends.append(a, b); legend.append(bar, ends); legend.classList.add('on');
+  }
+  if (progressLine) progressLine.bringToFront();
+}
+function drawMarkers() {
+  markersLayer.clearLayers();
+  const P = A.points;
+  const mk = (q, html, size, title) => L.marker([q.lat, q.lon], { icon: L.divIcon({ className: '', html, iconSize: [size, size], iconAnchor: [size / 2, size / 2] }), title }).addTo(markersLayer);
+  if (A.isTrip) {
+    A.stages.forEach((s, k) => {
+      const q = s.points[0];
+      mk(q, `<div class="stagemk" style="background:${STAGE_COLORS[k % STAGE_COLORS.length]}">${k + 1}</div>`, 24, `Salida de la etapa ${k + 1}`);
+    });
+    mk(P[P.length - 1], '<div class="mk end"></div>', 18, 'Llegada');
+    return;
+  }
+  mk(P[0], '<div class="mk start"></div>', 18, 'Salida');
+  mk(P[P.length - 1], '<div class="mk end"></div>', 18, 'Llegada');
+  const step = A.distance > 40000 ? 5000 : 1000;
+  let nextKm = step;
+  const startD = P[0].d;
+  for (const q of P) {
+    if (q.d - startD >= nextKm) {
+      mk(q, `<div class="km">${nextKm / 1000}</div>`, 22, `Kilómetro ${nextKm / 1000}`);
+      nextKm += step;
+    }
+  }
+}
+function fitRoute() {
+  map.fitBounds(L.latLngBounds(A.points.map(q => [q.lat, q.lon])), { padding: [30, 30] });
+}
+
+// ---------- Datos ----------
+function renderTripStats() {
+  $('actTitle').textContent = A.name;
+  const n = A.stages.length;
+  const f1 = new Date(A.start).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+  const f2 = new Date(A.end).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  $('actSub').textContent = `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${f1} al ${f2}`;
+  const h = Math.floor(A.elapsed / 3600), m = Math.round(A.elapsed % 3600 / 60);
+  fillPlates([
+    ['Distancia', fmtKm(A.distance), 'km'],
+    ['Tiempo', `${h}:${String(m).padStart(2, '0')}`, 'h'],
+    ['Desnivel', '+' + fmtNum(A.ascent), 'm']
+  ]);
+  const longest = A.stages.reduce((a, s) => s.distance > a.distance ? s : a, A.stages[0]);
+  const facts = [
+    ['Etapas', String(n)],
+    ['Media por etapa', fmtKm(A.distance / n) + ' km'],
+    ['Etapa más larga', fmtKm(longest.distance) + ' km'],
+    ['Bajada', '−' + fmtNum(A.descent) + ' m']
+  ];
+  if (A.moving) facts.push(['En movimiento', fmtDur(A.moving)]);
+  if (A.eleMax != null) facts.push(['Altitud máxima', fmtNum(A.eleMax) + ' m']);
+  if (A.eleMin != null) facts.push(['Altitud mínima', fmtNum(A.eleMin) + ' m']);
+  if (A.hrAvg) facts.push(['Pulso medio', A.hrAvg + ' ppm']);
+  if (A.calories) facts.push(['Calorías', fmtNum(A.calories) + ' kcal']);
+  fillFacts(facts);
+}
+function fillPlates(plates) {
+  const sp = $('signpost'); sp.innerHTML = '';
+  for (const [l, v, u] of plates) {
+    const d = document.createElement('div'); d.className = 'plate';
+    const s = document.createElement('span'); s.textContent = l;
+    const b = document.createElement('b'); b.textContent = v;
+    const sm = document.createElement('small'); sm.textContent = u; b.appendChild(sm);
+    d.append(s, b); sp.appendChild(d);
+  }
+}
+function fillFacts(facts) {
+  const f = $('facts'); f.innerHTML = '';
+  for (const [l, v] of facts) {
+    const d = document.createElement('div'); d.className = 'fact';
+    const s = document.createElement('span'); s.textContent = l;
+    const b = document.createElement('b'); b.textContent = v;
+    d.append(s, b); f.appendChild(d);
+  }
+}
+function renderStats() {
+  const isTrip = !!A.isTrip;
+  $('tripBar').hidden = isTrip; $('stagesSection').hidden = !isTrip; $('tripActions').hidden = !isTrip;
+  $('photosSection').hidden = false; $('btnPhotos').hidden = isTrip; $('btnPhotosManual').hidden = isTrip || !NATIVE; $('tripLink').hidden = true;
+  $('btnRename').textContent = isTrip ? 'Cambiar nombre' : 'Cambiar título';
+  $('townsTitle').textContent = isTrip ? 'Pueblos del camino' : 'Poblaciones cercanas';
+  const stageOpt = $('colorMode').querySelector('option[value="stage"]');
+  stageOpt.hidden = !isTrip; stageOpt.disabled = !isTrip;
+  $('hrToggleWrap').style.display = A.hasHr ? '' : 'none';
+  $('colorMode').querySelector('option[value="hr"]').disabled = !A.hasHr;
+  $('colorMode').querySelector('option[value="v"]').disabled = !A.hasTime;
+  if (isTrip) { renderTripStats(); renderStages(); return; }
+  renderTripBar();
+  $('actTitle').textContent = titleFor(A.name, A.start, A.sport, A.title);
+  const sub = [fmtDate(A.start)];
+  if (A.start) sub.push(`de ${fmtHour(A.start)} a ${fmtHour(A.end)}`);
+  $('actSub').textContent = sub.join(', ');
+  fillPlates([
+    ['Distancia', fmtKm(A.distance), 'km'],
+    ['Tiempo', A.elapsed != null ? fmtClock(A.elapsed) : '–', A.elapsed >= 3600 ? 'h' : 'min'],
+    ['Desnivel', '+' + fmtNum(A.ascent), 'm']
+  ]);
+  const facts = [];
+  if (A.moving) facts.push(['En movimiento', fmtDur(A.moving)]);
+  facts.push(['Bajada', '−' + fmtNum(A.descent) + ' m']);
+  if (A.eleMax != null) facts.push(['Altitud máxima', fmtNum(A.eleMax) + ' m']);
+  if (A.eleMin != null) facts.push(['Altitud mínima', fmtNum(A.eleMin) + ' m']);
+  if (A.moving) facts.push(['Ritmo medio', fmtPace(A.moving / (A.distance / 1000))]);
+  if (A.moving) facts.push(['Velocidad media', (A.distance / A.moving * 3.6).toFixed(1) + ' km/h']);
+  if (A.hrAvg) facts.push(['Pulso medio', A.hrAvg + ' ppm']);
+  if (A.hrMax) facts.push(['Pulso máximo', A.hrMax + ' ppm']);
+  if (A.calories) facts.push(['Calorías', fmtNum(A.calories) + ' kcal']);
+  if (A.sport) facts.push(['Actividad', A.sport]);
+  if (A.device) facts.push(['Reloj', A.device]);
+  fillFacts(facts);
+}
+
+// ---------- Perfil de altitud ----------
+let prof = { cursor: null };
+function drawProfile() {
+  const c = $('profile');
+  const dpr = window.devicePixelRatio || 1;
+  const w = c.clientWidth, h = c.clientHeight;
+  c.width = w * dpr; c.height = h * dpr;
+  const g = c.getContext('2d'); g.scale(dpr, dpr);
+  const cs = getComputedStyle(document.documentElement);
+  const ink = cs.getPropertyValue('--ink').trim(), muted = cs.getPropertyValue('--muted').trim(), line = cs.getPropertyValue('--line').trim();
+  const P = A.points;
+  const pad = { l: 40, r: $('hrToggle').checked ? 34 : 10, t: 10, b: 22 };
+  const d0 = P[0].d, d1 = P[P.length - 1].d;
+  const es = P.map(q => q.es).filter(v => v != null);
+  if (!es.length) { g.fillStyle = muted; g.fillText('Sin datos de altitud', 10, 20); return; }
+  let lo = Math.min(...es), hi = Math.max(...es);
+  const span = Math.max(20, hi - lo); lo -= span * .1; hi = lo + span * 1.25;
+  const X = d => pad.l + (d - d0) / Math.max(1, d1 - d0) * (w - pad.l - pad.r);
+  const Y = e => pad.t + (1 - (e - lo) / (hi - lo)) * (h - pad.t - pad.b);
+  prof = { ...prof, X, Y, pad, w, h, d0, d1 };
+  g.font = '12px Barlow, sans-serif'; g.fillStyle = muted; g.strokeStyle = line; g.lineWidth = 1;
+  // líneas guía
+  const stepE = niceStep((hi - lo) / 4);
+  for (let e = Math.ceil(lo / stepE) * stepE; e < hi; e += stepE) {
+    g.beginPath(); g.moveTo(pad.l, Y(e)); g.lineTo(w - pad.r, Y(e)); g.stroke();
+    g.textAlign = 'right'; g.fillText(Math.round(e), pad.l - 6, Y(e) + 4);
+  }
+  const stepD = niceStep((d1 - d0) / 5 / 1000) * 1000;
+  g.textAlign = 'center';
+  for (let d = 0; d <= d1 - d0 + 1; d += stepD) if (X(d0 + d) < w - 24 || d === 0) g.fillText((d / 1000).toLocaleString('es-ES', { maximumFractionDigits: 1 }) + ' km', X(d0 + d), h - 6);
+  // área
+  g.beginPath(); g.moveTo(X(d0), Y(lo));
+  for (const q of P) if (q.es != null) g.lineTo(X(q.d), Y(q.es));
+  g.lineTo(X(d1), Y(lo)); g.closePath();
+  g.fillStyle = hexA(ink, .16); g.fill();
+  g.beginPath(); let first = true;
+  for (const q of P) if (q.es != null) { first ? g.moveTo(X(q.d), Y(q.es)) : g.lineTo(X(q.d), Y(q.es)); first = false; }
+  g.strokeStyle = ink; g.lineWidth = 2; g.stroke();
+  // pulso
+  if ($('hrToggle').checked && A.hasHr) {
+    const hrs = P.map(q => q.hr).filter(Boolean);
+    const hlo = Math.min(...hrs) - 5, hhi = Math.max(...hrs) + 5;
+    const YH = v => pad.t + (1 - (v - hlo) / (hhi - hlo)) * (h - pad.t - pad.b);
+    g.beginPath(); first = true;
+    for (const q of P) if (q.hr) { first ? g.moveTo(X(q.d), YH(q.hr)) : g.lineTo(X(q.d), YH(q.hr)); first = false; }
+    g.strokeStyle = '#C8102E'; g.lineWidth = 1.3; g.stroke();
+    g.fillStyle = '#C8102E'; g.textAlign = 'left';
+    g.fillText(Math.round(hhi - 5), w - pad.r + 4, YH(hhi - 5) + 4);
+    g.fillText(Math.round(hlo + 5), w - pad.r + 4, YH(hlo + 5) + 4);
+  }
+  // fotos
+  for (const ph of photos) {
+    const q = P[ph.idx];
+    g.fillStyle = '#F2B705'; g.strokeStyle = ink; g.lineWidth = 1.5;
+    g.beginPath(); g.rect(X(q.d) - 5, pad.t, 10, 10); g.fill(); g.stroke();
+  }
+  // cursor
+  if (prof.cursor != null) {
+    const q = P[prof.cursor];
+    g.strokeStyle = '#C8102E'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(X(q.d), pad.t); g.lineTo(X(q.d), h - pad.b); g.stroke();
+    if (q.es != null) { g.fillStyle = '#C8102E'; g.beginPath(); g.arc(X(q.d), Y(q.es), 4.5, 0, Math.PI * 2); g.fill(); }
+  }
+}
+function niceStep(x) {
+  const p = Math.pow(10, Math.floor(Math.log10(x || 1))), n = x / p;
+  return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * p;
+}
+function hexA(hex, a) {
+  const m = hex.replace('#', '').match(/\w\w/g);
+  if (!m) return `rgba(0,0,0,${a})`;
+  return `rgba(${m.map(x => parseInt(x, 16)).join(',')},${a})`;
+}
+function idxAtDistance(d) {
+  const P = A.points; let lo = 0, hi = P.length - 1;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (P[m].d < d) lo = m + 1; else hi = m; }
+  return lo;
+}
+function idxAtTime(t) {
+  const P = A.points; let lo = 0, hi = P.length - 1;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (P[m].t < t) lo = m + 1; else hi = m; }
+  return lo;
+}
+function setCursor(i, fromMap) {
+  prof.cursor = i; drawProfile();
+  const q = A.points[i];
+  if (!walker) walker = L.marker([q.lat, q.lon], { icon: L.divIcon({ className: '', html: '<div class="walker"></div>', iconSize: [20, 20], iconAnchor: [10, 10] }), zIndexOffset: 1000, interactive: false }).addTo(map);
+  walker.setLatLng([q.lat, q.lon]);
+  const tip = $('tip');
+  const parts = [`${((q.d - A.points[0].d) / 1000).toFixed(2)} km`];
+  if (q.ele != null) parts.push(`${Math.round(q.ele)} m`);
+  parts.push(`${Math.round(q.slope)} %`);
+  if (q.hr) parts.push(`${q.hr} ppm`);
+  tip.textContent = parts.join('  ');
+  tip.style.display = 'block';
+  const x = prof.X(q.d) + 6;
+  tip.style.left = Math.min(x, $('profile').clientWidth - tip.offsetWidth - 4) + 'px';
+}
+function bindProfile() {
+  const c = $('profile');
+  const move = e => {
+    if (!A || anim.on) return;
+    const r = c.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const d = prof.d0 + (x - prof.pad.l) / (prof.w - prof.pad.l - prof.pad.r) * (prof.d1 - prof.d0);
+    setCursor(idxAtDistance(Math.min(prof.d1, Math.max(prof.d0, d))));
+  };
+  c.addEventListener('pointermove', move);
+  c.addEventListener('pointerdown', move);
+  c.addEventListener('click', () => { if (placing && prof.cursor != null) placeAt(prof.cursor); });
+  c.addEventListener('pointerleave', () => { if (!anim.on) { $('tip').style.display = 'none'; } });
+}
+
+// ---------- Animación ----------
+function stopAnim(resetUi = true) {
+  anim.on = false;
+  $('btnPlay').textContent = anim.f > 0 && anim.f < 1 ? 'Seguir' : 'Reproducir';
+  if (resetUi && anim.f >= 1) { anim.f = 0; }
+}
+function startAnim() {
+  if (anim.f >= 1 || anim.f === 0) {
+    anim.f = 0; anim.shown = new Set();
+    if (progressLine) progressLine.remove();
+    progressLine = L.polyline([], { color: '#F2B705', weight: 6, opacity: 1 }).addTo(map);
+    const q = A.points[0];
+    map.setView([q.lat, q.lon], A.isTrip ? 14 : 18, { animate: false });
+  }
+  anim.on = true; anim.last = performance.now();
+  $('btnPlay').textContent = 'Pausa';
+  $('live').classList.add('on');
+  requestAnimationFrame(tick);
+}
+function tick(now) {
+  if (!anim.on) return;
+  const dt = (now - anim.last) / 1000; anim.last = now;
+  if (now >= anim.pauseUntil) {
+    anim.f = Math.min(1, anim.f + dt * SPEEDS[anim.speedIdx] / baseSeconds());
+  }
+  const P = A.points;
+  const d = P[0].d + anim.f * (P[P.length - 1].d - P[0].d);
+  const i = idxAtDistance(d);
+  const q = P[i];
+  // estela recorrida
+  const ll = [];
+  const step = Math.max(1, Math.floor(i / 2500));
+  for (let k = 0; k <= i; k += step) ll.push([P[k].lat, P[k].lon]);
+  ll.push([q.lat, q.lon]);
+  progressLine.setLatLngs(ll);
+  setCursor(i);
+  map.panTo([q.lat, q.lon], { animate: false });
+  renderLive(q);
+  // fotos al pasar por su punto
+  for (const ph of photos) {
+    if (!anim.shown.has(ph) && i >= ph.idx) {
+      anim.shown.add(ph);
+      showPhotoPop(ph);
+      anim.pauseUntil = now + 2600;
+    }
+  }
+  if (anim.f >= 1) { stopAnim(); $('btnPlay').textContent = 'Repetir'; return; }
+  requestAnimationFrame(tick);
+}
+function renderLive(q) {
+  const box = $('live'); box.innerHTML = '';
+  const items = [['km', ((q.d - A.points[0].d) / 1000).toFixed(2)]];
+  if (A.isTrip) items.push(['etapa', q.stage + 1]);
+  else if (A.hasTime) items.push(['tiempo', fmtClock((q.t - A.points[0].t) / 1000)]);
+  if (q.ele != null) items.push(['altitud', Math.round(q.ele) + ' m']);
+  if (q.hr) items.push(['pulso', q.hr]);
+  for (const [l, v] of items) {
+    const d = document.createElement('div');
+    const b = document.createElement('b'); b.textContent = v;
+    d.append(b, document.createTextNode(l)); box.appendChild(d);
+  }
+}
+function showPhotoPop(ph) {
+  const pop = $('photoPop');
+  pop.querySelector('img').src = ph.url;
+  pop.querySelector('span').textContent = ph.time ? fmtHour(ph.time) : '';
+  pop.classList.add('on');
+  clearTimeout(showPhotoPop.h);
+  showPhotoPop.h = setTimeout(() => pop.classList.remove('on'), 2400);
+}
+
+// ---------- Fotos ----------
+function photoTimeOf(meta) {
+  const when = meta && (meta.DateTimeOriginal || meta.CreateDate);
+  return when instanceof Date ? when.getTime() : null;
+}
+function matchPhoto(meta, P, act) {
+  let idx = null;
+  if (meta && meta.latitude != null && meta.longitude != null) {
+    let best = Infinity;
+    for (let i = 0; i < P.length; i += 2) { const dd = haversine(P[i], { lat: meta.latitude, lon: meta.longitude }); if (dd < best) { best = dd; idx = i; } }
+    if (best > 400) idx = null;
+  }
+  const when = meta && (meta.DateTimeOriginal || meta.CreateDate);
+  const time = when instanceof Date ? when.getTime() : null;
+  if (time && act.hasTime) {
+    const inRange = time >= act.start - 10 * 60000 && time <= act.end + 10 * 60000;
+    if (!inRange) return null;
+    if (idx == null) idx = idxAtTime(time);
+  }
+  return idx == null ? null : { idx, time };
+}
+let pickState = null;
+function openPick(items, info) {
+  pickState = items;
+  $('pickInfo').textContent = info;
+  const grid = $('pickGrid'); grid.innerHTML = '';
+  for (const p of pickState) {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', String(p.on));
+    const img = document.createElement('img'); img.alt = ''; img.loading = 'lazy';
+    if (p.url) img.src = p.url;
+    p.img = img;
+    const tm = document.createElement('span'); tm.className = 'pt'; tm.textContent = p.needsPlace ? 'Sin hora' : (p.time ? fmtHour(p.time) : '');
+    b.append(img, tm);
+    b.onclick = () => { p.on = !p.on; b.setAttribute('aria-pressed', String(p.on)); updatePickOk(); };
+    grid.appendChild(b);
+  }
+  updatePickOk();
+  $('pickModal').classList.add('on');
+}
+async function publishedSources(actId) {
+  return new Set((await photosForActivity(actId)).map(r => r.src).filter(Boolean));
+}
+async function addPhotos(files) {
+  const busy = $('photoBusy');
+  busy.hidden = false;
+  const found = [];
+  const have = await publishedSources(A.id);
+  let i = 0, repeated = 0;
+  for (const file of files) {
+    i++;
+    if (i % 5 === 0 || i === files.length) busy.textContent = `Revisando fotos: ${i} de ${files.length}…`;
+    let meta = null;
+    try { meta = await exifr.parse(file); } catch { meta = null; }
+    const m = matchPhoto(meta, A.points, A);
+    const src = 'f:' + file.name + ':' + (photoTimeOf(meta) || file.size);
+    if (have.has(src)) { repeated++; continue; }
+    if (m) found.push({ file, src, ...m });
+    else found.push({ file, src, idx: null, time: null, needsPlace: true });
+  }
+  busy.hidden = true;
+  if (!found.length) {
+    toast(repeated ? 'Esas fotos ya están publicadas en esta caminata.' : 'No se ha podido leer ninguna foto.', 5000);
+    return;
+  }
+  found.sort((a, b) => (a.idx ?? 1e9) - (b.idx ?? 1e9));
+  const ok = found.filter(f => !f.needsPlace).length, loose = found.length - ok;
+  let info = '';
+  if (ok) info += ok === 1 ? '1 foto se hizo durante la caminata y se coloca sola. ' : `${ok} fotos se hicieron durante la caminata y se colocan solas. `;
+  if (loose) info += `${loose} ${loose === 1 ? 'foto no tiene' : 'fotos no tienen'} la hora de la caminata (pasa con las de WhatsApp): al publicar, te pediré que toques en el mapa o en el perfil dónde ${loose === 1 ? 'ponerla' : 'ponerlas'}. `;
+  info += 'Desmarca las que no quieras publicar.';
+  openPick(found.map(f => ({ ...f, url: URL.createObjectURL(f.file), on: true })), info);
+}
+async function findNativePhotos() {
+  if (!A.hasTime) { toast('Esta caminata no tiene horas, así que no se pueden buscar sus fotos.'); return; }
+  const busy = $('photoBusy');
+  busy.hidden = false; busy.textContent = 'Buscando fotos en tu galería…';
+  let res;
+  try {
+    res = await NativePhotos.findPhotos({ start: Math.round(A.start - 10 * 60000), end: Math.round(A.end + 10 * 60000) });
+  } catch (e) {
+    busy.hidden = true;
+    if (e && e.code === 'PERMISSION_DENIED') toast('Senda necesita permiso para ver tus fotos. Puedes dárselo en Ajustes, Aplicaciones, Senda, Permisos.', 7000);
+    else toast('No se pudieron buscar las fotos.');
+    return;
+  }
+  busy.hidden = true;
+  const have = await publishedSources(A.id);
+  const list = (res.photos || []).filter(p => !have.has('n:' + p.id));
+  if (!list.length) {
+    toast((res.photos || []).length ? 'Las fotos de esta caminata ya están publicadas.' : 'No hay fotos en tu galería hechas durante esta caminata.', 5000);
+    return;
+  }
+  const items = list.map(p => ({ native: true, uri: p.uri, rotation: p.rotation || 0, src: 'n:' + p.id, time: p.time, idx: idxAtTime(p.time), on: !p.screenshot, url: null }));
+  items.sort((a, b) => a.idx - b.idx);
+  const shots = items.filter(p => !p.on).length;
+  openPick(items, `Hay ${items.length} ${items.length === 1 ? 'foto hecha' : 'fotos hechas'} durante la caminata.` +
+    (shots ? ` He desmarcado ${shots} ${shots === 1 ? 'captura de pantalla' : 'capturas de pantalla'}.` : '') + ' Toca las que no quieras publicar.');
+  // miniaturas, una tras otra
+  const mine = pickState;
+  for (const p of items) {
+    if (pickState !== mine) return;
+    try {
+      const r = await NativePhotos.readPhoto({ uri: p.uri, rotation: p.rotation, max: 320, quality: 70 });
+      p.url = 'data:image/jpeg;base64,' + r.data;
+      if (p.img) p.img.src = p.url;
+    } catch (e) { console.warn(e); }
+  }
+}
+function updatePickOk() {
+  const n = pickState.filter(p => p.on).length;
+  $('pickOk').textContent = n ? `Publicar ${n} ${n === 1 ? 'foto' : 'fotos'}` : 'Publicar';
+  $('pickOk').disabled = !n;
+}
+function closePick() {
+  if (!pickState) { $('pickModal').classList.remove('on'); return; }
+  $('pickModal').classList.remove('on');
+  if (pickState) pickState.forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
+  pickState = null;
+}
+async function confirmPick() {
+  const chosen = pickState.filter(p => p.on);
+  const auto = chosen.filter(p => !p.needsPlace);
+  const loose = chosen.filter(p => p.needsPlace);
+  const actId = A.id;
+  $('pickOk').disabled = true;
+  let k = 0, failed = 0;
+  for (const p of auto) {
+    k++; $('pickOk').textContent = `Guardando ${k} de ${auto.length}…`;
+    try { await savePickedPhoto(p, p.idx, actId); } catch (e) { console.error(e); failed++; }
+  }
+  // las que no tienen hora se quedan para colocarlas a mano
+  const keep = loose.map(p => ({ ...p }));
+  pickState.forEach(p => { if (!keep.some(x => x.url === p.url)) { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); } });
+  pickState = null;
+  $('pickModal').classList.remove('on');
+  if (A && A.id === actId) await loadPhotos();
+  if (failed) toast(`No se pudieron guardar ${failed} foto(s). Puede que el móvil se haya quedado sin espacio.`, 5000);
+  else if (auto.length) toast(`${auto.length} ${auto.length === 1 ? 'foto publicada' : 'fotos publicadas'} en la caminata.`);
+  if (keep.length) startPlacing(keep);
+}
+async function savePickedPhoto(p, idx, actId) {
+  let big;
+  if (p.native) {
+    const r = await NativePhotos.readPhoto({ uri: p.uri, rotation: p.rotation, max: 1600, quality: 82 });
+    big = b64ToBlob(r.data);
+  } else big = await resizeImage(p.file, 1600, 0.82);
+  const q = A.points[idx];
+  const time = p.needsPlace ? q.t : p.time;
+  const rec = { id: 'f' + Date.now() + '-' + Math.random().toString(36).slice(2, 7), act: actId, time, lat: q.lat, lon: q.lon, src: p.src || null, manual: !!p.needsPlace, blob: big };
+  await photoPut(rec);
+}
+// Colocar fotos tocando el mapa o el perfil
+let placing = null;
+function startPlacing(list) {
+  placing = { list, i: 0, actId: A.id };
+  window.scrollTo({ top: 0, behavior: 'smooth' }); $('panel').scrollTop = 0;
+  showPlacing();
+}
+function showPlacing() {
+  const bar = $('placeBar');
+  if (!placing || placing.i >= placing.list.length) { endPlacing(); return; }
+  const p = placing.list[placing.i];
+  bar.querySelector('img').src = p.url;
+  bar.querySelector('.pl-count').textContent = placing.list.length > 1 ? `Foto ${placing.i + 1} de ${placing.list.length}` : '';
+  bar.hidden = false;
+  $('map').classList.add('placing');
+}
+function endPlacing() {
+  if (placing) placing.list.forEach(p => { if (p.url && p.url.startsWith('blob:')) URL.revokeObjectURL(p.url); });
+  placing = null;
+  $('placeBar').hidden = true;
+  $('map').classList.remove('placing');
+}
+async function placeAt(idx) {
+  if (!placing || !A || A.id !== placing.actId) return;
+  const p = placing.list[placing.i];
+  try {
+    await savePickedPhoto(p, idx, placing.actId);
+    toast(`Foto colocada en el km ${((A.points[idx].d - A.points[0].d) / 1000).toLocaleString('es-ES', { maximumFractionDigits: 2 })}.`);
+  } catch (e) { console.error(e); toast('No se pudo guardar la foto.'); }
+  placing.i++;
+  await loadPhotos();
+  showPlacing();
+}
+function nearestIdx(lat, lon) {
+  let best = Infinity, bi = 0;
+  A.points.forEach((q, i) => { const dd = haversine(q, { lat, lon }); if (dd < best) { best = dd; bi = i; } });
+  return bi;
+}
+function placeStored(rec, P, act, offset) {
+  // Coloca una foto guardada sobre los puntos actuales (por hora o por posición)
+  if (rec.time && act.hasTime && rec.time >= act.start - 10 * 60000 && rec.time <= act.end + 10 * 60000) return offset + idxAtTimeIn(P, rec.time);
+  let best = Infinity, bi = 0;
+  for (let i = 0; i < P.length; i++) { const dd = haversine(P[i], rec); if (dd < best) { best = dd; bi = i; } }
+  return offset + bi;
+}
+function idxAtTimeIn(P, t) {
+  let lo = 0, hi = P.length - 1;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (P[m].t < t) lo = m + 1; else hi = m; }
+  return lo;
+}
+async function loadPhotos() {
+  photos.forEach(p => URL.revokeObjectURL(p.url)); photos = [];
+  const cur = A;
+  if (cur.isTrip) {
+    let offset = 0;
+    for (const s of cur.stages) {
+      const recs = await photosForActivity(s.id);
+      for (const r of recs) photos.push({ id: r.id, url: URL.createObjectURL(r.blob), time: r.time, idx: placeStored(r, s.points, s, offset) });
+      offset += s.points.length;
+    }
+  } else {
+    const recs = await photosForActivity(cur.id);
+    for (const r of recs) photos.push({ id: r.id, url: URL.createObjectURL(r.blob), time: r.time, idx: placeStored(r, cur.points, cur, 0) });
+  }
+  if (A !== cur) { photos.forEach(p => URL.revokeObjectURL(p.url)); photos = []; return; }
+  photos.sort((a, b) => a.idx - b.idx);
+  renderPhotos(); drawProfile();
+}
+function renderPhotos() {
+  photoLayer.clearLayers();
+  const grid = $('photos'); grid.innerHTML = '';
+  for (const ph of photos) {
+    const q = A.points[ph.idx];
+    const html = `<div class="ph"><img src="${ph.url}" alt=""></div>`;
+    L.marker([q.lat, q.lon], { icon: L.divIcon({ className: '', html, iconSize: [40, 40], iconAnchor: [20, 46] }) })
+      .on('click', () => openLightbox(ph)).addTo(photoLayer);
+    const b = document.createElement('button'); b.type = 'button';
+    b.setAttribute('aria-label', 'Ver foto ' + (ph.time ? fmtHour(ph.time) : ''));
+    const img = document.createElement('img'); img.src = ph.url; img.alt = '';
+    b.appendChild(img);
+    b.onclick = () => { openLightbox(ph); };
+    grid.appendChild(b);
+  }
+  $('photoNote').style.display = photos.length || A.isTrip ? 'none' : '';
+  if (A.isTrip) $('photosSection').hidden = !photos.length;
+}
+function openLightbox(ph) {
+  const lb = $('lightbox');
+  lb.querySelector('img').src = ph.url;
+  const q = A.points[ph.idx];
+  lb.querySelector('p').textContent = `${ph.time ? fmtHour(ph.time) + ', ' : ''}km ${((q.d - A.points[0].d) / 1000).toFixed(2)}${q.ele != null ? ', ' + Math.round(q.ele) + ' m' : ''}`;
+  $('lbDelete').hidden = !!A.isTrip;
+  $('lbDelete').onclick = async ev => {
+    ev.stopPropagation();
+    if (!confirm('¿Quitar esta foto de la caminata?')) return;
+    await photoDelete(ph.id);
+    lb.classList.remove('on');
+    URL.revokeObjectURL(ph.url);
+    photos = photos.filter(x => x !== ph);
+    renderPhotos(); drawProfile();
+  };
+  lb.classList.add('on');
+  setCursor(ph.idx);
+}
+
+// ---------- Poblaciones cercanas ----------
+const PLACE_LABEL = { city: 'Ciudad', town: 'Población', village: 'Pueblo', hamlet: 'Aldea', suburb: 'Barrio', locality: 'Paraje', isolated_dwelling: 'Casa aislada' };
+async function queryTowns(P, distance) {
+  const n = Math.min(distance > 30000 ? 80 : 40, P.length);
+  const sample = [];
+  for (let k = 0; k < n; k++) { const q = P[Math.floor(k * (P.length - 1) / Math.max(1, n - 1))]; sample.push(q.lat.toFixed(5), q.lon.toFixed(5)); }
+  const radius = distance > 30000 ? 2500 : 5000;
+  const query = `[out:json][timeout:25];node(around:${radius},${sample.join(',')})["place"~"^(city|town|village|hamlet|locality)$"]["name"];out body 120;`;
+  const endpoints = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
+  let data = null;
+  for (const url of endpoints) {
+    try {
+      const r = await fetch(url, { method: 'POST', body: 'data=' + encodeURIComponent(query), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+      if (r.ok) { data = await r.json(); break; }
+    } catch (e) { /* probar el siguiente */ }
+  }
+  if (!data) return null;
+  const sampled = P.filter((_, i) => i % Math.max(1, Math.floor(P.length / 400)) === 0);
+  return data.elements.map(el => {
+    let best = Infinity, bi = 0;
+    sampled.forEach((q, i) => { const dd = haversine(q, { lat: el.lat, lon: el.lon }); if (dd < best) { best = dd; bi = i; } });
+    return { name: el.tags.name, type: el.tags.place, lat: el.lat, lon: el.lon, dist: best, pos: bi / sampled.length };
+  }).sort((a, b) => a.dist - b.dist).slice(0, 25);
+}
+async function loadTowns() {
+  townLayer.clearLayers(); towns = [];
+  $('places').innerHTML = ''; $('placesNote').textContent = 'Buscando poblaciones cerca de la ruta…'; $('placesNote').style.display = '';
+  if (A.isTrip) {
+    const seen = new Set(); let missing = 0;
+    A.stages.forEach((s, k) => {
+      if (!s.cachedTowns) { missing++; return; }
+      s.cachedTowns.filter(t => t.dist < 1500 && t.type !== 'locality')
+        .sort((a, b) => (a.pos ?? 0) - (b.pos ?? 0))
+        .forEach(t => { if (!seen.has(t.name)) { seen.add(t.name); towns.push({ ...t, stage: k }); } });
+    });
+    renderTowns();
+    if (missing) { $('placesNote').style.display = ''; $('placesNote').textContent = `Faltan los pueblos de ${missing} ${missing === 1 ? 'etapa' : 'etapas'}. Se buscan al abrir cada etapa con conexión.`; }
+    return;
+  }
+  if (A.cachedTowns) { towns = A.cachedTowns.slice(0, 15); renderTowns(); return; }
+  const res = await queryTowns(A.points, A.distance);
+  if (!res) { $('placesNote').textContent = 'No se han podido consultar las poblaciones. Comprueba la conexión y vuelve a abrir la caminata.'; return; }
+  const myId = A.id;
+  const list = loadHistory(); const e = list.find(x => x.id === myId);
+  if (e) { e.towns = res; saveHistory(list); }
+  if (!A || A.id !== myId) return;
+  A.cachedTowns = res;
+  towns = res.slice(0, 15);
+  renderTowns();
+}
+function renderTowns() {
+  townLayer.clearLayers();
+  const ul = $('places'); ul.innerHTML = '';
+  if (!towns.length) { $('placesNote').textContent = 'No hay poblaciones con nombre cerca de esta ruta.'; return; }
+  $('placesNote').style.display = 'none';
+  const near = towns[0];
+  if (!A.isTrip && near && near.dist < 8000) $('actSub').textContent = $('actSub').textContent.replace(/(, cerca de .*)?$/, `, cerca de ${near.name}`);
+  for (const t of towns) {
+    const li = document.createElement('li');
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = t.name;
+    b.onclick = () => { map.setView([t.lat, t.lon], 14); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    const s = document.createElement('span');
+    s.textContent = A.isTrip
+      ? `Etapa ${t.stage + 1}, ${(PLACE_LABEL[t.type] || 'lugar').toLowerCase()}`
+      : `${PLACE_LABEL[t.type] || 'Lugar'}, a ${t.dist < 1000 ? Math.round(t.dist / 10) * 10 + ' m' : (t.dist / 1000).toFixed(1) + ' km'} de la ruta`;
+    li.append(b, s); ul.appendChild(li);
+    const onMap = A.isTrip ? (t.type === 'city' || t.type === 'town') : (t.type !== 'hamlet' && t.type !== 'locality');
+    if (onMap) {
+      const div = document.createElement('div'); div.textContent = t.name;
+      L.marker([t.lat, t.lon], { icon: L.divIcon({ className: 'town', html: div.outerHTML, iconSize: [0, 0] }), interactive: false }).addTo(townLayer);
+    }
+  }
+  toggleTowns();
+}
+function toggleTowns() {
+  if ($('townToggle').checked) { if (!map.hasLayer(townLayer)) townLayer.addTo(map); }
+  else townLayer.remove();
+}
+
+// ---------- Vistas ----------
+function showActivity(a, isNew) {
+  if (placing) endPlacing();
+  A = a;
+  if (!history.state || history.state.v !== 'act') history.pushState({ v: 'act' }, '');
+  stopAnim(); anim.f = 0;
+  photos.forEach(p => URL.revokeObjectURL(p.url)); photos = [];
+  $('homeView').classList.remove('on'); $('actView').classList.add('on'); $('btnBack').hidden = false;
+  initMap();
+  setTimeout(() => {
+    map.invalidateSize();
+    if (progressLine) { progressLine.remove(); progressLine = null; }
+    if (walker) { walker.remove(); walker = null; }
+    $('live').classList.remove('on');
+    $('colorMode').value = A.isTrip ? 'stage' : 'slope';
+    $('panel').scrollTop = 0; window.scrollTo(0, 0);
+    $('btnPlay').textContent = 'Reproducir';
+    prof.cursor = null; $('tip').style.display = 'none';
+    renderStats(); drawRoute(); drawMarkers(); renderPhotos(); fitRoute(); drawProfile();
+    loadTowns(); loadPhotos();
+    if (isNew) toast('Caminata guardada en tu historial.');
+  }, 30);
+}
+function showHome() {
+  if (history.state && history.state.v === 'act') { history.back(); return; }
+  renderHome();
+}
+window.addEventListener('popstate', () => {
+  if ($('lightbox').classList.contains('on')) $('lightbox').classList.remove('on');
+  if (pickState) closePick();
+  closeMenu(); closeTripModal(); $('aboutModal').classList.remove('on');
+  if ($('actView').classList.contains('on')) renderHome();
+});
+function renderHome() {
+  if (placing) endPlacing();
+  stopAnim();
+  $('actView').classList.remove('on'); $('homeView').classList.add('on'); $('btnBack').hidden = true;
+  window.scrollTo(0, 0);
+  renderHistory();
+}
+
+// ---------- Eventos ----------
+function openMenu() {
+  $('drawer').classList.add('on'); $('scrim').classList.add('on'); $('drawer').setAttribute('aria-hidden', 'false');
+  $('drawer').querySelector('button.item').focus();
+}
+function closeMenu() {
+  $('drawer').classList.remove('on'); $('scrim').classList.remove('on'); $('drawer').setAttribute('aria-hidden', 'true');
+}
+function openTripModal() {
+  $('tripModalName').value = ''; $('tripModal').classList.add('on');
+  setTimeout(() => $('tripModalName').focus(), 30);
+}
+function closeTripModal() { $('tripModal').classList.remove('on'); }
+function confirmTripModal() {
+  const name = $('tripModalName').value.trim();
+  if (!name) { $('tripModalName').focus(); return; }
+  const trip = createTrip(name);
+  closeTripModal();
+  pendingTripId = trip.id;
+  if ($('homeView').classList.contains('on')) renderHistory();
+  toast('Viaje creado. Elige los archivos de sus etapas.');
+  $('fileInput').click();
+}
+$('btnMenu').onclick = openMenu;
+$('drawerClose').onclick = closeMenu;
+$('scrim').onclick = closeMenu;
+$('drawer').addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  closeMenu();
+  const act = b.dataset.act;
+  if (act === 'home') showHome();
+  if (act === 'add') { pendingTripId = null; $('fileInput').click(); }
+  if (act === 'trip') openTripModal();
+  if (act === 'backup' || act === 'backupPhotos') { if (loadHistory().length) exportBackup(act === 'backupPhotos'); else toast('Todavía no hay caminatas que copiar.'); }
+  if (act === 'restore') $('backupInput').click();
+  if (act === 'about') $('aboutModal').classList.add('on');
+  if (act === 'install' && installEvt) { installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; $('menuInstall').hidden = true; }); }
+});
+$('tripModalCancel').onclick = closeTripModal;
+$('aboutClose').onclick = () => $('aboutModal').classList.remove('on');
+// ---------- Actualizaciones de la app de Android ----------
+function versionNewer(a, b) {
+  const pa = String(a).split('.').map(n => parseInt(n, 10) || 0), pb = String(b).split('.').map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) { const x = pa[i] || 0, y = pb[i] || 0; if (x !== y) return x > y; }
+  return false;
+}
+let lastUpdateCheck = 0;
+async function checkUpdate(manual) {
+  if (!NATIVE) return;
+  if (!manual && Date.now() - lastUpdateCheck < 3 * 3600000) return;
+  lastUpdateCheck = Date.now();
+  try {
+    const r = await fetch(UPDATE_URL, { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } });
+    if (!r.ok) throw new Error('GitHub ' + r.status);
+    const rel = await r.json();
+    const m = String(rel.tag_name || rel.name || '').match(/(\d+\.\d+(?:\.\d+)?)/);
+    const asset = (rel.assets || []).find(a => /\.apk$/i.test(a.name));
+    const v = m && asset ? { version: m[1], apk: asset.browser_download_url } : null;
+    if (v && versionNewer(v.version, APP_VERSION)) {
+      const skipped = JSON.parse(localStorage.getItem('senda.update.later') || 'null');
+      if (!manual && skipped && skipped.v === v.version && Date.now() - skipped.t < 24 * 3600000) return;
+      $('updateText').textContent = `Tienes la ${APP_VERSION} y ya está la ${v.version}. Se instala encima, sin perder nada.`;
+      $('updateGo').onclick = () => { $('updateBar').hidden = true; location.href = v.apk; };
+      $('updateLater').onclick = () => { $('updateBar').hidden = true; localStorage.setItem('senda.update.later', JSON.stringify({ v: v.version, t: Date.now() })); };
+      $('updateBar').hidden = false;
+    } else if (manual) toast('Tienes la última versión de Senda.');
+  } catch (e) {
+    if (manual) toast('No se ha podido comprobar. Revisa la conexión.');
+  }
+}
+if (NATIVE) {
+  $('aboutUpdate').hidden = false;
+  $('aboutUpdate').onclick = () => { $('aboutModal').classList.remove('on'); checkUpdate(true); };
+  setTimeout(() => checkUpdate(false), 2500);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(false); });
+}
+$('aboutModal').addEventListener('click', e => { if (e.target.id === 'aboutModal') $('aboutModal').classList.remove('on'); });
+$('tripModalOk').onclick = confirmTripModal;
+$('tripModalName').onkeydown = e => { if (e.key === 'Enter') confirmTripModal(); };
+$('tripModal').addEventListener('click', e => { if (e.target.id === 'tripModal') closeTripModal(); });
+$('btnFirst').onclick = () => { pendingTripId = null; $('fileInput').click(); };
+$('btnBrand').onclick = showHome;
+$('btnBack').onclick = showHome;
+$('fileInput').onchange = e => { const fs = [...e.target.files]; e.target.value = ''; if (fs.length) openFiles(fs); else pendingTripId = null; };
+$('tripSelect').onchange = changeTrip;
+$('tripNewOk').onclick = confirmNewTrip;
+$('tripNewName').onkeydown = e => { if (e.key === 'Enter') confirmNewTrip(); if (e.key === 'Escape') renderTripBar(); };
+$('btnAddStage').onclick = () => { pendingTripId = A.trip.id; $('fileInput').click(); };
+$('btnDelTrip').onclick = () => {
+  if (!confirm(`¿Borrar el viaje "${A.name}"? Sus etapas no se borran: pasan a caminatas sueltas.`)) return;
+  const id = A.trip.id;
+  saveTrips(loadTrips().filter(x => x.id !== id));
+  const list = loadHistory(); list.forEach(e => { if (e.tripId === id) e.tripId = null; }); saveHistory(list);
+  showHome(); toast('Viaje borrado. Sus etapas siguen en tu historial.');
+};
+$('btnDelAct').onclick = () => {
+  if (!confirm('¿Borrar esta caminata del historial?')) return;
+  const tripId = A.tripId;
+  photosDeleteActivity(A.id).catch(() => {});
+  saveHistory(loadHistory().filter(x => x.id !== A.id));
+  if (tripId && tripStages(tripId).length) showTrip(tripId); else showHome();
+  toast('Caminata borrada.');
+};
+$('btnPhotos').onclick = () => NATIVE ? findNativePhotos() : $('photoInput').click();
+$('btnPhotosManual').onclick = () => $('photoInput').click();
+if (NATIVE) {
+  $('btnPhotosManual').hidden = false;
+  $('photoNote').textContent = 'Pulsa «Buscar fotos» y Senda mirará en tu galería las fotos que hiciste durante la caminata para que elijas cuáles publicar.';
+}
+$('photoInput').onchange = e => { if (e.target.files.length) addPhotos([...e.target.files]); e.target.value = ''; };
+$('btnPlay').onclick = () => anim.on ? stopAnim(false) : startAnim();
+$('btnSpeed').onclick = () => { anim.speedIdx = (anim.speedIdx + 1) % SPEEDS.length; $('btnSpeed').textContent = 'x' + SPEEDS[anim.speedIdx].toString().replace('.', ','); };
+$('btnFit').onclick = () => fitRoute();
+$('btnRename').onmousedown = e => { if ($('titleRow').querySelector('input')) e.preventDefault(); };
+$('btnRename').onclick = () => { const i = $('titleRow').querySelector('input'); if (i) i.blur(); else startRename(); };
+$('backupInput').onchange = e => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; };
+$('colorMode').onchange = drawRoute;
+$('hrToggle').onchange = drawProfile;
+$('townToggle').onchange = toggleTowns;
+$('lightbox').onclick = e => { if (e.target.id === 'lightbox' || e.target.id === 'lbClose' || e.target.tagName === 'IMG') $('lightbox').classList.remove('on'); };
+$('pickCancel').onclick = closePick;
+$('placeSkip').onclick = () => { if (!placing) return; placing.i++; showPlacing(); };
+$('placeCancel').onclick = endPlacing;
+$('pickOk').onclick = confirmPick;
+$('pickAll').onclick = () => { pickState.forEach(p => p.on = true); $('pickGrid').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'true')); updatePickOk(); };
+$('pickNone').onclick = () => { pickState.forEach(p => p.on = false); $('pickGrid').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false')); updatePickOk(); };
+// Instalación como app
+let installEvt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); if (NATIVE) return; installEvt = e; $('menuInstall').hidden = false; });
+window.addEventListener('appinstalled', () => { $('menuInstall').hidden = true; installEvt = null; toast('Senda instalada. Ya la tienes en la pantalla de inicio.'); });
+if (!NATIVE && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  // Si hay una versión nueva publicada, se instala y la app se recarga sola una vez
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloaded) return;
+    reloaded = true;
+    sessionStorage.setItem('senda.updated', '1');
+    location.reload();
+  });
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+      // Al volver a la app desde segundo plano, comprobar si hay versión nueva
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    }).catch(e => console.warn('SW', e));
+  });
+  if (sessionStorage.getItem('senda.updated')) {
+    sessionStorage.removeItem('senda.updated');
+    setTimeout(() => toast('Senda se ha actualizado a la versión ' + APP_VERSION + '.'), 600);
+  }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('lightbox').classList.remove('on'); closeMenu(); closeTripModal(); $('aboutModal').classList.remove('on'); if (pickState) closePick(); } });
+window.addEventListener('resize', () => { if (A) { drawProfile(); } });
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => { e.preventDefault(); const fs = [...e.dataTransfer.files].filter(f => !/^image\//.test(f.type)); if (fs.length) openFiles(fs); });
+bindProfile();
+renderHistory();
+})();
+</script>
+</body>
+</html>

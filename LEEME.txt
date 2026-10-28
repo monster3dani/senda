@@ -1,0 +1,16 @@
+SENDA para Android (DanLab)
+===========================
+
+Repositorio PÚBLICO "senda" en GitHub. Cada vez que subes cambios, GitHub
+fabrica el APK y lo publica en Releases. La app mira ahí si hay versión nueva.
+
+Secrets necesarios (Settings > Secrets and variables > Actions):
+  SENDA_KEYSTORE           -> la firma de la app (texto largo, va aparte)
+  SENDA_KEYSTORE_PASSWORD  -> su contraseña (va aparte)
+
+La firma NO está en este proyecto a propósito: nunca la subas al repositorio.
+Guárdala en un sitio seguro; sin ella no se pueden fabricar actualizaciones.
+
+Si la carpeta ".github" no se sube al arrastrar, créala a mano:
+  Add file > Create new file > .github/workflows/apk.yml
+  y pega el contenido de PEGAR-EN-GITHUB-apk.yml.txt

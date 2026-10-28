@@ -1,0 +1,70 @@
+apply plugin: 'com.android.application'
+
+android {
+    namespace "net.danlab.senda"
+    compileSdk rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "net.danlab.senda"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        // Cada fabricación en GitHub sube el número, así el APK nuevo se instala encima del anterior
+        versionCode ((System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger() + 100)
+        versionName "1.6"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+    signingConfigs {
+        senda {
+            // Firma fija de Senda: no la cambies, o el móvil no dejará actualizar la app
+            storeFile file('senda-release.keystore')
+            // La firma y su contraseña las pone GitHub desde los Secrets (no están en el repositorio)
+            storePassword System.getenv("SENDA_KEYSTORE_PASSWORD") ?: ""
+            keyAlias 'senda'
+            keyPassword System.getenv("SENDA_KEYSTORE_PASSWORD") ?: ""
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.senda
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

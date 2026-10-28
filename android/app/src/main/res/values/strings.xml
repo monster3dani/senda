@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Senda</string>
+    <string name="title_activity_main">Senda</string>
+    <string name="package_name">net.danlab.senda</string>
+    <string name="custom_url_scheme">net.danlab.senda</string>
+</resources>

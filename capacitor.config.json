@@ -1,0 +1,14 @@
+{
+  "appId": "net.danlab.senda",
+  "appName": "Senda",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "appendUserAgent": "Senda/1.6 (DanLab)"
+  },
+  "server": {
+    "hostname": "senda.danlab.app",
+    "androidScheme": "https"
+  },
+  "backgroundColor": "#F4EFE3"
+}
