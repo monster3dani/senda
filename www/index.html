@@ -109,6 +109,10 @@ button { cursor: pointer; }
 .walk-row .w-km small { font-size: 14px; font-weight: 500; margin-left: 2px; }
 .walk-row .tag { display: inline-block; margin-left: 8px; font-size: 13px; font-weight: 600; color: var(--gr); vertical-align: 2px; }
 
+.btn-share { width: 100%; margin-top: 10px; border: 2px solid var(--ink); background: none; border-radius: 10px; padding: 11px; font-weight: 600; font-size: 16px; }
+.share-box { width: min(460px, 100%); max-height: 92vh; display: flex; flex-direction: column; }
+.share-box img { width: 100%; height: auto; max-height: 64vh; object-fit: contain; border-radius: 8px; background: var(--line); }
+
 /* Firma DanLab */
 .dl-sym { display: block; width: 100%; height: 100%; }
 .danlab-sign { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
@@ -418,6 +422,7 @@ select.pill { appearance: none; padding-right: 14px; }
           </div>
         </div>
         <div class="signpost" id="signpost"></div>
+        <button class="btn-share" id="btnShare" type="button">Compartir como imagen</button>
 
         <div class="section" id="stagesSection" hidden>
           <div class="section-head">
@@ -487,6 +492,7 @@ select.pill { appearance: none; padding-right: 14px; }
   <button class="item" data-act="restore" type="button">Recuperar copia</button>
   <button class="item" data-act="install" type="button" id="menuInstall" hidden>Instalar en el móvil</button>
   <h3>Senda</h3>
+  <button class="item" data-act="maps" type="button">Mapas guardados</button>
   <button class="item" data-act="about" type="button">Acerca de Senda</button>
   <p class="drawer-note">Tus caminatas se guardan en este navegador. Guarda una copia de vez en cuando por si borras los datos o cambias de móvil. La copia con fotos ocupa más, pero lo guarda todo.</p>
   <div class="drawer-foot">
@@ -503,6 +509,17 @@ select.pill { appearance: none; padding-right: 14px; }
     <p>Tus caminatas y viajes por etapas sobre el mapa, con su perfil, su animación, tus fotos y los pueblos por los que pasaste. Lee los archivos GPX, TCX y FIT que exporta Zepp.</p>
     <p>Mapas de OpenStreetMap y OpenTopoMap. Poblaciones de OpenStreetMap.</p>
     <div class="modal-actions"><button class="btn-line" id="aboutUpdate" type="button" hidden>Buscar actualizaciones</button><button class="btn-main" id="aboutClose" type="button">Cerrar</button></div>
+  </div>
+</div>
+<div class="modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+  <div class="modal-box share-box">
+    <h2 id="shareTitle">Compartir</h2>
+    <p id="shareInfo">Preparando la imagen…</p>
+    <img id="shareImg" alt="Imagen para compartir">
+    <div class="modal-actions">
+      <button class="btn-line" id="shareClose" type="button">Cerrar</button>
+      <button class="btn-main" id="shareGo" type="button" disabled>Compartir</button>
+    </div>
   </div>
 </div>
 <div class="modal" id="tripModal" role="dialog" aria-modal="true" aria-labelledby="tripModalTitle">
@@ -835,7 +852,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '1.6';
+const APP_VERSION = '1.7';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
 const CAP = window.Capacitor;
@@ -927,15 +944,67 @@ function toast(msg, ms = 3500) {
 }
 
 // ---------- Historial ----------
+// Las caminatas y los viajes se guardan en la base de datos del móvil (mucho más espacio).
+// Se mantiene una copia en memoria para que la app vaya rápida.
+const mem = { hist: '[]', trips: '[]' };
+let kvDbPromise = null;
+function kvDb() {
+  if (!kvDbPromise) kvDbPromise = new Promise((res, rej) => {
+    const r = indexedDB.open('senda-datos', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  return kvDbPromise;
+}
+async function kvGet(key) {
+  const db = await kvDb();
+  return new Promise((res, rej) => { const q = db.transaction('kv').objectStore('kv').get(key); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); });
+}
+let kvQueue = Promise.resolve();
+function kvPut(key, value) {
+  kvQueue = kvQueue.then(async () => {
+    const db = await kvDb();
+    await new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(value, key); tx.oncomplete = res; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); });
+  }).catch(e => { console.error(e); toast('No se ha podido guardar. Puede que el móvil esté sin espacio.', 6000); });
+  return kvQueue;
+}
+async function initStore() {
+  try {
+    let h = await kvGet('historial'), v = await kvGet('viajes');
+    // Pasar lo que hubiera en el almacenamiento antiguo, sin perder nada
+    const merge = (cur, oldKey) => {
+      const old = localStorage.getItem(oldKey);
+      if (old == null) return cur;
+      let a = [], b = [];
+      try { a = JSON.parse(cur || '[]') || []; } catch {}
+      try { b = JSON.parse(old) || []; } catch {}
+      for (const x of b) if (x && x.id && !a.some(y => y.id === x.id)) a.push(x);
+      return JSON.stringify(a);
+    };
+    const h2 = merge(h, STORE_KEY), v2 = merge(v, TRIP_KEY);
+    if (h2 !== h || h == null) { h = h2 || '[]'; await kvPut('historial', h); }
+    if (v2 !== v || v == null) { v = v2 || '[]'; await kvPut('viajes', v); }
+    mem.hist = h; mem.trips = v;
+    const okH = await kvGet('historial'), okV = await kvGet('viajes');
+    if (okH === h) localStorage.removeItem(STORE_KEY);
+    if (okV === v) localStorage.removeItem(TRIP_KEY);
+  } catch (e) {
+    console.error(e);
+    mem.hist = localStorage.getItem(STORE_KEY) || '[]';
+    mem.trips = localStorage.getItem(TRIP_KEY) || '[]';
+  }
+}
 function loadHistory() {
-  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; } catch { return []; }
+  try { return JSON.parse(mem.hist) || []; } catch { return []; }
 }
 function saveHistory(list) {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(list)); return true; }
-  catch { toast('No queda espacio para guardar más caminatas en el historial.'); return false; }
+  mem.hist = JSON.stringify(list);
+  kvPut('historial', mem.hist);
+  return true;
 }
 function packActivity(a) {
-  const step = Math.max(1, Math.ceil(a.points.length / 1500));
+  const step = Math.max(1, Math.ceil(a.points.length / 3000));
   const pts = [];
   for (let i = 0; i < a.points.length; i += step) {
     const q = a.points[i];
@@ -972,11 +1041,12 @@ function storeActivity(a) {
   saveHistory(list);
 }
 function loadTrips() {
-  try { return JSON.parse(localStorage.getItem(TRIP_KEY)) || []; } catch { return []; }
+  try { return JSON.parse(mem.trips) || []; } catch { return []; }
 }
 function saveTrips(list) {
-  try { localStorage.setItem(TRIP_KEY, JSON.stringify(list)); return true; }
-  catch { toast('No queda espacio para guardar el viaje.'); return false; }
+  mem.trips = JSON.stringify(list);
+  kvPut('viajes', mem.trips);
+  return true;
 }
 function createTrip(name) {
   const trip = { id: 'v' + Date.now(), name, created: Date.now() };
@@ -1337,15 +1407,93 @@ function confirmNewTrip() {
 }
 
 // ---------- Mapa ----------
+let tileDbPromise = null;
+function tileDb() {
+  if (!tileDbPromise) tileDbPromise = new Promise((res, rej) => {
+    const r = indexedDB.open('senda-mapas', 1);
+    r.onupgradeneeded = () => { const s = r.result.createObjectStore('tiles', { keyPath: 'url' }); s.createIndex('t', 't'); };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  return tileDbPromise;
+}
+async function tileGet(url) {
+  try {
+    const db = await tileDb();
+    return await new Promise(res => { const q = db.transaction('tiles').objectStore('tiles').get(url); q.onsuccess = () => res(q.result ? q.result.blob : null); q.onerror = () => res(null); });
+  } catch { return null; }
+}
+let tilePuts = 0;
+const TILE_LIMIT = 20000;   // unos 400-600 MB como máximo
+async function tilePut(url, blob) {
+  try {
+    const db = await tileDb();
+    db.transaction('tiles', 'readwrite').objectStore('tiles').put({ url, blob, t: Date.now() });
+    if (++tilePuts % 300 === 0) trimTiles();
+  } catch { /* sin espacio: se sigue sin guardar */ }
+}
+async function trimTiles() {
+  const db = await tileDb();
+  const store = db.transaction('tiles', 'readwrite').objectStore('tiles');
+  const cq = store.count();
+  cq.onsuccess = () => {
+    let extra = cq.result - TILE_LIMIT;
+    if (extra <= 0) return;
+    store.index('t').openCursor().onsuccess = ev => { const c = ev.target.result; if (c && extra-- > 0) { c.delete(); c.continue(); } };
+  };
+}
+async function tileStats() {
+  const db = await tileDb();
+  return new Promise(res => {
+    let n = 0, bytes = 0;
+    db.transaction('tiles').objectStore('tiles').openCursor().onsuccess = ev => {
+      const c = ev.target.result;
+      if (c) { n++; bytes += (c.value.blob && c.value.blob.size) || 0; c.continue(); } else res({ n, bytes });
+    };
+  });
+}
+async function tileClear() {
+  const db = await tileDb();
+  await new Promise(res => { const tx = db.transaction('tiles', 'readwrite'); tx.objectStore('tiles').clear(); tx.oncomplete = res; tx.onerror = res; });
+}
+// Trozo de mapa: primero el guardado; si no está, de internet, y se guarda para la próxima vez
+async function tileBlob(url) {
+  const cached = await tileGet(url);
+  if (cached) return cached;
+  const r = await fetch(url, { mode: 'cors' });
+  if (!r.ok) throw new Error('tile ' + r.status);
+  const b = await r.blob();
+  tilePut(url, b);
+  return b;
+}
+const CachedTileLayer = L.TileLayer.extend({
+  createTile(coords, done) {
+    const img = document.createElement('img');
+    img.alt = ''; img.setAttribute('role', 'presentation');
+    const url = this.getTileUrl(coords);
+    tileBlob(url).then(b => {
+      const u = URL.createObjectURL(b);
+      img.onload = () => { URL.revokeObjectURL(u); done(null, img); };
+      img.onerror = () => { URL.revokeObjectURL(u); done(new Error('tile'), img); };
+      img.src = u;
+    }).catch(() => {
+      img.onload = () => done(null, img);
+      img.onerror = e => done(e, img);
+      img.src = url;
+    });
+    return img;
+  }
+});
+const cachedTiles = (url, opts) => new CachedTileLayer(url, opts);
 function satelliteLayer() {
   // Foto de satélite con calles y nombres de pueblos encima
-  const img = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  const img = cachedTiles('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19, maxNativeZoom: 19, attribution: 'Imágenes © Esri'
   });
-  const roads = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+  const roads = cachedTiles('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19, maxNativeZoom: 19, opacity: 0.85
   });
-  const names = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+  const names = cachedTiles('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19, maxNativeZoom: 19
   });
   return L.layerGroup([img, roads, names]);
@@ -1353,11 +1501,11 @@ function satelliteLayer() {
 function initMap() {
   if (map) return;
   map = L.map('map', { preferCanvas: true, zoomControl: true, attributionControl: true, maxZoom: 19 });
-  const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+  const topo = cachedTiles('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, maxNativeZoom: 17, subdomains: 'abc',
     attribution: '© OpenStreetMap, SRTM | © OpenTopoMap (CC-BY-SA)'
   });
-  const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  const osm = cachedTiles('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, attribution: '© OpenStreetMap'
   });
   const sat = satelliteLayer();
@@ -2112,6 +2260,172 @@ function renderHome() {
 }
 
 // ---------- Eventos ----------
+// ---------- Imagen para compartir ----------
+const DL_PATH_FILL = 'M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z';
+function drawDanlab(g, x, y, size, color) {
+  g.save(); g.translate(x, y); g.scale(size / 240, size / 240);
+  g.strokeStyle = color; g.fillStyle = color; g.lineWidth = 20; g.lineCap = 'butt'; g.lineJoin = 'miter';
+  g.stroke(new Path2D('M72 50 H30 V230 H220'));
+  g.save(); g.beginPath(); g.rect(168, -100, 200, 240); g.rect(-100, 140, 400, 200); g.clip();
+  g.stroke(new Path2D('M155.7 56.9 A90 90 0 0 1 120 230')); g.restore();
+  g.fillRect(78, 0, 84, 20); g.fill(new Path2D(DL_PATH_FILL));
+  g.restore();
+}
+function lon2x(lon, z) { return (lon + 180) / 360 * 256 * 2 ** z; }
+function lat2y(lat, z) { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 256 * 2 ** z; }
+function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+async function drawShareMap(g, W, H, P, stageOf) {
+  let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+  for (const q of P) { minLat = Math.min(minLat, q.lat); maxLat = Math.max(maxLat, q.lat); minLon = Math.min(minLon, q.lon); maxLon = Math.max(maxLon, q.lon); }
+  const pad = 90;
+  let z = 17;
+  while (z > 3 && (lon2x(maxLon, z) - lon2x(minLon, z) > W - 2 * pad || lat2y(minLat, z) - lat2y(maxLat, z) > H - 2 * pad)) z--;
+  const cx = (lon2x(minLon, z) + lon2x(maxLon, z)) / 2, cy = (lat2y(minLat, z) + lat2y(maxLat, z)) / 2;
+  const ox = cx - W / 2, oy = cy - H / 2;
+  g.fillStyle = '#7FA88E'; g.fillRect(0, 0, W, H);
+  let ok = 0, total = 0;
+  const layers = ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                  'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'];
+  for (const tpl of layers) {
+    const jobs = [];
+    for (let tx = Math.floor(ox / 256); tx <= Math.floor((ox + W) / 256); tx++) {
+      for (let ty = Math.floor(oy / 256); ty <= Math.floor((oy + H) / 256); ty++) {
+        const url = tpl.replace('{z}', z).replace('{x}', tx).replace('{y}', ty);
+        total++;
+        jobs.push(tileBlob(url).then(b => loadImg(URL.createObjectURL(b))).then(img => { g.drawImage(img, tx * 256 - ox, ty * 256 - oy); URL.revokeObjectURL(img.src); ok++; }).catch(() => {}));
+      }
+    }
+    await Promise.all(jobs);
+  }
+  // si no hay mapa (sin conexión), un fondo liso con la ruta
+  if (ok < total / 4) { g.fillStyle = '#E9E2D0'; g.fillRect(0, 0, W, H); }
+  const X = q => lon2x(q.lon, z) - ox, Y = q => lat2y(q.lat, z) - oy;
+  const line = (pts, color, w) => { g.beginPath(); pts.forEach((q, i) => i ? g.lineTo(X(q), Y(q)) : g.moveTo(X(q), Y(q))); g.strokeStyle = color; g.lineWidth = w; g.lineJoin = 'round'; g.lineCap = 'round'; g.stroke(); };
+  line(P, 'rgba(255,255,255,.95)', 14);
+  if (stageOf) {
+    let cur = [], k = stageOf(P[0]);
+    for (const q of P) { if (stageOf(q) !== k) { line(cur, STAGE_COLORS[k % STAGE_COLORS.length], 7); cur = [cur[cur.length - 1]]; k = stageOf(q); } cur.push(q); }
+    line(cur, STAGE_COLORS[k % STAGE_COLORS.length], 7);
+  } else line(P, '#C8102E', 7);
+  const dot = (q, fill) => { g.beginPath(); g.arc(X(q), Y(q), 13, 0, Math.PI * 2); g.fillStyle = fill; g.fill(); g.lineWidth = 5; g.strokeStyle = '#fff'; g.stroke(); };
+  dot(P[0], '#2E7D4F'); dot(P[P.length - 1], '#1E2B2A');
+}
+function plate(g, x, y, w, h, fill, color, label, value, unit) {
+  g.beginPath(); g.moveTo(x, y); g.lineTo(x + w - 26, y); g.lineTo(x + w, y + h / 2); g.lineTo(x + w - 26, y + h); g.lineTo(x, y + h); g.closePath();
+  g.fillStyle = fill; g.fill();
+  g.fillStyle = color; g.font = '500 26px Barlow, sans-serif'; g.textBaseline = 'alphabetic'; g.fillText(label, x + 20, y + 40);
+  g.font = '700 60px "Barlow Semi Condensed", "Arial Narrow", sans-serif'; g.fillText(value, x + 20, y + h - 22);
+  const vw = g.measureText(value).width;
+  g.font = '600 28px "Barlow Semi Condensed", sans-serif'; g.fillText(unit, x + 26 + vw, y + h - 24);
+}
+async function buildShareImage() {
+  await Promise.all(['700 60px "Barlow Semi Condensed"', '500 26px Barlow', '600 28px "Barlow Semi Condensed"'].map(f => document.fonts.load(f).catch(() => {})));
+  const W = 1080, H = 1350, MH = 830;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  await drawShareMap(g, W, MH, A.points, A.isTrip ? q => q.stage : null);
+  const grad = g.createLinearGradient(0, MH - 120, 0, MH);
+  grad.addColorStop(0, 'rgba(244,239,227,0)'); grad.addColorStop(1, 'rgba(244,239,227,.9)');
+  g.fillStyle = grad; g.fillRect(0, MH - 120, W, 120);
+  g.fillStyle = '#F4EFE3'; g.fillRect(0, MH, W, H - MH);
+  // título y fecha
+  const title = A.isTrip ? A.name : titleFor(A.name, A.start, A.sport, A.title);
+  g.fillStyle = '#1E2B2A'; g.font = '700 64px "Barlow Semi Condensed", "Arial Narrow", sans-serif';
+  let tt = title; while (g.measureText(tt).width > W - 120 && tt.length > 4) tt = tt.slice(0, -2);
+  if (tt !== title) tt = tt.trim() + '…';
+  g.fillText(tt, 60, MH + 84);
+  g.fillStyle = '#5C6B69'; g.font = '500 30px Barlow, sans-serif';
+  let sub;
+  if (A.isTrip) {
+    const n = A.stages.length;
+    sub = `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${new Date(A.start).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })} al ${new Date(A.end).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+  } else {
+    sub = fmtDate(A.start);
+    const near = towns && towns[0] && towns[0].dist < 8000 ? towns[0].name : null;
+    if (near) sub += `, cerca de ${near}`;
+  }
+  g.fillText(sub, 60, MH + 130);
+  // los tres datos principales
+  const h = Math.floor(A.elapsed / 3600), m = Math.round(A.elapsed % 3600 / 60);
+  const time = A.isTrip || A.elapsed >= 3600 ? [`${h}:${String(m).padStart(2, '0')}`, 'h'] : [fmtClock(A.elapsed), 'min'];
+  const pw = 312, gap = 22, py = MH + 168, ph = 140;
+  plate(g, 60, py, pw, ph, '#C8102E', '#fff', 'Distancia', fmtKm(A.distance), 'km');
+  plate(g, 60 + pw + gap, py, pw, ph, '#F2B705', '#1E2B2A', 'Tiempo', time[0], time[1]);
+  plate(g, 60 + 2 * (pw + gap), py, pw, ph, '#1E2B2A', '#F4EFE3', 'Desnivel', '+' + fmtNum(A.ascent), 'm');
+  // perfil de altitud
+  const P = A.points.filter(q => q.es != null);
+  if (P.length > 2) {
+    const x0 = 60, x1 = W - 60, y0 = py + ph + 34, y1 = y0 + 74;
+    const lo = Math.min(...P.map(q => q.es)), hi = Math.max(...P.map(q => q.es)), span = Math.max(20, hi - lo);
+    const d0 = P[0].d, d1 = P[P.length - 1].d;
+    const PX = q => x0 + (q.d - d0) / Math.max(1, d1 - d0) * (x1 - x0), PY = q => y1 - (q.es - lo) / span * (y1 - y0);
+    g.beginPath(); g.moveTo(x0, y1); P.forEach(q => g.lineTo(PX(q), PY(q))); g.lineTo(x1, y1); g.closePath();
+    g.fillStyle = 'rgba(11,95,106,.18)'; g.fill();
+    g.beginPath(); P.forEach((q, i) => i ? g.lineTo(PX(q), PY(q)) : g.moveTo(PX(q), PY(q)));
+    g.strokeStyle = '#0B5F6A'; g.lineWidth = 3; g.stroke();
+  }
+  // firma: Senda y DanLab
+  try {
+    const icon = await loadImg('icon-senda-192.png');
+    g.save(); g.beginPath(); g.roundRect ? g.roundRect(60, H - 96, 56, 56, 13) : g.rect(60, H - 96, 56, 56); g.clip(); g.drawImage(icon, 60, H - 96, 56, 56); g.restore();
+  } catch {}
+  g.fillStyle = '#1E2B2A'; g.font = '700 38px "Barlow Semi Condensed", sans-serif'; g.fillText('Senda', 130, H - 56);
+  g.textAlign = 'right'; g.fillStyle = '#0B5F6A'; g.font = '600 30px Barlow, sans-serif';
+  g.fillText('DanLab', W - 60, H - 58);
+  const dw = g.measureText('DanLab').width;
+  g.textAlign = 'left';
+  drawDanlab(g, W - 60 - dw - 58, H - 98, 46, '#0B5F6A');
+  return new Promise(res => c.toBlob(res, 'image/png'));
+}
+let shareBlob = null;
+async function openShare() {
+  $('shareModal').classList.add('on');
+  $('shareInfo').textContent = 'Preparando la imagen…';
+  $('shareGo').disabled = true; $('shareImg').removeAttribute('src');
+  try {
+    shareBlob = await buildShareImage();
+    $('shareImg').src = URL.createObjectURL(shareBlob);
+    $('shareInfo').textContent = 'Así quedará. Pulsa Compartir para mandarla por WhatsApp, subirla a redes o guardarla.';
+    $('shareGo').disabled = false;
+  } catch (e) {
+    console.error(e);
+    $('shareInfo').textContent = 'No se ha podido preparar la imagen.';
+  }
+}
+async function doShare() {
+  if (!shareBlob) return;
+  const name = 'senda-' + new Date(A.start || Date.now()).toISOString().slice(0, 10) + '.png';
+  try {
+    if (NATIVE) {
+      const data = await blobToB64(shareBlob);
+      await NativeFS.writeFile({ path: name, data, directory: 'CACHE' });
+      const { uri } = await NativeFS.getUri({ path: name, directory: 'CACHE' });
+      await NativeShare.share({ files: [uri], dialogTitle: 'Compartir la caminata' });
+      return;
+    }
+    const file = new File([shareBlob], name, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(shareBlob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Imagen guardada en Descargas.');
+  } catch (e) {
+    if (e && /cancel|abort/i.test(String(e.message || e.name || e))) return;
+    console.error(e); toast('No se ha podido compartir la imagen.');
+  }
+}
+function closeShare() {
+  $('shareModal').classList.remove('on');
+  const s = $('shareImg').src; if (s && s.startsWith('blob:')) URL.revokeObjectURL(s);
+  shareBlob = null;
+}
+async function showMapsInfo() {
+  const s = await tileStats();
+  const mb = (s.bytes / 1048576).toLocaleString('es-ES', { maximumFractionDigits: 0 });
+  if (!s.n) { toast('Todavía no hay mapas guardados. Se guardan solos al ver tus caminatas con conexión.', 6000); return; }
+  if (confirm(`Senda guarda los trozos de mapa que ves para poder enseñártelos sin conexión. Ahora ocupan ${mb} MB.\n\n¿Quieres borrarlos para liberar espacio? Se volverán a descargar cuando los veas con conexión.`)) {
+    await tileClear(); toast('Mapas guardados borrados.');
+  }
+}
 function openMenu() {
   $('drawer').classList.add('on'); $('scrim').classList.add('on'); $('drawer').setAttribute('aria-hidden', 'false');
   $('drawer').querySelector('button.item').focus();
@@ -2147,10 +2461,15 @@ $('drawer').addEventListener('click', e => {
   if (act === 'backup' || act === 'backupPhotos') { if (loadHistory().length) exportBackup(act === 'backupPhotos'); else toast('Todavía no hay caminatas que copiar.'); }
   if (act === 'restore') $('backupInput').click();
   if (act === 'about') $('aboutModal').classList.add('on');
+  if (act === 'maps') showMapsInfo();
   if (act === 'install' && installEvt) { installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; $('menuInstall').hidden = true; }); }
 });
 $('tripModalCancel').onclick = closeTripModal;
 $('aboutClose').onclick = () => $('aboutModal').classList.remove('on');
+$('btnShare').onclick = openShare;
+$('shareGo').onclick = doShare;
+$('shareClose').onclick = closeShare;
+$('shareModal').addEventListener('click', e => { if (e.target.id === 'shareModal') closeShare(); });
 // ---------- Actualizaciones de la app de Android ----------
 function versionNewer(a, b) {
   const pa = String(a).split('.').map(n => parseInt(n, 10) || 0), pb = String(b).split('.').map(n => parseInt(n, 10) || 0);
@@ -2262,12 +2581,12 @@ if (!NATIVE && 'serviceWorker' in navigator && location.protocol.startsWith('htt
     setTimeout(() => toast('Senda se ha actualizado a la versión ' + APP_VERSION + '.'), 600);
   }
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('lightbox').classList.remove('on'); closeMenu(); closeTripModal(); $('aboutModal').classList.remove('on'); if (pickState) closePick(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('lightbox').classList.remove('on'); closeMenu(); closeTripModal(); $('aboutModal').classList.remove('on'); closeShare(); if (pickState) closePick(); } });
 window.addEventListener('resize', () => { if (A) { drawProfile(); } });
 document.addEventListener('dragover', e => e.preventDefault());
 document.addEventListener('drop', e => { e.preventDefault(); const fs = [...e.dataTransfer.files].filter(f => !/^image\//.test(f.type)); if (fs.length) openFiles(fs); });
 bindProfile();
-renderHistory();
+initStore().then(() => renderHistory());
 })();
 </script>
 </body>

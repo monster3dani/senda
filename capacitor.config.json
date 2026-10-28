@@ -4,7 +4,7 @@
   "webDir": "www",
   "android": {
     "allowMixedContent": false,
-    "appendUserAgent": "Senda/1.6 (DanLab)"
+    "appendUserAgent": "Senda/1.7 (DanLab)"
   },
   "server": {
     "hostname": "senda.danlab.app",
