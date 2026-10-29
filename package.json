@@ -1,6 +1,6 @@
 {
   "name": "senda-app",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "private": true,
   "description": "Senda, una app de DanLab",
   "dependencies": {
