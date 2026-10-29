@@ -111,6 +111,11 @@ button { cursor: pointer; }
 
 .btn-share { width: 100%; margin-top: 10px; border: 2px solid var(--ink); background: none; border-radius: 10px; padding: 11px; font-weight: 600; font-size: 16px; }
 .share-box { width: min(460px, 100%); max-height: 92vh; display: flex; flex-direction: column; }
+.share-prog { display: flex; align-items: center; gap: 12px; margin: 6px 0 4px; }
+.share-track { flex: 1; height: 12px; border-radius: 6px; background: var(--line); overflow: hidden; }
+.share-bar { height: 100%; width: 0; background: var(--danlab); border-radius: 6px; transition: width .25s ease; }
+.share-pct { font: 600 20px "Barlow Semi Condensed", sans-serif; min-width: 3.2em; text-align: right; }
+.btn-main:disabled { opacity: .4; cursor: default; }
 .share-box img { width: 100%; height: auto; max-height: 64vh; object-fit: contain; border-radius: 8px; background: var(--line); }
 
 /* Firma DanLab */
@@ -515,7 +520,11 @@ select.pill { appearance: none; padding-right: 14px; }
   <div class="modal-box share-box">
     <h2 id="shareTitle">Compartir</h2>
     <p id="shareInfo">Preparando la imagen…</p>
-    <img id="shareImg" alt="Imagen para compartir">
+    <div class="share-prog" id="shareProg" hidden>
+      <div class="share-track"><div class="share-bar" id="shareBar"></div></div>
+      <span class="share-pct" id="sharePct">0 %</span>
+    </div>
+    <img id="shareImg" alt="Imagen para compartir" hidden>
     <div class="modal-actions">
       <button class="btn-line" id="shareClose" type="button">Cerrar</button>
       <button class="btn-main" id="shareGo" type="button" disabled>Compartir</button>
@@ -852,7 +861,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '1.7';
+const APP_VERSION = '1.7.1';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
 const CAP = window.Capacitor;
@@ -1457,10 +1466,13 @@ async function tileClear() {
   await new Promise(res => { const tx = db.transaction('tiles', 'readwrite'); tx.objectStore('tiles').clear(); tx.oncomplete = res; tx.onerror = res; });
 }
 // Trozo de mapa: primero el guardado; si no está, de internet, y se guarda para la próxima vez
-async function tileBlob(url) {
+async function tileBlob(url, timeoutMs = 10000) {
   const cached = await tileGet(url);
   if (cached) return cached;
-  const r = await fetch(url, { mode: 'cors' });
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  let r;
+  try { r = await fetch(url, { mode: 'cors', signal: ctrl.signal }); } finally { clearTimeout(timer); }
   if (!r.ok) throw new Error('tile ' + r.status);
   const b = await r.blob();
   tilePut(url, b);
@@ -2274,7 +2286,7 @@ function drawDanlab(g, x, y, size, color) {
 function lon2x(lon, z) { return (lon + 180) / 360 * 256 * 2 ** z; }
 function lat2y(lat, z) { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 256 * 2 ** z; }
 function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
-async function drawShareMap(g, W, H, P, stageOf) {
+async function drawShareMap(g, W, H, P, stageOf, onProgress) {
   let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
   for (const q of P) { minLat = Math.min(minLat, q.lat); maxLat = Math.max(maxLat, q.lat); minLon = Math.min(minLon, q.lon); maxLon = Math.max(maxLon, q.lon); }
   const pad = 90;
@@ -2283,20 +2295,25 @@ async function drawShareMap(g, W, H, P, stageOf) {
   const cx = (lon2x(minLon, z) + lon2x(maxLon, z)) / 2, cy = (lat2y(minLat, z) + lat2y(maxLat, z)) / 2;
   const ox = cx - W / 2, oy = cy - H / 2;
   g.fillStyle = '#7FA88E'; g.fillRect(0, 0, W, H);
-  let ok = 0, total = 0;
+  let ok = 0, total = 0, done = 0;
   const layers = ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                   'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'];
-  for (const tpl of layers) {
-    const jobs = [];
+  const nx = Math.floor((ox + W) / 256) - Math.floor(ox / 256) + 1, ny = Math.floor((oy + H) / 256) - Math.floor(oy / 256) + 1;
+  const all = nx * ny * layers.length;
+  const tick = () => { done++; if (onProgress) onProgress(done / all); };
+  // se piden todos los trozos a la vez y luego se pintan en orden (foto debajo, nombres encima)
+  const jobs = [];
+  layers.forEach((tpl, li) => {
     for (let tx = Math.floor(ox / 256); tx <= Math.floor((ox + W) / 256); tx++) {
       for (let ty = Math.floor(oy / 256); ty <= Math.floor((oy + H) / 256); ty++) {
         const url = tpl.replace('{z}', z).replace('{x}', tx).replace('{y}', ty);
         total++;
-        jobs.push(tileBlob(url).then(b => loadImg(URL.createObjectURL(b))).then(img => { g.drawImage(img, tx * 256 - ox, ty * 256 - oy); URL.revokeObjectURL(img.src); ok++; }).catch(() => {}));
+        jobs.push(tileBlob(url, 8000).then(b => loadImg(URL.createObjectURL(b))).then(img => ({ li, tx, ty, img })).catch(() => null).finally(tick));
       }
     }
-    await Promise.all(jobs);
-  }
+  });
+  const got = (await Promise.all(jobs)).filter(Boolean).sort((a, b) => a.li - b.li);
+  for (const { tx, ty, img } of got) { g.drawImage(img, tx * 256 - ox, ty * 256 - oy); URL.revokeObjectURL(img.src); ok++; }
   // si no hay mapa (sin conexión), un fondo liso con la ruta
   if (ok < total / 4) { g.fillStyle = '#E9E2D0'; g.fillRect(0, 0, W, H); }
   const X = q => lon2x(q.lon, z) - ox, Y = q => lat2y(q.lat, z) - oy;
@@ -2318,12 +2335,14 @@ function plate(g, x, y, w, h, fill, color, label, value, unit) {
   const vw = g.measureText(value).width;
   g.font = '600 28px "Barlow Semi Condensed", sans-serif'; g.fillText(unit, x + 26 + vw, y + h - 24);
 }
-async function buildShareImage() {
+async function buildShareImage(onProgress) {
+  const prog = p => { if (onProgress) onProgress(p); };
+  prog(0.02);
   await Promise.all(['700 60px "Barlow Semi Condensed"', '500 26px Barlow', '600 28px "Barlow Semi Condensed"'].map(f => document.fonts.load(f).catch(() => {})));
   const W = 1080, H = 1350, MH = 830;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d');
-  await drawShareMap(g, W, MH, A.points, A.isTrip ? q => q.stage : null);
+  await drawShareMap(g, W, MH, A.points, A.isTrip ? q => q.stage : null, p => prog(0.05 + p * 0.85));
   const grad = g.createLinearGradient(0, MH - 120, 0, MH);
   grad.addColorStop(0, 'rgba(244,239,227,0)'); grad.addColorStop(1, 'rgba(244,239,227,.9)');
   g.fillStyle = grad; g.fillRect(0, MH - 120, W, 120);
@@ -2375,20 +2394,32 @@ async function buildShareImage() {
   const dw = g.measureText('DanLab').width;
   g.textAlign = 'left';
   drawDanlab(g, W - 60 - dw - 58, H - 98, 46, '#0B5F6A');
-  return new Promise(res => c.toBlob(res, 'image/png'));
+  prog(0.95);
+  const blob = await new Promise(res => c.toBlob(res, 'image/png'));
+  prog(1);
+  return blob;
 }
 let shareBlob = null;
+function setShareProg(p) {
+  const pct = Math.max(0, Math.min(100, Math.round(p * 100)));
+  $('shareBar').style.width = pct + '%';
+  $('sharePct').textContent = pct + ' %';
+  $('shareInfo').textContent = pct < 90 ? 'Preparando el mapa…' : 'Terminando la imagen…';
+}
 async function openShare() {
   $('shareModal').classList.add('on');
   $('shareInfo').textContent = 'Preparando la imagen…';
-  $('shareGo').disabled = true; $('shareImg').removeAttribute('src');
+  $('shareGo').disabled = true; $('shareImg').removeAttribute('src'); $('shareImg').hidden = true;
+  $('shareProg').hidden = false; setShareProg(0);
   try {
-    shareBlob = await buildShareImage();
+    shareBlob = await buildShareImage(setShareProg);
     $('shareImg').src = URL.createObjectURL(shareBlob);
+    $('shareImg').hidden = false; $('shareProg').hidden = true;
     $('shareInfo').textContent = 'Así quedará. Pulsa Compartir para mandarla por WhatsApp, subirla a redes o guardarla.';
     $('shareGo').disabled = false;
   } catch (e) {
     console.error(e);
+    $('shareProg').hidden = true;
     $('shareInfo').textContent = 'No se ha podido preparar la imagen.';
   }
 }

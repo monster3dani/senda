@@ -9,7 +9,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Cada fabricación en GitHub sube el número, así el APK nuevo se instala encima del anterior
         versionCode ((System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger() + 100)
-        versionName "1.7"
+        versionName "1.7.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
