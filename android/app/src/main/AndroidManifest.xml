@@ -41,4 +41,6 @@
     <!-- Para buscar las fotos hechas durante cada caminata -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <!-- Para instalar las versiones nuevas de Senda directamente, como AVRadio -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 </manifest>

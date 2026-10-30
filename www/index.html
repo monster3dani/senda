@@ -543,8 +543,10 @@ select.pill { appearance: none; padding-right: 14px; }
   </div>
 </div>
 <div class="update-bar" id="updateBar" hidden role="status">
-  <div><b>Hay una versión nueva de Senda</b><span id="updateText"></span></div>
-  <button type="button" class="btn-main" id="updateGo">Descargar</button>
+  <div><b id="updateTitle">Hay una versión nueva de Senda</b><span id="updateText"></span>
+    <div class="share-prog" id="updateProg" hidden><div class="share-track"><div class="share-bar" id="updateBarFill"></div></div><span class="share-pct" id="updatePct">0 %</span></div>
+  </div>
+  <button type="button" class="btn-main" id="updateGo">Actualizar</button>
   <button type="button" class="btn-line" id="updateLater">Ahora no</button>
 </div>
 <div class="lightbox" id="lightbox" role="dialog" aria-label="Foto"><div><img alt=""><p></p>
@@ -861,7 +863,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '1.7.1';
+const APP_VERSION = '1.8.0';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
 const CAP = window.Capacitor;
@@ -869,6 +871,7 @@ const NATIVE = !!(CAP && CAP.isNativePlatform && CAP.isNativePlatform());
 const NativePhotos = NATIVE ? CAP.registerPlugin('SendaPhotos') : null;
 const NativeFS = NATIVE ? CAP.registerPlugin('Filesystem') : null;
 const NativeShare = NATIVE ? CAP.registerPlugin('Share') : null;
+const NativeUpdate = NATIVE ? CAP.registerPlugin('SendaUpdate') : null;
 document.querySelectorAll('.app-ver').forEach(el => el.textContent = APP_VERSION);
 const STAGE_COLORS = ['#C8102E', '#2F6DB5', '#E8A100', '#2E7D4F', '#7B4FA0', '#E8711A', '#1C8C9C', '#B0306E'];
 let pendingTripId = null;
@@ -2508,6 +2511,37 @@ function versionNewer(a, b) {
   return false;
 }
 let lastUpdateCheck = 0;
+let pendingUpdate = null;
+async function startUpdate(v) {
+  // Igual que AVRadio: descarga dentro de la app y abre el instalador de Android
+  try {
+    const { allowed } = await NativeUpdate.canInstall();
+    if (!allowed) {
+      pendingUpdate = v;
+      $('updateTitle').textContent = 'Un permiso, solo esta vez';
+      $('updateText').textContent = 'Android te pedirá dejar que Senda instale sus actualizaciones. Activa «Permitir de esta fuente» y vuelve a Senda: la actualización seguirá sola.';
+      await NativeUpdate.openInstallSettings();
+      return;
+    }
+    pendingUpdate = null;
+    $('updateGo').hidden = true; $('updateLater').hidden = true;
+    $('updateTitle').textContent = `Descargando Senda ${v.version}`;
+    $('updateText').textContent = 'Al terminar se abrirá el instalador: solo tendrás que pulsar «Instalar» o «Actualizar».';
+    $('updateProg').hidden = false; $('updateBarFill').style.width = '0%'; $('updatePct').textContent = '0 %';
+    const sub = await NativeUpdate.addListener('updateProgress', p => {
+      $('updateBarFill').style.width = p.pct + '%'; $('updatePct').textContent = p.pct + ' %';
+    });
+    try { await NativeUpdate.downloadAndInstall({ url: v.apk }); }
+    finally { try { sub.remove(); } catch {} }
+    $('updateBar').hidden = true;
+  } catch (e) {
+    console.error(e);
+    $('updateProg').hidden = true; $('updateGo').hidden = false; $('updateLater').hidden = false;
+    $('updateTitle').textContent = 'No se pudo actualizar';
+    $('updateText').textContent = 'Revisa la conexión y vuelve a intentarlo.';
+    $('updateGo').textContent = 'Reintentar';
+  }
+}
 async function checkUpdate(manual) {
   if (!NATIVE) return;
   if (!manual && Date.now() - lastUpdateCheck < 3 * 3600000) return;
@@ -2522,8 +2556,10 @@ async function checkUpdate(manual) {
     if (v && versionNewer(v.version, APP_VERSION)) {
       const skipped = JSON.parse(localStorage.getItem('senda.update.later') || 'null');
       if (!manual && skipped && skipped.v === v.version && Date.now() - skipped.t < 24 * 3600000) return;
+      $('updateTitle').textContent = 'Hay una versión nueva de Senda';
       $('updateText').textContent = `Tienes la ${APP_VERSION} y ya está la ${v.version}. Se instala encima, sin perder nada.`;
-      $('updateGo').onclick = () => { $('updateBar').hidden = true; location.href = v.apk; };
+      $('updateProg').hidden = true; $('updateGo').hidden = false; $('updateLater').hidden = false; $('updateGo').disabled = false;
+      $('updateGo').onclick = () => startUpdate(v);
       $('updateLater').onclick = () => { $('updateBar').hidden = true; localStorage.setItem('senda.update.later', JSON.stringify({ v: v.version, t: Date.now() })); };
       $('updateBar').hidden = false;
     } else if (manual) toast('Tienes la última versión de Senda.');
@@ -2535,7 +2571,14 @@ if (NATIVE) {
   $('aboutUpdate').hidden = false;
   $('aboutUpdate').onclick = () => { $('aboutModal').classList.remove('on'); checkUpdate(true); };
   setTimeout(() => checkUpdate(false), 2500);
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') checkUpdate(false); });
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible') return;
+    if (pendingUpdate) {
+      // vuelve de dar el permiso: seguir con la actualización
+      try { const { allowed } = await NativeUpdate.canInstall(); if (allowed) { startUpdate(pendingUpdate); return; } } catch {}
+    }
+    checkUpdate(false);
+  });
 }
 $('aboutModal').addEventListener('click', e => { if (e.target.id === 'aboutModal') $('aboutModal').classList.remove('on'); });
 $('tripModalOk').onclick = confirmTripModal;
