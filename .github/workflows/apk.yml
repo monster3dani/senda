@@ -36,6 +36,13 @@ jobs:
           if [ -z "$SENDA_KEYSTORE" ]; then echo "Falta el secret SENDA_KEYSTORE"; exit 1; fi
           echo "$SENDA_KEYSTORE" | base64 -d > android/app/senda-release.keystore
 
+      - name: Poner la versión en la app
+        run: |
+          # La versión manda en package.json: así la app y el aviso nunca se contradicen
+          sed -i "s/const APP_VERSION = '[^']*';/const APP_VERSION = '${SENDA_VERSION}';/" www/index.html
+          grep -q "const APP_VERSION = '${SENDA_VERSION}';" www/index.html || { echo "No encuentro www/index.html con la app. ¿Se subió a la carpeta www?"; exit 1; }
+          sed -i "s/versionName \"[^\"]*\"/versionName \"${SENDA_VERSION}\"/" android/app/build.gradle
+
       - name: Instalar Capacitor
         run: npm ci
 
