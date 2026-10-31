@@ -36,11 +36,14 @@ jobs:
           if [ -z "$SENDA_KEYSTORE" ]; then echo "Falta el secret SENDA_KEYSTORE"; exit 1; fi
           echo "$SENDA_KEYSTORE" | base64 -d > android/app/senda-release.keystore
 
-      - name: Poner la versión en la app
+      - name: Comprobar que la app es la versión nueva
         run: |
-          # La versión manda en package.json: así la app y el aviso nunca se contradicen
-          sed -i "s/const APP_VERSION = '[^']*';/const APP_VERSION = '${SENDA_VERSION}';/" www/index.html
-          grep -q "const APP_VERSION = '${SENDA_VERSION}';" www/index.html || { echo "No encuentro www/index.html con la app. ¿Se subió a la carpeta www?"; exit 1; }
+          # La versión de package.json y la de dentro de la app tienen que coincidir.
+          # Si no coinciden, es que www/index.html no se ha subido bien: se para aquí.
+          if ! grep -q "const APP_VERSION = '${SENDA_VERSION}';" www/index.html; then
+            echo "::error::La app (www/index.html) no es la versión ${SENDA_VERSION}. Vuelve a subir el archivo index.html dentro de la carpeta www."
+            exit 1
+          fi
           sed -i "s/versionName \"[^\"]*\"/versionName \"${SENDA_VERSION}\"/" android/app/build.gradle
 
       - name: Instalar Capacitor
