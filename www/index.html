@@ -263,8 +263,11 @@ select.pill { appearance: none; padding-right: 14px; }
 }
 .plate:nth-child(2) { background: var(--pr); color: #1E2B2A; margin-right: 22px; }
 .plate:nth-child(3) { background: var(--ink); color: var(--bg); margin-right: 44px; }
+.plate:nth-child(4) { background: #0B5F6A; color: #fff; margin-right: 66px; }
 .plate span { font-weight: 500; font-size: 16px; }
-.plate b { font-family: "Barlow Semi Condensed", sans-serif; font-weight: 700; font-size: 34px; line-height: 1; }
+.plate b { font-family: "Barlow Semi Condensed", sans-serif; font-weight: 700; font-size: 34px; line-height: 1; white-space: nowrap; }
+.plate.compact b { font-size: 27px; }
+.plate span { white-space: nowrap; margin-right: 8px; }
 .plate b small { font-size: 18px; font-weight: 600; margin-left: 3px; }
 
 .section { margin-top: 26px; }
@@ -863,7 +866,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '1.8.0';
+const APP_VERSION = '1.8.1';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
 const CAP = window.Capacitor;
@@ -931,6 +934,11 @@ if (navigator.storage && navigator.storage.persist) navigator.storage.persist().
 // ---------- Formato ----------
 const fmtKm = m => (m / 1000).toLocaleString('es-ES', { minimumFractionDigits: m >= 10000 ? 1 : 2, maximumFractionDigits: m >= 10000 ? 1 : 2 });
 const fmtNum = n => n == null ? '–' : Math.round(n).toLocaleString('es-ES');
+const fmtDec = (n, d = 1) => n == null || !isFinite(n) ? '–' : n.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
+// Desnivel: lo que se sube y lo que se baja, para que una ruta de bajada no parezca llana
+const fmtDesnivel = a => '+' + fmtNum(a.ascent) + ' / −' + fmtNum(a.descent);
+// Velocidad media sobre el tiempo en movimiento (o el total si no lo hay)
+const avgSpeed = a => { const s = a.moving || a.elapsed; return s ? a.distance / s * 3.6 : null; };
 function fmtDur(s) {
   if (s == null) return '–';
   s = Math.round(s);
@@ -1576,7 +1584,7 @@ function drawRoute() {
     else { lo = quantile(P.map(q => q[key]), .05); hi = quantile(P.map(q => q[key]), .95); }
     if (mode === 'ele') unit = ' m';
     if (mode === 'hr') unit = ' ppm';
-    if (mode === 'v') { unit = ' km/h'; fmt = v => (v * 3.6).toFixed(1); }
+    if (mode === 'v') { unit = ' km/h'; fmt = v => fmtDec(v * 3.6); }
     if (hi - lo < 1e-6) hi = lo + 1;
     L.polyline(ll, { color: '#ffffff', weight: 8, opacity: .9 }).addTo(routeLayer);
     const BINS = 24;
@@ -1642,7 +1650,8 @@ function renderTripStats() {
   fillPlates([
     ['Distancia', fmtKm(A.distance), 'km'],
     ['Tiempo', `${h}:${String(m).padStart(2, '0')}`, 'h'],
-    ['Desnivel', '+' + fmtNum(A.ascent), 'm']
+    ['Desnivel', fmtDesnivel(A), 'm'],
+    ['Velocidad', fmtDec(avgSpeed(A)), 'km/h']
   ]);
   const longest = A.stages.reduce((a, s) => s.distance > a.distance ? s : a, A.stages[0]);
   const facts = [
@@ -1661,7 +1670,7 @@ function renderTripStats() {
 function fillPlates(plates) {
   const sp = $('signpost'); sp.innerHTML = '';
   for (const [l, v, u] of plates) {
-    const d = document.createElement('div'); d.className = 'plate';
+    const d = document.createElement('div'); d.className = 'plate' + (String(v).length > 7 ? ' compact' : '');
     const s = document.createElement('span'); s.textContent = l;
     const b = document.createElement('b'); b.textContent = v;
     const sm = document.createElement('small'); sm.textContent = u; b.appendChild(sm);
@@ -1697,7 +1706,8 @@ function renderStats() {
   fillPlates([
     ['Distancia', fmtKm(A.distance), 'km'],
     ['Tiempo', A.elapsed != null ? fmtClock(A.elapsed) : '–', A.elapsed >= 3600 ? 'h' : 'min'],
-    ['Desnivel', '+' + fmtNum(A.ascent), 'm']
+    ['Desnivel', fmtDesnivel(A), 'm'],
+    ['Velocidad', fmtDec(avgSpeed(A)), 'km/h']
   ]);
   const facts = [];
   if (A.moving) facts.push(['En movimiento', fmtDur(A.moving)]);
@@ -1705,7 +1715,7 @@ function renderStats() {
   if (A.eleMax != null) facts.push(['Altitud máxima', fmtNum(A.eleMax) + ' m']);
   if (A.eleMin != null) facts.push(['Altitud mínima', fmtNum(A.eleMin) + ' m']);
   if (A.moving) facts.push(['Ritmo medio', fmtPace(A.moving / (A.distance / 1000))]);
-  if (A.moving) facts.push(['Velocidad media', (A.distance / A.moving * 3.6).toFixed(1) + ' km/h']);
+  if (A.moving) facts.push(['Velocidad en movimiento', fmtDec(A.distance / A.moving * 3.6) + ' km/h']);
   if (A.hrAvg) facts.push(['Pulso medio', A.hrAvg + ' ppm']);
   if (A.hrMax) facts.push(['Pulso máximo', A.hrMax + ' ppm']);
   if (A.calories) facts.push(['Calorías', fmtNum(A.calories) + ' kcal']);
@@ -1839,7 +1849,7 @@ function startAnim() {
     if (progressLine) progressLine.remove();
     progressLine = L.polyline([], { color: '#F2B705', weight: 6, opacity: 1 }).addTo(map);
     const q = A.points[0];
-    map.setView([q.lat, q.lon], A.isTrip ? 14 : 18, { animate: false });
+    map.setView([q.lat, q.lon], A.isTrip ? 14 : 17, { animate: false });
   }
   anim.on = true; anim.last = performance.now();
   $('btnPlay').textContent = 'Pausa';
@@ -2333,16 +2343,16 @@ async function drawShareMap(g, W, H, P, stageOf, onProgress) {
 function plate(g, x, y, w, h, fill, color, label, value, unit) {
   g.beginPath(); g.moveTo(x, y); g.lineTo(x + w - 26, y); g.lineTo(x + w, y + h / 2); g.lineTo(x + w - 26, y + h); g.lineTo(x, y + h); g.closePath();
   g.fillStyle = fill; g.fill();
-  g.fillStyle = color; g.font = '500 26px Barlow, sans-serif'; g.textBaseline = 'alphabetic'; g.fillText(label, x + 20, y + 40);
-  g.font = '700 60px "Barlow Semi Condensed", "Arial Narrow", sans-serif'; g.fillText(value, x + 20, y + h - 22);
+  g.fillStyle = color; g.font = '500 26px Barlow, sans-serif'; g.textBaseline = 'alphabetic'; g.fillText(label, x + 20, y + 36);
+  g.font = '700 56px "Barlow Semi Condensed", "Arial Narrow", sans-serif'; g.fillText(value, x + 20, y + h - 18);
   const vw = g.measureText(value).width;
-  g.font = '600 28px "Barlow Semi Condensed", sans-serif'; g.fillText(unit, x + 26 + vw, y + h - 24);
+  g.font = '600 28px "Barlow Semi Condensed", sans-serif'; g.fillText(unit, x + 26 + vw, y + h - 20);
 }
 async function buildShareImage(onProgress) {
   const prog = p => { if (onProgress) onProgress(p); };
   prog(0.02);
   await Promise.all(['700 60px "Barlow Semi Condensed"', '500 26px Barlow', '600 28px "Barlow Semi Condensed"'].map(f => document.fonts.load(f).catch(() => {})));
-  const W = 1080, H = 1350, MH = 830;
+  const W = 1080, H = 1350, MH = 720;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d');
   await drawShareMap(g, W, MH, A.points, A.isTrip ? q => q.stage : null, p => prog(0.05 + p * 0.85));
@@ -2370,14 +2380,15 @@ async function buildShareImage(onProgress) {
   // los tres datos principales
   const h = Math.floor(A.elapsed / 3600), m = Math.round(A.elapsed % 3600 / 60);
   const time = A.isTrip || A.elapsed >= 3600 ? [`${h}:${String(m).padStart(2, '0')}`, 'h'] : [fmtClock(A.elapsed), 'min'];
-  const pw = 312, gap = 22, py = MH + 168, ph = 140;
+  const gap = 18, pw = (W - 120 - gap) / 2, py = MH + 160, ph = 116, py2 = py + ph + gap;
   plate(g, 60, py, pw, ph, '#C8102E', '#fff', 'Distancia', fmtKm(A.distance), 'km');
   plate(g, 60 + pw + gap, py, pw, ph, '#F2B705', '#1E2B2A', 'Tiempo', time[0], time[1]);
-  plate(g, 60 + 2 * (pw + gap), py, pw, ph, '#1E2B2A', '#F4EFE3', 'Desnivel', '+' + fmtNum(A.ascent), 'm');
+  plate(g, 60, py2, pw, ph, '#1E2B2A', '#F4EFE3', 'Desnivel', fmtDesnivel(A), 'm');
+  plate(g, 60 + pw + gap, py2, pw, ph, '#0B5F6A', '#fff', 'Velocidad', fmtDec(avgSpeed(A)), 'km/h');
   // perfil de altitud
   const P = A.points.filter(q => q.es != null);
   if (P.length > 2) {
-    const x0 = 60, x1 = W - 60, y0 = py + ph + 34, y1 = y0 + 74;
+    const x0 = 60, x1 = W - 60, y0 = py2 + ph + 26, y1 = y0 + 62;
     const lo = Math.min(...P.map(q => q.es)), hi = Math.max(...P.map(q => q.es)), span = Math.max(20, hi - lo);
     const d0 = P[0].d, d1 = P[P.length - 1].d;
     const PX = q => x0 + (q.d - d0) / Math.max(1, d1 - d0) * (x1 - x0), PY = q => y1 - (q.es - lo) / span * (y1 - y0);
