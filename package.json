@@ -1,10 +1,11 @@
 {
   "name": "senda-app",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "private": true,
   "description": "Senda, una app de DanLab",
   "dependencies": {
     "@capacitor/android": "7.6.9",
+    "@capacitor/app": "7.1.2",
     "@capacitor/core": "7.6.9",
     "@capacitor/filesystem": "7.1.9",
     "@capacitor/share": "7.0.4"

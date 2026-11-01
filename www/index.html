@@ -540,6 +540,16 @@ select.pill { appearance: none; padding-right: 14px; }
     <p style="margin:8px 0 0">Versión <span class="app-ver"></span></p>
   </div>
 </nav>
+<div class="modal" id="exitModal" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
+  <div class="modal-box">
+    <h2 id="exitTitle">¿Salir de Senda?</h2>
+    <p>Tus caminatas quedan guardadas.</p>
+    <div class="modal-actions">
+      <button class="btn-line" id="exitNo" type="button">Seguir aquí</button>
+      <button class="btn-main" id="exitYes" type="button">Salir</button>
+    </div>
+  </div>
+</div>
 <div class="modal" id="aboutModal" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
   <div class="modal-box about-box">
     <div class="about-logo"><svg class="dl-sym" viewBox="-20 -20 280 280" aria-hidden="true" focusable="false"><defs><clipPath id="dlc2"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc2)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg></div>
@@ -922,7 +932,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '1.9.0';
+const APP_VERSION = '1.9.1';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
 const CAP = window.Capacitor;
@@ -932,6 +942,7 @@ const NativeFS = NATIVE ? CAP.registerPlugin('Filesystem') : null;
 const NativeShare = NATIVE ? CAP.registerPlugin('Share') : null;
 const NativeUpdate = NATIVE ? CAP.registerPlugin('SendaUpdate') : null;
 const NativeHealth = NATIVE ? CAP.registerPlugin('SendaHealth') : null;
+const NativeApp = NATIVE ? CAP.registerPlugin('App') : null;
 document.querySelectorAll('.app-ver').forEach(el => el.textContent = APP_VERSION);
 const STAGE_COLORS = ['#C8102E', '#2F6DB5', '#E8A100', '#2E7D4F', '#7B4FA0', '#E8711A', '#1C8C9C', '#B0306E'];
 let pendingTripId = null;
@@ -2327,6 +2338,30 @@ function showActivity(a, isNew) {
 function showHome() {
   if (history.state && history.state.v === 'act') { history.back(); return; }
   renderHome();
+}
+// Botón atrás de Android: cierra lo que haya abierto, vuelve al inicio y, en el inicio, pregunta antes de salir
+function handleBack() {
+  if ($('exitModal').classList.contains('on')) { $('exitModal').classList.remove('on'); return; }
+  if ($('lightbox').classList.contains('on')) { $('lightbox').classList.remove('on'); return; }
+  if ($('drawer').classList.contains('on')) { closeMenu(); return; }
+  if (pickState) { closePick(); return; }
+  if ($('shareModal').classList.contains('on')) { closeShare(); return; }
+  const openModal = document.querySelector('.modal.on');
+  if (openModal) { openModal.classList.remove('on'); return; }
+  if (placing) { endPlacing(); return; }
+  if (anim.on) { stopAnim(false); return; }
+  if ($('actView').classList.contains('on')) {
+    // desde una etapa, vuelve a su viaje; si no, al inicio
+    if (A && !A.isTrip && A.tripId && loadTrips().some(x => x.id === A.tripId)) { showTrip(A.tripId); return; }
+    showHome(); return;
+  }
+  $('exitModal').classList.add('on');
+}
+if (NATIVE) {
+  NativeApp.addListener('backButton', handleBack);
+  $('exitNo').onclick = () => $('exitModal').classList.remove('on');
+  $('exitYes').onclick = () => NativeApp.exitApp();
+  $('exitModal').addEventListener('click', e => { if (e.target.id === 'exitModal') $('exitModal').classList.remove('on'); });
 }
 window.addEventListener('popstate', () => {
   if ($('lightbox').classList.contains('on')) $('lightbox').classList.remove('on');
