@@ -2374,7 +2374,7 @@ async function hcStatus() {
   try {
     const { status } = await NativeHealth.availability();
     if (status !== 'available') return { status };
-    const p = await NativeHealth.hasPermissions();
+    const p = await NativeHealth.checkAccess();
     return { status: p.granted ? 'ready' : 'no_permission' };
   } catch (e) { console.error(e); return { status: 'error' }; }
 }
@@ -2434,7 +2434,7 @@ function openHealthSetup(status) {
     info.appendChild(ol);
     hcButtons([['Cerrar', 'btn-line', closeHealth], ['Dar permiso', 'btn-main', async () => {
       try {
-        const r = await NativeHealth.requestPermissions();
+        const r = await NativeHealth.requestAccess();
         if (r.granted) { closeHealth(); renderHistory(); toast('¡Conectado! Buscando caminatas…'); checkHealthNew(true); }
         else toast('Sin ese permiso Senda no puede ver tus caminatas.', 5000);
       } catch (e) { console.error(e); toast('No se pudo pedir el permiso.'); }

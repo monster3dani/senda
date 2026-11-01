@@ -86,7 +86,7 @@ class SendaHealthPlugin : Plugin() {
     }
 
     @PluginMethod
-    fun hasPermissions(call: PluginCall) {
+    fun checkAccess(call: PluginCall) {
         if (status() != "available") { val r = JSObject(); r.put("granted", false); call.resolve(r); return }
         scope.launch {
             try {
@@ -103,7 +103,7 @@ class SendaHealthPlugin : Plugin() {
     }
 
     @PluginMethod
-    fun requestPermissions(call: PluginCall) {
+    fun requestAccess(call: PluginCall) {
         if (status() != "available") { call.reject("Health Connect no está disponible", "UNAVAILABLE"); return }
         try {
             val contract = PermissionController.createRequestPermissionResultContract()
