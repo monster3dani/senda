@@ -118,6 +118,16 @@ button { cursor: pointer; }
 .btn-main:disabled { opacity: .4; cursor: default; }
 .share-box img { width: 100%; height: auto; max-height: 64vh; object-fit: contain; border-radius: 8px; background: var(--line); }
 
+.stage-add { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
+.stage-add span { color: var(--muted); font-size: 14px; }
+.stage-pick { overflow-y: auto; margin-top: 4px; border-top: 1px solid var(--line); }
+.stage-pick label { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 2px 12px; padding: 11px 2px; border-bottom: 1px solid var(--line); cursor: pointer; }
+.stage-pick input { width: 20px; height: 20px; accent-color: var(--gr); grid-row: span 2; }
+.stage-pick strong { font-weight: 600; }
+.stage-pick .sp-sub { grid-column: 2; color: var(--muted); font-size: 14px; }
+.stage-pick .sp-km { grid-column: 3; grid-row: 1 / span 2; font: 600 18px "Barlow Semi Condensed", sans-serif; }
+.stage-pick .sp-group { padding: 10px 2px 4px; color: var(--muted); font-size: 13px; font-weight: 600; }
+
 /* Firma DanLab */
 .dl-sym { display: block; width: 100%; height: 100%; }
 .danlab-sign { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
@@ -128,6 +138,23 @@ button { cursor: pointer; }
 .about-box h2 { margin-bottom: 2px; }
 .about-box .ver { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
 .about-box .by { color: var(--danlab); font-weight: 600; margin: 0 0 10px; }
+
+/* Health Connect */
+.hc-bar { position: fixed; z-index: 2250; left: 10px; right: 10px; top: calc(66px + env(safe-area-inset-top, 0px));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; background: var(--panel); color: var(--ink);
+  border-left: 5px solid var(--gr); border-radius: 12px; padding: 12px 14px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+.hc-bar div { flex: 1 1 200px; }
+.hc-bar b { display: block; }
+.hc-bar span { color: var(--muted); font-size: 14px; }
+.hc-bar .btn-main { padding: 9px 14px; font-size: 15px; }
+.hc-bar .btn-line { padding: 9px 12px; }
+.hc-info p { margin: 0 0 10px; color: var(--muted); }
+.hc-info ol { margin: 0 0 12px; padding-left: 1.3em; }
+.hc-info li { margin-bottom: 6px; }
+.hc-card { margin-top: 26px; border: 2px solid var(--line); border-radius: 14px; padding: 14px 16px; background: var(--panel); }
+.hc-card h3 { margin: 0 0 4px; font: 600 21px "Barlow Semi Condensed", sans-serif; }
+.hc-card p { margin: 0 0 12px; color: var(--muted); font-size: 15px; }
+.hc-card .row { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* Aviso de versión nueva */
 .update-bar { position: fixed; z-index: 2300; left: 10px; right: 10px; bottom: calc(14px + env(safe-area-inset-bottom, 0px));
@@ -373,7 +400,7 @@ select.pill { appearance: none; padding-right: 14px; }
         <p>Guarda cada ruta que haces con el reloj y revívela con su mapa, su perfil, tus fotos y los pueblos por los que pasaste.</p>
         <ol class="steps">
           <li>En Zepp, abre la actividad y expórtala, mejor en formato FIT.</li>
-          <li>Añádela aquí desde el menú.</li>
+          <li>Añádela aquí desde el menú, o conecta Health Connect y Senda te avisará sola de cada caminata nueva.</li>
           <li>Si haces varias etapas, como el Camino de Santiago, agrúpalas en un viaje.</li>
         </ol>
         <button class="btn-main" id="btnFirst" type="button">Añadir mi primera caminata</button>
@@ -438,6 +465,10 @@ select.pill { appearance: none; padding-right: 14px; }
             <button class="btn-line" id="btnAddStage" type="button">Añadir etapa</button>
           </div>
           <ol class="stages" id="stages"></ol>
+          <div class="stage-add">
+            <button class="btn-line" id="btnAddFromSaved" type="button">Añadir de mis caminatas</button>
+            <span>o abre un archivo nuevo con «Añadir etapa».</span>
+          </div>
         </div>
 
         <div class="section">
@@ -494,6 +525,7 @@ select.pill { appearance: none; padding-right: 14px; }
   <h3>Añadir</h3>
   <button class="item primary" data-act="add" type="button">Añadir caminata</button>
   <button class="item" data-act="trip" type="button">Nuevo viaje</button>
+  <button class="item" data-act="health" type="button" id="menuHealth" hidden>Detectar caminatas (Health Connect)</button>
   <h3>Copias de seguridad</h3>
   <button class="item" data-act="backup" type="button">Guardar copia</button>
   <button class="item" data-act="backupPhotos" type="button">Guardar copia con fotos</button>
@@ -534,6 +566,17 @@ select.pill { appearance: none; padding-right: 14px; }
     </div>
   </div>
 </div>
+<div class="modal" id="stagePickModal" role="dialog" aria-modal="true" aria-labelledby="stagePickTitle">
+  <div class="modal-box pick-box">
+    <h2 id="stagePickTitle">Añadir etapas</h2>
+    <p id="stagePickInfo">Marca las caminatas que quieres añadir a este viaje.</p>
+    <div class="stage-pick" id="stagePickList"></div>
+    <div class="modal-actions">
+      <button class="btn-line" id="stagePickCancel" type="button">Cancelar</button>
+      <button class="btn-main" id="stagePickOk" type="button" disabled>Añadir</button>
+    </div>
+  </div>
+</div>
 <div class="modal" id="tripModal" role="dialog" aria-modal="true" aria-labelledby="tripModalTitle">
   <div class="modal-box">
     <h2 id="tripModalTitle">Nuevo viaje</h2>
@@ -543,6 +586,19 @@ select.pill { appearance: none; padding-right: 14px; }
       <button class="btn-line" id="tripModalCancel" type="button">Cancelar</button>
       <button class="btn-main" id="tripModalOk" type="button">Crear y elegir etapas</button>
     </div>
+  </div>
+</div>
+<div class="hc-bar" id="hcBar" hidden role="status">
+  <div><b id="hcBarTitle">Nueva caminata detectada</b><span id="hcBarText"></span></div>
+  <button type="button" class="btn-main" id="hcBarGo">Añadir</button>
+  <button type="button" class="btn-line" id="hcBarLater">Ahora no</button>
+</div>
+<div class="modal" id="hcModal" role="dialog" aria-modal="true" aria-labelledby="hcTitle">
+  <div class="modal-box pick-box">
+    <h2 id="hcTitle">Health Connect</h2>
+    <div id="hcInfo" class="hc-info"></div>
+    <div class="stage-pick" id="hcList"></div>
+    <div class="modal-actions" id="hcActions"></div>
   </div>
 </div>
 <div class="update-bar" id="updateBar" hidden role="status">
@@ -866,7 +922,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '1.8.2';
+const APP_VERSION = '1.9.0';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
 const CAP = window.Capacitor;
@@ -875,6 +931,7 @@ const NativePhotos = NATIVE ? CAP.registerPlugin('SendaPhotos') : null;
 const NativeFS = NATIVE ? CAP.registerPlugin('Filesystem') : null;
 const NativeShare = NATIVE ? CAP.registerPlugin('Share') : null;
 const NativeUpdate = NATIVE ? CAP.registerPlugin('SendaUpdate') : null;
+const NativeHealth = NATIVE ? CAP.registerPlugin('SendaHealth') : null;
 document.querySelectorAll('.app-ver').forEach(el => el.textContent = APP_VERSION);
 const STAGE_COLORS = ['#C8102E', '#2F6DB5', '#E8A100', '#2E7D4F', '#7B4FA0', '#E8711A', '#1C8C9C', '#B0306E'];
 let pendingTripId = null;
@@ -1088,7 +1145,7 @@ function renderHistory() {
   const has = list.length > 0 || trips.length > 0;
   $('welcome').hidden = has; $('homeHead').hidden = !list.length; $('homeMapWrap').hidden = !list.length;
   const box = $('homeList'); box.innerHTML = '';
-  if (!has) return;
+  if (!has) { renderHealthCard(); return; }
 
   // Totales
   const km = list.reduce((s, e) => s + (e.session.distance || 0), 0);
@@ -1144,6 +1201,7 @@ function renderHistory() {
     row.append(st, kmEl, sub); box.appendChild(row);
   }
   drawHomeMap(list, tripIds);
+  renderHealthCard();
 }
 function drawHomeMap(list, tripIds) {
   if (!list.length) return;
@@ -2285,6 +2343,186 @@ function renderHome() {
 }
 
 // ---------- Eventos ----------
+// ---------- Health Connect: detectar caminatas nuevas ----------
+const HC_DAYS = 60;
+let hcState = { imported: [], dismissed: [] }, hcPending = [], hcLastCheck = 0;
+async function hcLoad() {
+  try { const v = await kvGet('health'); if (v) hcState = { imported: [], dismissed: [], ...JSON.parse(v) }; } catch {}
+}
+function hcSave() { kvPut('health', JSON.stringify(hcState)); }
+function hcOrigin(pkg) {
+  if (!pkg) return null;
+  if (/huami|zepp|amazfit/i.test(pkg)) return 'Zepp';
+  if (/google.*fitness/i.test(pkg)) return 'Google Fit';
+  if (/samsung/i.test(pkg)) return 'Samsung Health';
+  if (/garmin/i.test(pkg)) return 'Garmin';
+  return pkg;
+}
+function hcWhen(s) {
+  const d = new Date(s.start);
+  const mins = Math.round((s.end - s.start) / 60000);
+  const dur = mins >= 60 ? `${Math.floor(mins / 60)} h ${String(mins % 60).padStart(2, '0')} min` : `${mins} min`;
+  return `${d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}, ${s.type.toLowerCase()} de ${dur}`;
+}
+// ¿Ya está en Senda? (importada antes, o abierta desde un FIT de la misma hora)
+function hcAlreadyHave(s) {
+  if (hcState.imported.includes(s.id)) return true;
+  return loadHistory().some(e => e.pts.length && Math.abs((e.pts[0][3] || 0) - s.start) < 3 * 60000);
+}
+async function hcStatus() {
+  if (!NATIVE) return { status: 'web' };
+  try {
+    const { status } = await NativeHealth.availability();
+    if (status !== 'available') return { status };
+    const p = await NativeHealth.hasPermissions();
+    return { status: p.granted ? 'ready' : 'no_permission' };
+  } catch (e) { console.error(e); return { status: 'error' }; }
+}
+async function checkHealthNew(manual) {
+  if (!NATIVE) return;
+  if (!manual && Date.now() - hcLastCheck < 2 * 60000) return;
+  hcLastCheck = Date.now();
+  const st = await hcStatus();
+  if (st.status !== 'ready') { if (manual) openHealthSetup(st.status); return; }
+  let res;
+  try { res = await NativeHealth.listSessions({ since: Date.now() - HC_DAYS * 86400000 }); }
+  catch (e) { console.error(e); if (manual) toast('No se han podido leer las caminatas de Health Connect.'); return; }
+  const all = (res.sessions || []).filter(s => s.route !== 'no');
+  const fresh = all.filter(s => !hcAlreadyHave(s));
+  if (manual) {
+    if (!fresh.length) { toast(all.length ? 'Ya tienes en Senda todas las caminatas de Health Connect.' : 'No hay caminatas con recorrido en Health Connect de los últimos dos meses.', 5000); return; }
+    openHealthList(fresh);
+    return;
+  }
+  hcPending = fresh.filter(s => !hcState.dismissed.includes(s.id));
+  if (!hcPending.length) return;
+  if (hcPending.length === 1) {
+    $('hcBarTitle').textContent = 'Nueva caminata detectada';
+    $('hcBarText').textContent = hcWhen(hcPending[0]) + '. ¿La añades a Senda?';
+    $('hcBarGo').textContent = 'Añadir';
+    $('hcBarGo').onclick = () => { $('hcBar').hidden = true; importHealth([hcPending[0].id]); };
+  } else {
+    $('hcBarTitle').textContent = `${hcPending.length} caminatas nuevas detectadas`;
+    $('hcBarText').textContent = 'Están en Health Connect y aún no las tienes en Senda.';
+    $('hcBarGo').textContent = 'Ver';
+    $('hcBarGo').onclick = () => { $('hcBar').hidden = true; openHealthList(hcPending); };
+  }
+  $('hcBarLater').onclick = () => {
+    $('hcBar').hidden = true;
+    hcState.dismissed.push(...hcPending.map(s => s.id)); hcSave();
+    toast('Vale. Puedes añadirlas cuando quieras desde el menú, en «Detectar caminatas».', 5000);
+  };
+  $('hcBar').hidden = false;
+}
+function hcButtons(btns) {
+  const box = $('hcActions'); box.innerHTML = '';
+  for (const [txt, cls, fn] of btns) { const b = document.createElement('button'); b.type = 'button'; b.className = cls; b.textContent = txt; b.onclick = fn; box.appendChild(b); }
+}
+function closeHealth() { $('hcModal').classList.remove('on'); }
+function openHealthSetup(status) {
+  const info = $('hcInfo'); info.innerHTML = ''; $('hcList').innerHTML = ''; $('hcList').hidden = true;
+  const p = txt => { const e = document.createElement('p'); e.textContent = txt; info.appendChild(e); };
+  $('hcTitle').textContent = 'Detectar caminatas';
+  if (status === 'not_installed' || status === 'update_required' || status === 'unavailable') {
+    p('Senda puede encontrar sola tus caminatas nuevas, sin exportarlas desde Zepp. Para eso usa Health Connect, la app de Android que comparte datos de salud entre aplicaciones.');
+    p(status === 'update_required' ? 'Tienes Health Connect, pero hay que actualizarlo.' : 'No tienes Health Connect instalado en este móvil.');
+    hcButtons([['Cerrar', 'btn-line', closeHealth], [status === 'update_required' ? 'Actualizar Health Connect' : 'Instalar Health Connect', 'btn-main', async () => { closeHealth(); await NativeHealth.openInstall(); toast('Cuando lo tengas, vuelve a Senda y entra otra vez en «Detectar caminatas».', 6000); }]]);
+  } else if (status === 'no_permission') {
+    p('Faltan dos cosas, solo esta vez:');
+    const ol = document.createElement('ol');
+    for (const s of ['En Zepp: Perfil, «Enlace de cuenta de terceros», Health Connect, y activa «Sincronizar con Health Connect».', 'Aquí: pulsa «Dar permiso» y deja que Senda lea tus ejercicios y sus rutas. Elige «Permitir todo».']) { const li = document.createElement('li'); li.textContent = s; ol.appendChild(li); }
+    info.appendChild(ol);
+    hcButtons([['Cerrar', 'btn-line', closeHealth], ['Dar permiso', 'btn-main', async () => {
+      try {
+        const r = await NativeHealth.requestPermissions();
+        if (r.granted) { closeHealth(); renderHistory(); toast('¡Conectado! Buscando caminatas…'); checkHealthNew(true); }
+        else toast('Sin ese permiso Senda no puede ver tus caminatas.', 5000);
+      } catch (e) { console.error(e); toast('No se pudo pedir el permiso.'); }
+    }]]);
+  } else if (status === 'ready') {
+    p('Senda está conectada a Health Connect. Cada vez que la abras, te avisará si hay caminatas nuevas para añadir.');
+    hcButtons([['Cerrar', 'btn-line', closeHealth], ['Buscar ahora', 'btn-main', () => { closeHealth(); checkHealthNew(true); }]]);
+  } else {
+    p('Ahora mismo no se puede usar Health Connect. Vuelve a intentarlo en un rato.');
+    hcButtons([['Cerrar', 'btn-main', closeHealth]]);
+  }
+  $('hcModal').classList.add('on');
+}
+function openHealthList(list) {
+  $('hcTitle').textContent = list.length === 1 ? 'Caminata nueva' : 'Caminatas nuevas';
+  const info = $('hcInfo'); info.innerHTML = '';
+  const p = document.createElement('p'); p.textContent = 'Estas caminatas están en Health Connect y todavía no las tienes en Senda. Marca las que quieras añadir.'; info.appendChild(p);
+  const box = $('hcList'); box.innerHTML = ''; box.hidden = false;
+  for (const s of list) {
+    const lab = document.createElement('label');
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = s.id; cb.checked = true;
+    const st = document.createElement('strong'); st.textContent = s.title || s.type;
+    const sub = document.createElement('span'); sub.className = 'sp-sub'; sub.textContent = hcWhen(s) + (hcOrigin(s.origin) ? `, de ${hcOrigin(s.origin)}` : '');
+    const k = document.createElement('span'); k.className = 'sp-km'; k.textContent = '';
+    lab.append(cb, st, k, sub); box.appendChild(lab);
+  }
+  hcButtons([['Cancelar', 'btn-line', closeHealth], ['Añadir', 'btn-main', () => {
+    const ids = [...box.querySelectorAll('input:checked')].map(i => i.value);
+    closeHealth();
+    if (ids.length) importHealth(ids);
+  }]]);
+  $('hcModal').classList.add('on');
+}
+function hcToActivity(d) {
+  const hr = (d.hr || []).slice().sort((a, b) => a[0] - b[0]);
+  let j = 0;
+  const points = (d.points || []).map(p => {
+    const t = p[3];
+    while (j + 1 < hr.length && hr[j + 1][0] <= t) j++;
+    const h = hr.length && Math.abs(hr[j][0] - t) < 120000 ? hr[j][1] : null;
+    return { lat: p[0], lon: p[1], ele: p[2] == null ? null : p[2], t, hr: h, cad: null, dist: null, spd: null };
+  }).filter(q => isFinite(q.lat) && isFinite(q.lon)).sort((a, b) => a.t - b.t);
+  const session = {};
+  if (d.distance) session.distance = d.distance;
+  if (d.calories) session.calories = Math.round(d.calories);
+  // si la ruta no trae altitud, el desnivel lo pone Health Connect
+  if (d.ascent != null && !points.some(q => q.ele != null)) session.ascent = Math.round(d.ascent);
+  return { name: d.title || null, sport: d.type, device: hcOrigin(d.origin), points, session };
+}
+async function importHealth(ids) {
+  const done = []; let noRoute = 0, failed = 0;
+  toast(ids.length === 1 ? 'Añadiendo la caminata…' : `Añadiendo ${ids.length} caminatas…`, 8000);
+  for (const id of ids) {
+    try {
+      const d = await NativeHealth.readSession({ id });
+      const act = hcToActivity(d);
+      if (act.points.length < 2) { noRoute++; continue; }
+      const a = analyze(act);
+      storeActivity(a);
+      hcState.imported.push(id);
+      done.push(a);
+    } catch (e) { console.error(e); failed++; }
+  }
+  hcSave();
+  if (!done.length) { toast(noRoute ? 'Esa caminata no tiene recorrido GPS en Health Connect.' : 'No se ha podido añadir. Vuelve a intentarlo.', 5000); return; }
+  if (done.length === 1) showActivity(done[0], true); else { showHome(); toast(`${done.length} caminatas añadidas.`); }
+  if (noRoute || failed) setTimeout(() => toast(`${noRoute + failed} no se pudieron añadir (sin recorrido GPS o con error).`, 5000), 2500);
+  fetchTownsInBackground(done);
+}
+// Tarjeta en el inicio para quien aún no lo tiene configurado
+async function renderHealthCard() {
+  if (!NATIVE || localStorage.getItem('senda.hc.card') === 'off') return;
+  const st = await hcStatus();
+  if (st.status === 'ready' || st.status === 'web' || st.status === 'error') return;
+  if (!$('homeView').classList.contains('on') || document.getElementById('hcCard')) return;
+  const c = document.createElement('div'); c.className = 'hc-card'; c.id = 'hcCard';
+  const h = document.createElement('h3'); h.textContent = 'Que Senda encuentre tus caminatas sola';
+  const p = document.createElement('p'); p.textContent = st.status === 'no_permission'
+    ? 'Ya tienes Health Connect. Falta conectarlo para que Senda te avise de cada caminata nueva, sin exportar nada desde Zepp.'
+    : 'Con Health Connect, Senda te avisará de cada caminata nueva sin exportarla desde Zepp. Necesitas instalarlo una vez.';
+  const row = document.createElement('div'); row.className = 'row';
+  const b1 = document.createElement('button'); b1.type = 'button'; b1.className = 'btn-main'; b1.textContent = 'Configurar'; b1.onclick = () => openHealthSetup(st.status);
+  const b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'btn-line'; b2.textContent = 'No, gracias';
+  b2.onclick = () => { localStorage.setItem('senda.hc.card', 'off'); c.remove(); toast('Si cambias de idea, está en el menú: «Detectar caminatas».', 5000); };
+  row.append(b1, b2); c.append(h, p, row);
+  const list = $('homeList'); list.insertBefore(c, list.firstChild);
+}
+
 // ---------- Imagen para compartir ----------
 const DL_PATH_FILL = 'M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z';
 function drawDanlab(g, x, y, size, color) {
@@ -2507,6 +2745,7 @@ $('drawer').addEventListener('click', e => {
   if (act === 'restore') $('backupInput').click();
   if (act === 'about') $('aboutModal').classList.add('on');
   if (act === 'maps') showMapsInfo();
+  if (act === 'health') hcStatus().then(st => st.status === 'ready' ? checkHealthNew(true) : openHealthSetup(st.status));
   if (act === 'install' && installEvt) { installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; $('menuInstall').hidden = true; }); }
 });
 $('tripModalCancel').onclick = closeTripModal;
@@ -2603,6 +2842,51 @@ $('tripSelect').onchange = changeTrip;
 $('tripNewOk').onclick = confirmNewTrip;
 $('tripNewName').onkeydown = e => { if (e.key === 'Enter') confirmNewTrip(); if (e.key === 'Escape') renderTripBar(); };
 $('btnAddStage').onclick = () => { pendingTripId = A.trip.id; $('fileInput').click(); };
+// Añadir a un viaje caminatas que ya estaban guardadas
+function openStagePick() {
+  const tripId = A.trip.id;
+  const trips = loadTrips();
+  const tripIds = new Set(trips.map(x => x.id));
+  const list = loadHistory().filter(e => e.tripId !== tripId).sort((x, y) => (y.pts[0][3] || 0) - (x.pts[0][3] || 0));
+  if (!list.length) { toast('No tienes otras caminatas guardadas. Usa «Añadir etapa» para abrir un archivo.', 5000); return; }
+  const box = $('stagePickList'); box.innerHTML = '';
+  const loose = list.filter(e => !e.tripId || !tripIds.has(e.tripId));
+  const other = list.filter(e => e.tripId && tripIds.has(e.tripId));
+  const row = e => {
+    const lab = document.createElement('label');
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = e.id;
+    cb.onchange = () => { const n = box.querySelectorAll('input:checked').length; $('stagePickOk').disabled = !n; $('stagePickOk').textContent = n ? `Añadir ${n}` : 'Añadir'; };
+    const st = document.createElement('strong'); st.textContent = titleFor(e.name, e.pts[0][3], e.sport, e.title);
+    const km = document.createElement('span'); km.className = 'sp-km'; km.textContent = fmtKm(e.session.distance) + ' km';
+    const sub = document.createElement('span'); sub.className = 'sp-sub';
+    const tr = e.tripId && trips.find(x => x.id === e.tripId);
+    sub.textContent = (e.pts[0][3] ? new Date(e.pts[0][3]).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '') + (tr ? `, ahora en «${tr.name}»` : '');
+    lab.append(cb, st, km, sub);
+    return lab;
+  };
+  const group = txt => { const d = document.createElement('div'); d.className = 'sp-group'; d.textContent = txt; return d; };
+  if (loose.length) { if (other.length) box.appendChild(group('Caminatas sueltas')); loose.forEach(e => box.appendChild(row(e))); }
+  if (other.length) { box.appendChild(group('En otros viajes (se moverán a este)')); other.forEach(e => box.appendChild(row(e))); }
+  $('stagePickInfo').textContent = `Marca las caminatas que quieres añadir a «${A.trip.name}». Se ordenarán solas por fecha.`;
+  $('stagePickOk').disabled = true; $('stagePickOk').textContent = 'Añadir';
+  $('stagePickModal').classList.add('on');
+}
+function confirmStagePick() {
+  const ids = [...$('stagePickList').querySelectorAll('input:checked')].map(i => i.value);
+  if (!ids.length) return;
+  const tripId = A.trip.id;
+  const list = loadHistory();
+  list.forEach(e => { if (ids.includes(e.id)) e.tripId = tripId; });
+  saveHistory(list);
+  $('stagePickModal').classList.remove('on');
+  showTrip(tripId);
+  toast(`${ids.length} ${ids.length === 1 ? 'etapa añadida' : 'etapas añadidas'} al viaje.`);
+}
+$('btnAddFromSaved').onclick = openStagePick;
+$('stagePickOk').onclick = confirmStagePick;
+$('stagePickCancel').onclick = () => $('stagePickModal').classList.remove('on');
+$('stagePickModal').addEventListener('click', e => { if (e.target.id === 'stagePickModal') $('stagePickModal').classList.remove('on'); });
+$('hcModal').addEventListener('click', e => { if (e.target.id === 'hcModal') closeHealth(); });
 $('btnDelTrip').onclick = () => {
   if (!confirm(`¿Borrar el viaje "${A.name}"? Sus etapas no se borran: pasan a caminatas sueltas.`)) return;
   const id = A.trip.id;
@@ -2666,12 +2950,21 @@ if (!NATIVE && 'serviceWorker' in navigator && location.protocol.startsWith('htt
     setTimeout(() => toast('Senda se ha actualizado a la versión ' + APP_VERSION + '.'), 600);
   }
 }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('lightbox').classList.remove('on'); closeMenu(); closeTripModal(); $('aboutModal').classList.remove('on'); closeShare(); if (pickState) closePick(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('lightbox').classList.remove('on'); closeMenu(); closeTripModal(); closeHealth(); $('aboutModal').classList.remove('on'); $('stagePickModal').classList.remove('on'); closeShare(); if (pickState) closePick(); } });
 window.addEventListener('resize', () => { if (A) { drawProfile(); } });
 document.addEventListener('dragover', e => e.preventDefault());
 document.addEventListener('drop', e => { e.preventDefault(); const fs = [...e.dataTransfer.files].filter(f => !/^image\//.test(f.type)); if (fs.length) openFiles(fs); });
 bindProfile();
-initStore().then(() => renderHistory());
+initStore().then(async () => {
+  renderHistory();
+  if (NATIVE) {
+    $('menuHealth').hidden = false;
+    await hcLoad();
+    renderHealthCard();
+    setTimeout(() => checkHealthNew(false), 3500);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') setTimeout(() => checkHealthNew(false), 1500); });
+  }
+});
 })();
 </script>
 </body>

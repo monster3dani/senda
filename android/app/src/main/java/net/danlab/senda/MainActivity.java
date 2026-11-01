@@ -8,6 +8,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(SendaPhotosPlugin.class);
         registerPlugin(SendaUpdatePlugin.class);
+        registerPlugin(SendaHealthPlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

@@ -1,5 +1,7 @@
 ext {
-    minSdkVersion = 23
+    // Health Connect necesita Android 8 o superior
+    minSdkVersion = 26
+    kotlin_version = '2.0.21'
     compileSdkVersion = 35
     targetSdkVersion = 35
     androidxActivityVersion = '1.9.2'
