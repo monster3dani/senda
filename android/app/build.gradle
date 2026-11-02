@@ -10,7 +10,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Cada fabricación en GitHub sube el número, así el APK nuevo se instala encima del anterior
         versionCode ((System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger() + 100)
-        versionName "2.0.0"
+        versionName "2.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -59,6 +59,8 @@ dependencies {
     // Health Connect: leer las caminatas que guarda Zepp (u otras apps) con su ruta
     implementation "androidx.health.connect:connect-client:1.1.0-alpha11"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
+    // Google Drive: copia de seguridad en la carpeta privada de Senda
+    implementation "com.google.android.gms:play-services-auth:21.2.0"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

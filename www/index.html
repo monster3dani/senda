@@ -118,6 +118,8 @@ button { cursor: pointer; }
 .btn-main:disabled { opacity: .4; cursor: default; }
 .share-box img { width: 100%; height: auto; max-height: 64vh; object-fit: contain; border-radius: 8px; background: var(--line); }
 
+#btnDriveRestore { display: block; margin-top: 12px; }
+#driveActions { flex-wrap: wrap; }
 .stage-add { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
 .stage-add span { color: var(--muted); font-size: 14px; }
 .stage-pick { overflow-y: auto; margin-top: 4px; border-top: 1px solid var(--line); }
@@ -425,6 +427,7 @@ select.pill { appearance: none; padding-right: 14px; }
           <li>Si haces varias etapas, como el Camino de Santiago, agrúpalas en un viaje.</li>
         </ol>
         <button class="btn-main" id="btnFirst" type="button">Añadir mi primera caminata</button>
+        <button class="btn-line" id="btnDriveRestore" type="button" hidden>¿Ya usabas Senda? Recuperar desde Google Drive</button>
       </div>
       <div id="homeList"></div>
       <div class="home-foot danlab-sign"><span class="dl-box"><svg class="dl-sym" viewBox="-20 -20 280 280" aria-hidden="true" focusable="false"><defs><clipPath id="dlc3"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc3)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg></span><span>Senda, por <b>DanLab</b></span></div>
@@ -549,6 +552,7 @@ select.pill { appearance: none; padding-right: 14px; }
   <button class="item" data-act="trip" type="button">Nuevo viaje</button>
   <button class="item" data-act="health" type="button" id="menuHealth" hidden>Detectar caminatas (Health Connect)</button>
   <h3>Copias de seguridad</h3>
+  <button class="item" data-act="drive" type="button" id="menuDrive" hidden>Google Drive</button>
   <button class="item" data-act="backup" type="button">Guardar copia</button>
   <button class="item" data-act="backupPhotos" type="button">Guardar copia con fotos</button>
   <button class="item" data-act="restore" type="button">Recuperar copia</button>
@@ -586,6 +590,25 @@ select.pill { appearance: none; padding-right: 14px; }
     <div class="modal-actions">
       <button class="btn-line" id="v3resClose" type="button">Cerrar</button>
       <button class="btn-main" id="v3share" type="button">Compartir</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="driveModal" role="dialog" aria-modal="true" aria-labelledby="driveTitle">
+  <div class="modal-box">
+    <h2 id="driveTitle">Copia en Google Drive</h2>
+    <div id="driveBody"></div>
+    <p class="busy" id="driveStatus" hidden></p>
+    <div class="modal-actions" id="driveActions"></div>
+  </div>
+</div>
+<div class="modal" id="driveFound" role="dialog" aria-modal="true" aria-labelledby="driveFoundTitle">
+  <div class="modal-box">
+    <h2 id="driveFoundTitle">Copia encontrada</h2>
+    <p id="driveFoundText"></p>
+    <p class="busy" id="driveFoundProg" hidden></p>
+    <div class="modal-actions">
+      <button class="btn-line" id="driveFoundNo" type="button">Ahora no</button>
+      <button class="btn-main" id="driveFoundGo" type="button">Recuperar</button>
     </div>
   </div>
 </div>
@@ -981,7 +1004,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.2.0';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
 const CAP = window.Capacitor;
@@ -992,6 +1015,7 @@ const NativeShare = NATIVE ? CAP.registerPlugin('Share') : null;
 const NativeUpdate = NATIVE ? CAP.registerPlugin('SendaUpdate') : null;
 const NativeHealth = NATIVE ? CAP.registerPlugin('SendaHealth') : null;
 const NativeApp = NATIVE ? CAP.registerPlugin('App') : null;
+const NativeDrive = NATIVE ? CAP.registerPlugin('SendaDrive') : null;
 document.querySelectorAll('.app-ver').forEach(el => el.textContent = APP_VERSION);
 const STAGE_COLORS = ['#C8102E', '#2F6DB5', '#E8A100', '#2E7D4F', '#7B4FA0', '#E8711A', '#1C8C9C', '#B0306E'];
 let pendingTripId = null;
@@ -1025,8 +1049,8 @@ async function photoTx(mode, fn) {
     tx.onabort = () => rej(tx.error);
   });
 }
-const photoPut = rec => photoTx('readwrite', s => s.put(rec));
-const photoDelete = id => photoTx('readwrite', s => s.delete(id));
+const photoPut = rec => { driveMark(); return photoTx('readwrite', s => s.put(rec)); };
+const photoDelete = id => { driveMark('foto', [id]); return photoTx('readwrite', s => s.delete(id)); };
 async function photosForActivity(actId) {
   try { return await photoTx('readonly', s => s.index('act').getAll(actId)) || []; }
   catch (e) { console.error(e); return []; }
@@ -1136,6 +1160,10 @@ function loadHistory() {
   try { return JSON.parse(mem.hist) || []; } catch { return []; }
 }
 function saveHistory(list) {
+  try {
+    const before = JSON.parse(mem.hist || '[]').map(x => x.id), now = new Set(list.map(x => x.id));
+    driveMark('cam', before.filter(id => !now.has(id)));
+  } catch {}
   mem.hist = JSON.stringify(list);
   kvPut('historial', mem.hist);
   return true;
@@ -1181,6 +1209,10 @@ function loadTrips() {
   try { return JSON.parse(mem.trips) || []; } catch { return []; }
 }
 function saveTrips(list) {
+  try {
+    const before = JSON.parse(mem.trips || '[]').map(x => x.id), now = new Set(list.map(x => x.id));
+    driveMark('trip', before.filter(id => !now.has(id)));
+  } catch {}
   mem.trips = JSON.stringify(list);
   kvPut('viajes', mem.trips);
   return true;
@@ -2609,6 +2641,226 @@ async function renderHealthCard() {
   const list = $('homeList'); list.insertBefore(c, list.firstChild);
 }
 
+// ---------- Copia de seguridad en Google Drive ----------
+// Va a la carpeta privada de Senda en tu Drive (no se ve entre tus archivos).
+const DRIVE_KEY = 'senda.drive.v1';
+const DRIVE_API = 'https://www.googleapis.com/drive/v3/files';
+const DRIVE_UP = 'https://www.googleapis.com/upload/drive/v3/files';
+const drive = { token: null, tokenAt: 0, busy: false, timer: 0 };
+function driveState() { try { return JSON.parse(localStorage.getItem(DRIVE_KEY)) || {}; } catch { return {}; } }
+function driveSave(s) { try { localStorage.setItem(DRIVE_KEY, JSON.stringify(s)); } catch {} }
+function driveMark(kind, ids) {
+  // apunta que hay cambios (y qué se ha borrado) para la próxima copia
+  const s = driveState();
+  s.dirty = true;
+  if (kind && ids && ids.length) { s.del = s.del || {}; s.del[kind] = [...new Set([...(s.del[kind] || []), ...ids])].slice(-2000); }
+  driveSave(s);
+  if (s.connected && NATIVE) { clearTimeout(drive.timer); drive.timer = setTimeout(() => driveBackup(false), 90000); }
+}
+async function driveToken(interactive) {
+  if (drive.token && Date.now() - drive.tokenAt < 45 * 60000) return drive.token;
+  const r = await NativeDrive.authorize({ interactive: !!interactive });
+  if (r.needsUi) { const e = new Error('Hace falta entrar con Google'); e.code = 'NEEDS_UI'; throw e; }
+  drive.token = r.token; drive.tokenAt = Date.now();
+  if (r.email) { const s = driveState(); s.email = r.email; driveSave(s); }
+  return drive.token;
+}
+async function gfetch(url, opts = {}, retry = true) {
+  const tok = await driveToken(false);
+  const r = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), Authorization: 'Bearer ' + tok } });
+  if (r.status === 401 && retry) {
+    try { await NativeDrive.clearToken({ token: tok }); } catch {}
+    drive.token = null;
+    return gfetch(url, opts, false);
+  }
+  if (!r.ok) { const e = new Error('Google Drive respondió ' + r.status); e.status = r.status; throw e; }
+  return r;
+}
+async function driveList() {
+  let files = [], page = '';
+  do {
+    const r = await gfetch(`${DRIVE_API}?spaces=appDataFolder&pageSize=1000&fields=nextPageToken,files(id,name,size,modifiedTime,appProperties)` + (page ? '&pageToken=' + encodeURIComponent(page) : ''));
+    const j = await r.json(); files = files.concat(j.files || []); page = j.nextPageToken || '';
+  } while (page);
+  return files;
+}
+async function driveUpload(name, blob, mime, props, existingId) {
+  const meta = existingId ? { appProperties: props } : { name, parents: ['appDataFolder'], appProperties: props };
+  const b = 'senda' + Date.now().toString(36);
+  const body = new Blob([`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${b}\r\nContent-Type: ${mime}\r\n\r\n`, blob, `\r\n--${b}--`]);
+  const url = existingId ? `${DRIVE_UP}/${existingId}?uploadType=multipart` : `${DRIVE_UP}?uploadType=multipart`;
+  const r = await gfetch(url, { method: existingId ? 'PATCH' : 'POST', body, headers: { 'Content-Type': 'multipart/related; boundary=' + b } });
+  return r.json();
+}
+function driveMerge(local, remote, deleted) {
+  const out = [...local], del = new Set(deleted || []);
+  for (const x of remote || []) if (x && x.id && !del.has(x.id) && !out.some(y => y.id === x.id)) out.push(x);
+  return out;
+}
+function driveStatus(txt) { const el = $('driveStatus'); if (el) { el.textContent = txt || ''; el.hidden = !txt; } }
+async function driveBackup(manual) {
+  if (!NATIVE || drive.busy) return;
+  const st = driveState();
+  if (!st.connected) return;
+  if (!manual && !st.dirty) return;
+  if (!loadHistory().length && !loadTrips().length) return; // nunca sustituir una copia por nada
+  drive.busy = true;
+  try {
+    driveStatus('Comprobando la copia en Google Drive…');
+    const files = await driveList();
+    const byName = new Map(files.map(f => [f.name, f]));
+    const del = st.del || {};
+    // datos: lo de este móvil manda, sin perder lo que solo esté en Drive
+    let remote = null;
+    const jf = byName.get('senda-datos.json');
+    if (jf) { try { remote = await (await gfetch(`${DRIVE_API}/${jf.id}?alt=media`)).json(); } catch { remote = null; } }
+    const cams = driveMerge(loadHistory(), remote && remote.caminatas, del.cam);
+    const trips = driveMerge(loadTrips(), remote && remote.viajes, del.trip);
+    // fotos nuevas
+    const recs = await allPhotoRecords();
+    const todo = recs.filter(r => !byName.has('foto-' + r.id + '.jpg'));
+    for (let i = 0; i < todo.length; i++) {
+      const r = todo[i];
+      driveStatus(`Subiendo fotos a Google Drive: ${i + 1} de ${todo.length}…`);
+      await driveUpload('foto-' + r.id + '.jpg', r.blob, 'image/jpeg', {
+        act: String(r.act || ''), time: String(r.time || ''), lat: String(r.lat ?? ''), lon: String(r.lon ?? ''),
+        manual: r.manual ? '1' : '0', src: String(r.src || '').slice(0, 80)
+      });
+    }
+    // fotos que se borraron en el móvil
+    for (const pid of del.foto || []) {
+      const f = byName.get('foto-' + pid + '.jpg');
+      if (f) { try { await gfetch(`${DRIVE_API}/${f.id}`, { method: 'DELETE' }); } catch {} }
+    }
+    driveStatus('Guardando tus caminatas en Google Drive…');
+    const data = JSON.stringify({ app: 'senda', version: 4, date: Date.now(), appVersion: APP_VERSION, caminatas: cams, viajes: trips, borrados: del });
+    const nFotos = recs.length + (remote ? 0 : 0);
+    await driveUpload('senda-datos.json', new Blob([data], { type: 'application/json' }), 'application/json',
+      { caminatas: String(cams.length), viajes: String(trips.length), fotos: String(nFotos), fecha: String(Date.now()) }, jf && jf.id);
+    const s2 = driveState(); s2.last = Date.now(); s2.dirty = false; s2.del = {}; driveSave(s2);
+    driveStatus('');
+    if (manual) toast('Copia guardada en Google Drive.');
+    renderDriveModal();
+  } catch (e) {
+    console.error(e); driveStatus('');
+    if (manual) toast(e.code === 'NEEDS_UI' ? 'Vuelve a conectar tu cuenta de Google.' : 'No se ha podido hacer la copia en Google Drive. Revisa la conexión.', 5000);
+  } finally { drive.busy = false; }
+}
+async function driveFindBackup() {
+  const files = await driveList();
+  const jf = files.find(f => f.name === 'senda-datos.json');
+  if (!jf) return null;
+  const p = jf.appProperties || {};
+  return { file: jf, files, caminatas: +p.caminatas || 0, viajes: +p.viajes || 0, fotos: files.filter(f => f.name.startsWith('foto-')).length, fecha: +p.fecha || Date.parse(jf.modifiedTime) };
+}
+async function driveRestore(found) {
+  if (drive.busy) return;
+  drive.busy = true;
+  try {
+    if (!found) found = await driveFindBackup();
+    if (!found) { toast('No hay ninguna copia de Senda en esta cuenta de Google.'); return; }
+    driveStatus('Descargando tus caminatas…'); driveFoundProg('Descargando tus caminatas…');
+    const data = await (await gfetch(`${DRIVE_API}/${found.file.id}?alt=media`)).json();
+    const st = driveState(), del = st.del || {};
+    const cams = driveMerge(loadHistory(), data.caminatas, del.cam);
+    const trips = driveMerge(loadTrips(), data.viajes, del.trip);
+    saveHistory(cams); saveTrips(trips);
+    const have = new Set((await allPhotoRecords()).map(r => r.id));
+    const camIds = new Set(cams.map(c => c.id));
+    const fotos = found.files.filter(f => f.name.startsWith('foto-') && !have.has(f.name.slice(5, -4)) && camIds.has((f.appProperties || {}).act));
+    let ok = 0;
+    for (let i = 0; i < fotos.length; i++) {
+      const f = fotos[i], p = f.appProperties || {};
+      const txt = `Descargando fotos: ${i + 1} de ${fotos.length}…`; driveStatus(txt); driveFoundProg(txt);
+      try {
+        const blob = await (await gfetch(`${DRIVE_API}/${f.id}?alt=media`)).blob();
+        await photoPut({ id: f.name.slice(5, -4), act: p.act, time: p.time ? +p.time : null, lat: +p.lat, lon: +p.lon, src: p.src || null, manual: p.manual === '1', blob: new Blob([blob], { type: 'image/jpeg' }) });
+        ok++;
+      } catch (e) { console.warn(e); }
+    }
+    const s2 = driveState(); s2.connected = true; s2.dirty = false; s2.last = found.fecha || Date.now(); s2.restored = Date.now(); driveSave(s2);
+    driveStatus(''); $('driveFound').classList.remove('on');
+    renderHistory(); renderDriveModal();
+    { const nc = data.caminatas ? data.caminatas.length : 0; toast(`Copia recuperada: ${nc} ${nc === 1 ? 'caminata' : 'caminatas'}` + (ok ? ` y ${ok} ${ok === 1 ? 'foto' : 'fotos'}.` : '.'), 6000); }
+  } catch (e) {
+    console.error(e); driveStatus(''); driveFoundProg('');
+    toast('No se ha podido recuperar la copia. Revisa la conexión y vuelve a intentarlo.', 5000);
+  } finally { drive.busy = false; }
+}
+function driveFoundProg(txt) { const el = $('driveFoundProg'); if (el) { el.textContent = txt; el.hidden = !txt; } }
+function showDriveFound(found) {
+  const f = new Date(found.fecha);
+  $('driveFoundText').textContent = `Hay una copia de Senda en tu Google Drive del ${f.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })} a las ${f.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}, con ${found.caminatas} ${found.caminatas === 1 ? 'caminata' : 'caminatas'}` + (found.viajes ? `, ${found.viajes} ${found.viajes === 1 ? 'viaje' : 'viajes'}` : '') + (found.fotos ? ` y ${found.fotos} ${found.fotos === 1 ? 'foto' : 'fotos'}` : '') + '.';
+  driveFoundProg('');
+  $('driveFoundGo').onclick = () => driveRestore(found);
+  $('driveFound').classList.add('on');
+}
+async function driveConnect() {
+  try {
+    driveStatus('Conectando con Google…');
+    drive.token = null;
+    await driveToken(true);
+    const s = driveState(); s.connected = true; driveSave(s);
+    driveStatus('Buscando una copia en tu Drive…');
+    const found = await driveFindBackup();
+    driveStatus('');
+    renderDriveModal();
+    if (found && (found.caminatas > loadHistory().length || !loadHistory().length)) { $('driveModal').classList.remove('on'); showDriveFound(found); }
+    else { const s2 = driveState(); s2.dirty = true; driveSave(s2); driveBackup(true); }
+  } catch (e) {
+    console.error(e); driveStatus('');
+    toast(e && e.code === 'DENIED' ? 'No se ha dado permiso a Senda para usar Google Drive.' : 'No se ha podido conectar con Google. Inténtalo de nuevo.', 5000);
+  }
+}
+async function driveDisconnect() {
+  if (!confirm('¿Desconectar Google Drive? Tu copia se queda en Drive, pero Senda dejará de actualizarla.')) return;
+  try { if (drive.token) await NativeDrive.clearToken({ token: drive.token }); await NativeDrive.signOut(); } catch {}
+  drive.token = null;
+  const s = driveState(); s.connected = false; driveSave(s);
+  renderDriveModal(); renderHistory();
+}
+function renderDriveModal() {
+  const box = $('driveBody'); if (!box) return;
+  const s = driveState(); box.innerHTML = '';
+  const p = t => { const e = document.createElement('p'); e.textContent = t; box.appendChild(e); return e; };
+  const btn = (t, fn, main) => { const b = document.createElement('button'); b.type = 'button'; b.className = main ? 'btn-main' : 'btn-line'; b.textContent = t; b.onclick = fn; $('driveActions').appendChild(b); };
+  $('driveActions').innerHTML = '';
+  if (!s.connected) {
+    p('Guarda una copia automática de tus caminatas, viajes y fotos en tu cuenta de Google. Si cambias de móvil o lo formateas, al instalar Senda de nuevo la recuperas.');
+    p('La copia va a una carpeta privada de Senda en tu Drive: no la verás entre tus archivos, pero ocupa algo de espacio de tu cuenta.').className = 'note';
+    btn('Cerrar', () => $('driveModal').classList.remove('on'));
+    btn('Conectar con Google', driveConnect, true);
+  } else {
+    p(s.email ? `Conectado como ${s.email}.` : 'Conectado con tu cuenta de Google.');
+    p(s.last ? `Última copia: ${new Date(s.last).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })} a las ${new Date(s.last).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}.` : 'Todavía no se ha hecho ninguna copia.');
+    p('Senda hace la copia sola cuando añades o cambias algo. También puedes hacerla ahora.').className = 'note';
+    btn('Cerrar', () => $('driveModal').classList.remove('on'));
+    btn('Desconectar', driveDisconnect);
+    btn('Recuperar', () => driveRestore(null));
+    btn('Hacer copia ahora', () => driveBackup(true), true);
+  }
+}
+function openDriveModal() { renderDriveModal(); driveStatus(''); $('driveModal').classList.add('on'); }
+// Al abrir Senda: copia pendiente o, en un móvil nuevo, buscar si hay copia
+async function driveStartup() {
+  if (!NATIVE) return;
+  const s = driveState();
+  if (s.connected) {
+    if (s.dirty) setTimeout(() => driveBackup(false), 8000);
+    return;
+  }
+  if (loadHistory().length || s.asked) return;
+  try {
+    await driveToken(false); // solo funciona si ya se dio permiso en este móvil o cuenta
+    const found = await driveFindBackup();
+    const s2 = driveState(); s2.asked = true; driveSave(s2);
+    if (found) { const s3 = driveState(); s3.connected = true; driveSave(s3); showDriveFound(found); }
+  } catch { /* sin permiso todavía: se ofrece el botón en la bienvenida */ }
+}
+
+$('driveFoundNo').onclick = () => $('driveFound').classList.remove('on');
+$('driveModal').addEventListener('click', e => { if (e.target.id === 'driveModal') $('driveModal').classList.remove('on'); });
+$('btnDriveRestore').onclick = () => openDriveModal();
 // ---------- Vuelo 3D y vídeo ----------
 const V3 = { map: null, pts: null, total: 0, dur: 40, playing: false, raf: 0, t0: 0, s: 0, rec: null, bearing: 0, cam: null, photos: [], shown: new Set(), icon: null, busy: false };
 const V3_INTRO = 3, V3_OUTRO = 5, V3_PAUSE = 3;
@@ -3248,6 +3500,7 @@ $('drawer').addEventListener('click', e => {
   if (act === 'home') showHome();
   if (act === 'add') { pendingTripId = null; $('fileInput').click(); }
   if (act === 'trip') openTripModal();
+  if (act === 'drive') openDriveModal();
   if (act === 'backup' || act === 'backupPhotos') { if (loadHistory().length) exportBackup(act === 'backupPhotos'); else toast('Todavía no hay caminatas que copiar.'); }
   if (act === 'restore') $('backupInput').click();
   if (act === 'about') $('aboutModal').classList.add('on');
@@ -3465,6 +3718,10 @@ bindProfile();
 initStore().then(async () => {
   renderHistory();
   if (NATIVE) {
+    $('menuDrive').hidden = false;
+    $('btnDriveRestore').hidden = !!driveState().connected;
+    driveStartup();
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && driveState().dirty) driveBackup(false); });
     $('menuHealth').hidden = false;
     await hcLoad();
     renderHealthCard();
