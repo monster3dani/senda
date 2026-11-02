@@ -119,6 +119,13 @@ button { cursor: pointer; }
 .share-box img { width: 100%; height: auto; max-height: 64vh; object-fit: contain; border-radius: 8px; background: var(--line); }
 
 #btnDriveRestore { display: block; margin-top: 12px; }
+.coffee-box { text-align: center; max-height: 92vh; overflow-y: auto; }
+.coffee-box h2 { text-align: left; }
+.coffee-box > p:first-of-type { text-align: left; }
+.coffee-go { width: 100%; margin: 6px 0 14px; }
+.coffee-qr { width: 190px; height: 190px; background: #fff; padding: 8px; border-radius: 14px; display: block; margin: 6px auto 0; }
+.coffee-url { font-weight: 600; color: var(--danlab); margin: 8px 0 2px; }
+.coffee-thanks { color: var(--muted); font-size: 13px; margin: 0; }
 #driveActions { flex-wrap: wrap; }
 .stage-add { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
 .stage-add span { color: var(--muted); font-size: 14px; }
@@ -560,6 +567,7 @@ select.pill { appearance: none; padding-right: 14px; }
   <h3>Senda</h3>
   <button class="item" data-act="maps" type="button">Mapas guardados</button>
   <button class="item" data-act="about" type="button">Acerca de Senda</button>
+  <button class="item" data-act="coffee" type="button">☕ Invítame a un café</button>
   <p class="drawer-note">Tus caminatas se guardan en este navegador. Guarda una copia de vez en cuando por si borras los datos o cambias de móvil. La copia con fotos ocupa más, pero lo guarda todo.</p>
   <div class="drawer-foot">
     <div class="danlab-sign"><span class="dl-box"><svg class="dl-sym" viewBox="-20 -20 280 280" aria-hidden="true" focusable="false"><defs><clipPath id="dlc1"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc1)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg></span><span>Senda, por <b>DanLab</b></span></div>
@@ -610,6 +618,18 @@ select.pill { appearance: none; padding-right: 14px; }
       <button class="btn-line" id="driveFoundNo" type="button">Ahora no</button>
       <button class="btn-main" id="driveFoundGo" type="button">Recuperar</button>
     </div>
+  </div>
+</div>
+<div class="modal" id="coffeeModal" role="dialog" aria-modal="true" aria-labelledby="coffeeTitle">
+  <div class="modal-box coffee-box">
+    <h2 id="coffeeTitle">Invítame a un café ☕</h2>
+    <p>Senda es gratis y la hago en mi tiempo libre. Si te gusta y quieres apoyar que siga mejorando, puedes invitarme a un café.</p>
+    <button class="btn-main coffee-go" id="coffeeGo" type="button">Invitar con PayPal</button>
+    <p class="note">O pásale este código a quien quiera invitar desde otro móvil:</p>
+    <img class="coffee-qr" src="qr_cafe.png" alt="Código QR de PayPal para invitar a un café">
+    <p class="coffee-url">paypal.me/AndySans</p>
+    <p class="coffee-thanks">¡Gracias por usar Senda! DanLab</p>
+    <div class="modal-actions"><button class="btn-line" id="coffeeClose" type="button">Cerrar</button></div>
   </div>
 </div>
 <div class="modal" id="exitModal" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
@@ -1004,7 +1024,8 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '2.2.0';
+const APP_VERSION = '2.2.1';
+const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
 const CAP = window.Capacitor;
@@ -2859,6 +2880,9 @@ async function driveStartup() {
 }
 
 $('driveFoundNo').onclick = () => $('driveFound').classList.remove('on');
+$('coffeeGo').onclick = () => { $('coffeeModal').classList.remove('on'); if (NATIVE) location.href = COFFEE_URL; else window.open(COFFEE_URL, '_blank'); };
+$('coffeeClose').onclick = () => $('coffeeModal').classList.remove('on');
+$('coffeeModal').addEventListener('click', e => { if (e.target.id === 'coffeeModal') $('coffeeModal').classList.remove('on'); });
 $('driveModal').addEventListener('click', e => { if (e.target.id === 'driveModal') $('driveModal').classList.remove('on'); });
 $('btnDriveRestore').onclick = () => openDriveModal();
 // ---------- Vuelo 3D y vídeo ----------
@@ -3501,6 +3525,7 @@ $('drawer').addEventListener('click', e => {
   if (act === 'add') { pendingTripId = null; $('fileInput').click(); }
   if (act === 'trip') openTripModal();
   if (act === 'drive') openDriveModal();
+  if (act === 'coffee') $('coffeeModal').classList.add('on');
   if (act === 'backup' || act === 'backupPhotos') { if (loadHistory().length) exportBackup(act === 'backupPhotos'); else toast('Todavía no hay caminatas que copiar.'); }
   if (act === 'restore') $('backupInput').click();
   if (act === 'about') $('aboutModal').classList.add('on');
