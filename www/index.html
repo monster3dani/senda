@@ -141,7 +141,7 @@ button { cursor: pointer; }
 .view3d { position: fixed; inset: 0; z-index: 2700; background: #0F1716; display: none; flex-direction: column; align-items: center;
   padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); }
 .view3d.on { display: flex; }
-.v3frame { position: relative; flex: 1; width: 100%; max-width: calc((100vh - 150px) * 9 / 16); aspect-ratio: 9 / 16; max-height: calc(100vh - 150px);
+.v3frame { position: relative; flex: 1; width: 100%; max-width: calc((100vh - 200px) * 9 / 16); aspect-ratio: 9 / 16; max-height: calc(100vh - 200px);
   margin: 8px auto 0; border-radius: 14px; overflow: hidden; background: linear-gradient(#9CC3D9, #E4EEF2); }
 #map3d { position: absolute; inset: 0; }
 #v3over { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -150,6 +150,11 @@ button { cursor: pointer; }
 .v3bar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(255,255,255,.25); }
 .v3bar div { height: 100%; width: 0; background: #F2B705; }
 .v3controls { width: 100%; max-width: 520px; padding: 10px 14px 12px; color: #fff; }
+.v3cam { display: flex; align-items: center; gap: 10px; font-size: 15px; margin-bottom: 10px; }
+#v3cams { flex: 1; display: flex; background: rgba(255,255,255,.1); border-radius: 10px; padding: 3px; gap: 3px; }
+#v3cams button { flex: 1; border: 0; background: none; color: #fff; padding: 8px 4px; border-radius: 8px; font-weight: 600; font-size: 15px; }
+#v3cams button[aria-pressed="true"] { background: #F2B705; color: #1E2B2A; }
+#v3cams button:disabled { opacity: .5; }
 .v3dur { display: flex; align-items: center; gap: 10px; font-size: 15px; margin-bottom: 10px; }
 .v3dur input { flex: 1; accent-color: #F2B705; }
 .v3btns { display: flex; gap: 8px; }
@@ -582,6 +587,11 @@ select.pill { appearance: none; padding-right: 14px; }
     <div class="v3bar"><div id="v3prog"></div></div>
   </div>
   <div class="v3controls">
+    <div class="v3cam"><span>Cámara</span><div id="v3cams" role="group" aria-label="Modo de cámara">
+      <button type="button" data-cam="follow" aria-pressed="true">Seguir</button>
+      <button type="button" data-cam="orbit" aria-pressed="false">Órbita</button>
+      <button type="button" data-cam="fixed" aria-pressed="false">Fija</button>
+    </div></div>
     <label class="v3dur">Duración del vídeo <input type="range" id="v3dur" min="30" max="60" step="5" value="40"> <b id="v3durTxt">40 s</b></label>
     <div class="v3btns">
       <button class="btn-line" id="v3close" type="button">Cerrar</button>
@@ -1024,7 +1034,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '2.2.2';
+const APP_VERSION = '2.3.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -2925,8 +2935,9 @@ const v3Ease = x => x < 0 ? 0 : x > 1 ? 1 : x * x * (3 - 2 * x);
 function v3Overview() {
   const P = V3.pts; let a = 90, b = -90, c = 180, d = -180;
   for (const q of P) { a = Math.min(a, q.lat); b = Math.max(b, q.lat); c = Math.min(c, q.lon); d = Math.max(d, q.lon); }
-  const cam = V3.map.cameraForBounds([[c, a], [d, b]], { padding: { top: 120, bottom: 200, left: 50, right: 50 }, pitch: 40, bearing: V3.bearing0 });
-  return { center: cam.center, zoom: Math.min(16, cam.zoom), pitch: 40, bearing: V3.bearing0 };
+  const br = V3.cam === 'fixed' ? 0 : V3.bearing0;
+  const cam = V3.map.cameraForBounds([[c, a], [d, b]], { padding: { top: 120, bottom: 200, left: 50, right: 50 }, pitch: 40, bearing: br });
+  return { center: cam.center, zoom: Math.min(16, cam.zoom), pitch: 40, bearing: br };
 }
 function v3FollowZoom() { const km = Math.max(0.3, V3.total / 1000); return Math.max(13, Math.min(16.2, 16.4 - Math.log2(km / 1.5))); }
 // El vídeo dura lo elegido más 3 s por cada foto, en las que el vuelo se detiene
@@ -2947,16 +2958,32 @@ function v3Timeline(s) {
   }
   return { ft: Math.min(F, t - V3_PAUSE * V3.photos.length) };
 }
+// Modos de cámara: seguir el camino, orbitar alrededor o mirar siempre al norte
+const V3_CAMS = { follow: 'Seguir', orbit: 'Órbita', fixed: 'Fija' };
+const V3_ORBIT = 360 / 26;   // grados por segundo: una vuelta cada 26 s
+V3.cam = (() => { try { return localStorage.getItem('senda.v3cam') || 'follow'; } catch { return 'follow'; } })();
+function v3SetCam(m) {
+  V3.cam = V3_CAMS[m] ? m : 'follow';
+  try { localStorage.setItem('senda.v3cam', V3.cam); } catch {}
+  document.querySelectorAll('#v3cams button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.cam === V3.cam)));
+  if (V3.map && !V3.playing && V3.pts) { V3.ov = v3Overview(); V3.map.jumpTo(V3.ov); }
+}
 function v3Camera(s, dt) {
   const D = V3.len;
   const tl = v3Timeline(s);
   const f = Math.max(0, Math.min(1, tl.ft / V3.flight));
   const dist = f * V3.total;
   const here = v3At(dist), ahead = v3At(dist + Math.max(120, V3.total * 0.03));
-  const target = v3Bearing(here, ahead);
-  let diff = ((target - V3.bearing + 540) % 360) - 180;
-  V3.bearing = (V3.bearing + diff * Math.min(1, dt * 1.2) + 360) % 360;
-  const ov = V3.ov, Z = v3FollowZoom();
+  if (V3.cam === 'orbit') {
+    V3.bearing = (V3.ov.bearing + Math.max(0, s - V3_INTRO) * V3_ORBIT) % 360;
+  } else if (V3.cam === 'fixed') {
+    V3.bearing = 0;
+  } else {
+    const target = v3Bearing(here, ahead);
+    let diff = ((target - V3.bearing + 540) % 360) - 180;
+    V3.bearing = (V3.bearing + diff * Math.min(1, dt * 1.2) + 360) % 360;
+  }
+  const ov = V3.ov, Z = v3FollowZoom() - (V3.cam === 'orbit' ? 0.35 : V3.cam === 'fixed' ? 0.2 : 0);
   let k = 1;
   if (s < V3_INTRO + 2.2) k = v3Ease((s - V3_INTRO + 0.6) / 2.8);
   if (s > D - V3_OUTRO) k = 1 - v3Ease((s - (D - V3_OUTRO)) / 2.5);
@@ -2964,7 +2991,7 @@ function v3Camera(s, dt) {
   let bd = ((V3.bearing - ov.bearing + 540) % 360) - 180;
   V3.map.jumpTo({
     center: [lerp(ov.center.lng, here.lon), lerp(ov.center.lat, here.lat)],
-    zoom: lerp(ov.zoom, Z), pitch: lerp(ov.pitch, 62), bearing: (ov.bearing + bd * k + 360) % 360
+    zoom: lerp(ov.zoom, Z), pitch: lerp(ov.pitch, V3.cam === 'fixed' ? 52 : V3.cam === 'orbit' ? 58 : 62), bearing: (ov.bearing + bd * k + 360) % 360
   });
   // ruta recorrida y caminante
   const done = V3.pts.filter(q => q.d - V3.pts[0].d <= dist).map(q => [q.lon, q.lat]);
@@ -3148,7 +3175,7 @@ async function v3Record() {
   mr.start(1000);
   v3Start();
 }
-function v3Buttons(on) { $('v3play').disabled = !on; $('v3rec').disabled = !on; $('v3dur').disabled = !on; }
+function v3Buttons(on) { $('v3play').disabled = !on; $('v3rec').disabled = !on; $('v3dur').disabled = !on; document.querySelectorAll('#v3cams button').forEach(b => b.disabled = !on); }
 let v3Blob = null;
 function v3ShowResult(blob) {
   v3Blob = blob;
@@ -3299,6 +3326,8 @@ function close3D() {
 $('btn3d').onclick = open3D;
 window.__senda3d = { V3, v3Timeline }; // para pruebas
 $('v3close').onclick = close3D;
+document.querySelectorAll('#v3cams button').forEach(b => b.onclick = () => { if (!V3.busy && !V3.playing) v3SetCam(b.dataset.cam); });
+v3SetCam(V3.cam);
 $('v3play').onclick = () => V3.playing ? v3Stop(false) : v3Start();
 $('v3rec').onclick = v3Record;
 function v3DurLabel() {
