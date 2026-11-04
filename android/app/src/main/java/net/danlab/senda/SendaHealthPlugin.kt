@@ -136,7 +136,14 @@ class SendaHealthPlugin : Plugin() {
         ExerciseSessionRecord.EXERCISE_TYPE_RUNNING -> "Carrera"
         ExerciseSessionRecord.EXERCISE_TYPE_BIKING -> "Ciclismo"
         ExerciseSessionRecord.EXERCISE_TYPE_BIKING_STATIONARY -> "Bici estática"
-        else -> "Ejercicio"
+        ExerciseSessionRecord.EXERCISE_TYPE_ROCK_CLIMBING -> "Escalada"
+        ExerciseSessionRecord.EXERCISE_TYPE_RUNNING_TREADMILL -> "Cinta de correr"
+        ExerciseSessionRecord.EXERCISE_TYPE_SKIING -> "Esquí"
+        ExerciseSessionRecord.EXERCISE_TYPE_SNOWSHOEING -> "Raquetas de nieve"
+        ExerciseSessionRecord.EXERCISE_TYPE_SWIMMING_OPEN_WATER -> "Natación"
+        ExerciseSessionRecord.EXERCISE_TYPE_ROWING -> "Remo"
+        ExerciseSessionRecord.EXERCISE_TYPE_WHEELCHAIR -> "Silla de ruedas"
+        else -> "Ruta"
     }
 
     /** Lista las sesiones de ejercicio desde una fecha (ms). */

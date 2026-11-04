@@ -1024,7 +1024,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '2.2.1';
+const APP_VERSION = '2.2.2';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -1456,7 +1456,7 @@ function titleFor(name, t, sport, custom) {
   if (custom) return custom;
   if (name && !/^\d{8}\s/.test(name)) return name;
   const d = t ? new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : '';
-  const word = name ? name.replace(/^\d{8}\s*/, '') : (sport || 'Caminata');
+  const word = name ? name.replace(/^\d{8}\s*/, '') : (sport && sport !== 'Ejercicio' ? sport : (sport ? 'Ruta' : 'Caminata'));
   return `${word || 'Caminata'} del ${d}`;
 }
 
@@ -2375,23 +2375,27 @@ async function loadTowns() {
     return;
   }
   if (A.cachedTowns) { towns = A.cachedTowns.slice(0, 15); renderTowns(); return; }
-  const res = await queryTowns(A.points, A.distance);
-  if (!res) { $('placesNote').textContent = 'No se han podido consultar las poblaciones. Comprueba la conexión y vuelve a abrir la caminata.'; return; }
-  const myId = A.id;
+  const cur = A, myId = cur.id;
+  const res = await queryTowns(cur.points, cur.distance);
+  if (!res) { if (A === cur) $('placesNote').textContent = 'No se han podido consultar las poblaciones. Comprueba la conexión y vuelve a abrir la caminata.'; return; }
   const list = loadHistory(); const e = list.find(x => x.id === myId);
   if (e) { e.towns = res; saveHistory(list); }
-  if (!A || A.id !== myId) return;
+  if (A !== cur) return;
   A.cachedTowns = res;
   towns = res.slice(0, 15);
   renderTowns();
+}
+function nearestTown(list) {
+  const real = (list || []).filter(t => t.type === 'city' || t.type === 'town' || t.type === 'village' || t.type === 'hamlet');
+  return real.length && real[0].dist < 8000 ? real[0] : null;
 }
 function renderTowns() {
   townLayer.clearLayers();
   const ul = $('places'); ul.innerHTML = '';
   if (!towns.length) { $('placesNote').textContent = 'No hay poblaciones con nombre cerca de esta ruta.'; return; }
   $('placesNote').style.display = 'none';
-  const near = towns[0];
-  if (!A.isTrip && near && near.dist < 8000) $('actSub').textContent = $('actSub').textContent.replace(/(, cerca de .*)?$/, `, cerca de ${near.name}`);
+  const near = nearestTown(towns);
+  if (!A.isTrip && near) $('actSub').textContent = $('actSub').textContent.replace(/(, cerca de .*)?$/, `, cerca de ${near.name}`);
   for (const t of towns) {
     const li = document.createElement('li');
     const b = document.createElement('button'); b.type = 'button'; b.textContent = t.name;
@@ -2996,7 +3000,7 @@ function v3DrawOverlay(s, st) {
     tl.forEach((l, i) => g.fillText(l, 50, 1540 - (tl.length - 1 - i) * 88));
     g.font = '500 40px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.9)';
     let sub = A.isTrip ? `${A.stages.length} etapas` : fmtDate(A.start);
-    const near = !A.isTrip && towns && towns[0] && towns[0].dist < 8000 ? towns[0].name : null; if (near) sub += `, ${near}`;
+    const nt = !A.isTrip ? nearestTown(towns) : null; if (nt) sub += `, ${nt.name}`;
     g.fillText(sub, 50, 1600);
     g.fillStyle = '#C8102E'; g.fillRect(50, 1632, 140, 10); g.fillStyle = '#fff'; g.fillRect(200, 1632, 140, 10);
     g.globalAlpha = 1;
@@ -3394,7 +3398,7 @@ async function buildShareImage(onProgress) {
     sub = `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${new Date(A.start).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })} al ${new Date(A.end).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`;
   } else {
     sub = fmtDate(A.start);
-    const near = towns && towns[0] && towns[0].dist < 8000 ? towns[0].name : null;
+    const near = nearestTown(towns) ? nearestTown(towns).name : null;
     if (near) sub += `, cerca de ${near}`;
   }
   g.fillText(sub, 60, MH + 130);
@@ -3741,6 +3745,13 @@ document.addEventListener('dragover', e => e.preventDefault());
 document.addEventListener('drop', e => { e.preventDefault(); const fs = [...e.dataTransfer.files].filter(f => !/^image\//.test(f.type)); if (fs.length) openFiles(fs); });
 bindProfile();
 initStore().then(async () => {
+  // Arreglo de la 2.2.2: algunos pueblos quedaron guardados en la caminata equivocada. Se vuelven a buscar.
+  if (!localStorage.getItem('senda.townsfix.v1')) {
+    const l = loadHistory(); let n = 0;
+    l.forEach(e => { if (e.towns) { delete e.towns; n++; } });
+    if (n) saveHistory(l);
+    localStorage.setItem('senda.townsfix.v1', '1');
+  }
   renderHistory();
   if (NATIVE) {
     $('menuDrive').hidden = false;
