@@ -127,6 +127,9 @@ button { cursor: pointer; }
 .coffee-url { font-weight: 600; color: var(--danlab); margin: 8px 0 2px; }
 .coffee-thanks { color: var(--muted); font-size: 13px; margin: 0; }
 #driveActions { flex-wrap: wrap; }
+.btn-hist { margin-top: 16px; }
+.hist-sec { font: 600 15px Barlow, sans-serif; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 26px 0 2px; }
+.hist-month { font: 600 18px "Barlow Semi Condensed", sans-serif; margin: 18px 0 2px; color: var(--ink); }
 .stage-add { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
 .stage-add span { color: var(--muted); font-size: 14px; }
 .stage-pick { overflow-y: auto; margin-top: 4px; border-top: 1px solid var(--line); }
@@ -410,6 +413,7 @@ select.pill { appearance: none; padding-right: 14px; }
 <header class="top">
   <button class="brand" id="btnBrand" type="button" aria-label="Ir al inicio"><img class="brand-icon" src="icon-senda-192.png" alt="" width="28" height="28">Senda</button>
   <button id="btnBack" type="button" hidden>Inicio</button>
+  <button id="btnHist" type="button" hidden>Historial</button>
   <button id="btnMenu" type="button" aria-haspopup="true" aria-controls="drawer">Menú</button>
 </header>
 <input id="fileInput" type="file" multiple hidden>
@@ -424,6 +428,7 @@ select.pill { appearance: none; padding-right: 14px; }
         <h1>Mis caminatas</h1>
         <p id="homeSub"></p>
         <div class="signpost" id="homeTotals"></div>
+        <button class="btn-share btn-hist" id="btnHistHome" type="button">Ver el historial</button>
       </div>
       <div id="welcome" class="welcome" hidden>
         <div class="welcome-sign" aria-hidden="true">
@@ -443,6 +448,13 @@ select.pill { appearance: none; padding-right: 14px; }
       </div>
       <div id="homeList"></div>
       <div class="home-foot danlab-sign"><span class="dl-box"><svg class="dl-sym" viewBox="-20 -20 280 280" aria-hidden="true" focusable="false"><defs><clipPath id="dlc3"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc3)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg></span><span>Senda, por <b>DanLab</b></span></div>
+    </div>
+  </section>
+
+  <section id="histView" class="view">
+    <div class="home">
+      <div class="home-head"><h1>Historial</h1><p id="histSub"></p></div>
+      <div id="histList"></div>
     </div>
   </section>
 
@@ -559,6 +571,7 @@ select.pill { appearance: none; padding-right: 14px; }
     <button class="drawer-close" id="drawerClose" type="button">Cerrar</button>
   </div>
   <button class="item" data-act="home" type="button">Inicio</button>
+  <button class="item" data-act="hist" type="button">Historial</button>
   <h3>Añadir</h3>
   <button class="item primary" data-act="add" type="button">Añadir caminata</button>
   <button class="item" data-act="trip" type="button">Nuevo viaje</button>
@@ -1034,7 +1047,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '2.3.0';
+const APP_VERSION = '2.4.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -1268,6 +1281,7 @@ function renderHistory() {
   const has = list.length > 0 || trips.length > 0;
   $('welcome').hidden = has; $('homeHead').hidden = !list.length; $('homeMapWrap').hidden = !list.length;
   const box = $('homeList'); box.innerHTML = '';
+  if ($('homeView').classList.contains('on')) $('btnHist').hidden = !has;
   if (!has) { renderHealthCard(); return; }
 
   // Totales
@@ -1286,45 +1300,62 @@ function renderHistory() {
     d.append(s, b); tot.appendChild(d);
   }
 
-  // Lista combinada: viajes y caminatas sueltas, lo más reciente primero
   const tripIds = new Set(trips.map(x => x.id));
-  const items = [];
-  for (const trip of trips) {
-    const st = tripStages(trip.id, list);
-    items.push({ kind: 'trip', trip, st, date: st.length ? st[st.length - 1].pts[0][3] : trip.created });
-  }
-  for (const e of list) if (!e.tripId || !tripIds.has(e.tripId)) items.push({ kind: 'walk', e, date: e.pts[0][3] || 0 });
-  items.sort((a, b) => (b.date || 0) - (a.date || 0));
-
-  const h = document.createElement('h2'); h.className = 'list-title'; h.textContent = 'Historial'; box.appendChild(h);
-  const shortDate = t => t ? new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-  for (const it of items) {
-    const row = document.createElement('button'); row.type = 'button'; row.className = 'walk-row';
-    const st = document.createElement('strong');
-    const sub = document.createElement('span'); sub.className = 'w-sub';
-    const kmEl = document.createElement('span'); kmEl.className = 'w-km';
-    if (it.kind === 'trip') {
-      row.classList.add('is-trip');
-      const n = it.st.length;
-      const tkm = it.st.reduce((s, e) => s + (e.session.distance || 0), 0);
-      const tup = it.st.reduce((s, e) => s + (e.session.ascent || 0), 0);
-      st.textContent = it.trip.name;
-      const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = 'Viaje'; st.appendChild(tag);
-      sub.textContent = n ? `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${shortDate(it.st[0].pts[0][3])} al ${shortDate(it.st[n - 1].pts[0][3])}, +${fmtNum(tup)} m` : 'Sin etapas todavía';
-      kmEl.textContent = n ? fmtKm(tkm) : '';
-      row.onclick = () => showTrip(it.trip.id);
-    } else {
-      const e = it.e;
-      st.textContent = titleFor(e.name, e.pts[0][3], e.sport, e.title);
-      sub.textContent = `${shortDate(e.pts[0][3])}, ${fmtDur(e.session.elapsed)}, +${fmtNum(e.session.ascent)} m`;
-      kmEl.textContent = fmtKm(e.session.distance);
-      row.onclick = () => showActivity(unpackActivity(e), false);
-    }
-    if (kmEl.textContent) { const sm = document.createElement('small'); sm.textContent = 'km'; kmEl.appendChild(sm); }
-    row.append(st, kmEl, sub); box.appendChild(row);
-  }
+  $('btnHistHome').textContent = `Ver el historial (${list.length} ${list.length === 1 ? 'caminata' : 'caminatas'}${trips.length ? `, ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : ''})`;
   drawHomeMap(list, tripIds);
   renderHealthCard();
+}
+// Historial: primero los viajes y luego las caminatas sueltas, cada grupo por fecha (lo más reciente arriba)
+let fromHist = false;
+function walkDate(e) { const t = e && e.pts && e.pts[0] ? +e.pts[0][3] : 0; return isFinite(t) ? t : 0; }
+function renderHistList() {
+  const list = loadHistory(), trips = loadTrips();
+  const box = $('histList'); box.innerHTML = '';
+  const tripIds = new Set(trips.map(x => x.id));
+  const shortDate = t => t ? new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  const tripItems = trips.map(trip => { const st = tripStages(trip.id, list); return { trip, st, date: st.length ? walkDate(st[0]) : (trip.created || 0) }; })
+    .sort((a, b) => (b.st.length ? 1 : 0) - (a.st.length ? 1 : 0) || b.date - a.date);
+  const loose = list.filter(e => !e.tripId || !tripIds.has(e.tripId)).sort((a, b) => walkDate(b) - walkDate(a));
+  $('histSub').textContent = `${list.length} ${list.length === 1 ? 'caminata' : 'caminatas'}` + (trips.length ? ` y ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : '');
+  const row = (strong, sub, km, onclick, isTrip) => {
+    const r = document.createElement('button'); r.type = 'button'; r.className = 'walk-row' + (isTrip ? ' is-trip' : '');
+    const st = document.createElement('strong'); st.textContent = strong;
+    if (isTrip) { const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = 'Viaje'; st.appendChild(tag); }
+    const kmEl = document.createElement('span'); kmEl.className = 'w-km'; kmEl.textContent = km;
+    if (km) { const sm = document.createElement('small'); sm.textContent = 'km'; kmEl.appendChild(sm); }
+    const s = document.createElement('span'); s.className = 'w-sub'; s.textContent = sub;
+    r.append(st, kmEl, s); r.onclick = () => { fromHist = true; onclick(); };
+    return r;
+  };
+  const sec = txt => { const h = document.createElement('h2'); h.className = 'hist-sec'; h.textContent = txt; box.appendChild(h); };
+  if (tripItems.length) {
+    sec('Viajes');
+    for (const it of tripItems) {
+      const n = it.st.length;
+      const tkm = it.st.reduce((s, e) => s + (e.session.distance || 0), 0), tup = it.st.reduce((s, e) => s + (e.session.ascent || 0), 0);
+      box.appendChild(row(it.trip.name, n ? `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${shortDate(walkDate(it.st[0]))} al ${shortDate(walkDate(it.st[n - 1]))}, +${fmtNum(tup)} m` : 'Sin etapas todavía', n ? fmtKm(tkm) : '', () => showTrip(it.trip.id), true));
+    }
+  }
+  if (loose.length) {
+    sec(tripItems.length ? 'Caminatas sueltas' : 'Caminatas');
+    let lastMonth = '';
+    for (const e of loose) {
+      const d = walkDate(e);
+      const m = d ? new Date(d).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'Sin fecha';
+      if (m !== lastMonth) { lastMonth = m; const h = document.createElement('h3'); h.className = 'hist-month'; h.textContent = m.charAt(0).toUpperCase() + m.slice(1); box.appendChild(h); }
+      box.appendChild(row(titleFor(e.name, d, e.sport, e.title), `${shortDate(d)}, ${fmtDur(e.session.elapsed)}, +${fmtNum(e.session.ascent)} m`, fmtKm(e.session.distance), () => showActivity(unpackActivity(e), false)));
+    }
+  }
+  if (!tripItems.length && !loose.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Todavía no hay caminatas guardadas.'; box.appendChild(p); }
+}
+function showHist() {
+  if (placing) endPlacing();
+  stopAnim();
+  fromHist = true;
+  $('homeView').classList.remove('on'); $('actView').classList.remove('on'); $('histView').classList.add('on');
+  $('btnBack').hidden = false; $('btnHist').hidden = true;
+  window.scrollTo(0, 0);
+  renderHistList();
 }
 function drawHomeMap(list, tripIds) {
   if (!list.length) return;
@@ -2435,7 +2466,7 @@ function showActivity(a, isNew) {
   if (!history.state || history.state.v !== 'act') history.pushState({ v: 'act' }, '');
   stopAnim(); anim.f = 0;
   photos.forEach(p => URL.revokeObjectURL(p.url)); photos = [];
-  $('homeView').classList.remove('on'); $('actView').classList.add('on'); $('btnBack').hidden = false;
+  $('homeView').classList.remove('on'); $('histView').classList.remove('on'); $('actView').classList.add('on'); $('btnBack').hidden = false; $('btnHist').hidden = false;
   initMap();
   setTimeout(() => {
     map.invalidateSize();
@@ -2473,6 +2504,7 @@ function handleBack() {
     if (A && !A.isTrip && A.tripId && loadTrips().some(x => x.id === A.tripId)) { showTrip(A.tripId); return; }
     showHome(); return;
   }
+  if ($('histView').classList.contains('on')) { renderHome(); return; }
   $('exitModal').classList.add('on');
 }
 if (NATIVE) {
@@ -2485,12 +2517,14 @@ window.addEventListener('popstate', () => {
   if ($('lightbox').classList.contains('on')) $('lightbox').classList.remove('on');
   if (pickState) closePick();
   closeMenu(); closeTripModal(); $('aboutModal').classList.remove('on');
-  if ($('actView').classList.contains('on')) renderHome();
+  if ($('actView').classList.contains('on')) { if (fromHist) showHist(); else renderHome(); }
 });
 function renderHome() {
   if (placing) endPlacing();
   stopAnim();
-  $('actView').classList.remove('on'); $('homeView').classList.add('on'); $('btnBack').hidden = true;
+  fromHist = false;
+  $('actView').classList.remove('on'); $('histView').classList.remove('on'); $('homeView').classList.add('on'); $('btnBack').hidden = true;
+  $('btnHist').hidden = !(loadHistory().length || loadTrips().length);
   window.scrollTo(0, 0);
   renderHistory();
 }
@@ -2910,7 +2944,10 @@ function v3Load() {
     document.head.appendChild(s);
   });
 }
-function v3DefaultDur() { return Math.round(Math.min(60, Math.max(30, 25 + A.distance / 1000 * 3)) / 5) * 5; }
+// Rutas largas: el vídeo puede durar más (hasta 3 min) para que no vaya demasiado rápido
+function v3MaxDur() { const km = A.distance / 1000; return Math.round(Math.min(180, Math.max(60, 30 + km * 1.5)) / 5) * 5; }
+function v3DefaultDur() { const km = A.distance / 1000; return Math.round(Math.min(v3MaxDur(), Math.max(30, 25 + km * 3)) / 5) * 5; }
+function v3FmtSecs(s) { return s < 60 ? s + ' s' : `${Math.floor(s / 60)} min` + (s % 60 ? ` ${s % 60} s` : ''); }
 function v3Prep() {
   const P = A.points; const step = Math.max(1, Math.floor(P.length / 900));
   const pts = []; for (let i = 0; i < P.length; i += step) pts.push(P[i]);
@@ -3036,7 +3073,13 @@ function v3DrawOverlay(s, st) {
   if (s > V3_INTRO && s < D - V3_OUTRO + 0.5 && st) {
     const a = Math.min(1, (s - V3_INTRO) / 0.8) * (1 - v3Ease((s - (D - V3_OUTRO)) / 0.5));
     g.globalAlpha = a;
-    g.fillStyle = 'rgba(20,28,27,.72)'; g.beginPath(); g.roundRect ? g.roundRect(40, 80, 560, 120, 22) : g.rect(40, 80, 560, 120); g.fill();
+    const tw = v3TownAt(st.here);
+    g.fillStyle = 'rgba(20,28,27,.72)'; g.beginPath(); g.roundRect ? g.roundRect(40, 80, 560, tw ? 180 : 120, 22) : g.rect(40, 80, 560, tw ? 180 : 120); g.fill();
+    if (tw) {
+      g.fillStyle = '#F2B705'; g.beginPath(); g.arc(84, 230, 11, Math.PI, 0); g.lineTo(84, 252); g.closePath(); g.fill();
+      g.fillStyle = '#fff'; g.font = '600 40px "Barlow Semi Condensed", sans-serif'; g.textBaseline = 'alphabetic';
+      g.fillText(v3Lines(g, tw.name, 470, 1)[0], 110, 247);
+    }
     g.fillStyle = '#fff'; g.textBaseline = 'alphabetic';
     g.font = '700 64px "Barlow Semi Condensed", sans-serif'; g.fillText(fmtKm(st.dist), 70, 165);
     let x = 70 + g.measureText(fmtKm(st.dist)).width + 8; g.font = '600 32px "Barlow Semi Condensed", sans-serif'; g.fillText('km', x, 165);
@@ -3127,7 +3170,7 @@ function v3Stop(finished) {
 }
 async function v3Preload() {
   // recorre la ruta antes de grabar para que el mapa y el relieve estén ya cargados
-  const n = 12;
+  const n = Math.max(12, Math.min(50, Math.ceil(V3.total / 2000)));
   V3.ov = v3Overview();
   const idle = () => new Promise(res => { let done = false; const fin = () => { if (!done) { done = true; res(); } }; V3.map.once('idle', fin); setTimeout(fin, 3500); });
   V3.map.jumpTo(V3.ov); await idle();
@@ -3220,7 +3263,7 @@ async function open3D() {
   v3Buttons(false);
   try { await v3Load(); } catch (e) { toast(e.message); close3D(); return; }
   v3Prep(); v3Plan();
-  V3.dur = v3DefaultDur(); $('v3dur').value = V3.dur; v3DurLabel();
+  $('v3dur').max = v3MaxDur(); V3.dur = v3DefaultDur(); $('v3dur').value = V3.dur; v3DurLabel();
   if (!V3.icon) loadImg('icon-senda-192.png').then(i => V3.icon = i).catch(() => {});
   for (const ph of V3.photos) loadImg(ph.url).then(i => ph.img = i).catch(() => {});
   const frame = $('v3frame');
@@ -3290,7 +3333,41 @@ function v3KmImage(n) {
   g.fillText(String(n), S / 2, S / 2 + 1);
   return g.getImageData(0, 0, S, S);
 }
+function v3TownList() {
+  const src = A.isTrip ? towns : (A.cachedTowns && A.cachedTowns.length ? A.cachedTowns : towns);
+  const short = V3.total < 15000, seen = new Set();
+  return (src || []).filter(t => (t.type === 'city' || t.type === 'town' || t.type === 'village' || (short && t.type === 'hamlet')) && t.dist < 3000)
+    .filter(t => !seen.has(t.name) && seen.add(t.name)).slice(0, 40);
+}
+function v3TownImage(name, big) {
+  const fs = big ? 36 : 30, padX = 16, h = fs + 20;
+  const m = document.createElement('canvas').getContext('2d'); m.font = `700 ${fs}px "Barlow Semi Condensed", Arial, sans-serif`;
+  const w = Math.ceil(m.measureText(name).width) + padX * 2;
+  const c = document.createElement('canvas'); c.width = w; c.height = h + 12;
+  const g = c.getContext('2d');
+  g.fillStyle = 'rgba(30,43,42,.88)'; g.beginPath(); g.roundRect ? g.roundRect(0, 0, w, h, 10) : g.rect(0, 0, w, h); g.fill();
+  g.beginPath(); g.moveTo(w / 2 - 9, h); g.lineTo(w / 2, h + 11); g.lineTo(w / 2 + 9, h); g.closePath(); g.fill();
+  g.fillStyle = '#fff'; g.font = `700 ${fs}px "Barlow Semi Condensed", Arial, sans-serif`; g.textBaseline = 'middle'; g.fillText(name, padX, h / 2 + 1);
+  return g.getImageData(0, 0, c.width, c.height);
+}
+function v3AddTowns(map) {
+  V3.towns = v3TownList();
+  const feats = [];
+  V3.towns.forEach((tw, i) => {
+    const id = 'town-' + i;
+    map.addImage(id, v3TownImage(tw.name, tw.type === 'city' || tw.type === 'town'), { pixelRatio: 2 });
+    feats.push({ type: 'Feature', properties: { icon: id }, geometry: { type: 'Point', coordinates: [tw.lon, tw.lat] } });
+  });
+  map.addSource('towns', { type: 'geojson', data: { type: 'FeatureCollection', features: feats } });
+  map.addLayer({ id: 'towns', type: 'symbol', source: 'towns', layout: { 'icon-image': ['get', 'icon'], 'icon-anchor': 'bottom', 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-pitch-alignment': 'viewport' } });
+}
+function v3TownAt(p) {
+  let best = null, bd = 2500;
+  for (const tw of V3.towns || []) { const d = haversine(p, tw); if (d < bd) { bd = d; best = tw; } }
+  return best;
+}
 function v3AddMarkers(map) {
+  v3AddTowns(map);
   map.addImage('pin-start', v3PinImage('#2E7D4F', 'start'), { pixelRatio: 2 });
   map.addImage('pin-end', v3PinImage('#C8102E', 'end'), { pixelRatio: 2 });
   map.addImage('pin-photo', v3PinImage('#F2B705', 'photo'), { pixelRatio: 2 });
@@ -3332,7 +3409,7 @@ $('v3play').onclick = () => V3.playing ? v3Stop(false) : v3Start();
 $('v3rec').onclick = v3Record;
 function v3DurLabel() {
   const n = V3.photos ? V3.photos.length : 0;
-  $('v3durTxt').textContent = V3.dur + ' s' + (n ? ` + ${n * V3_PAUSE} s fotos` : '');
+  $('v3durTxt').textContent = v3FmtSecs(V3.dur) + (n ? ` + ${n * V3_PAUSE} s fotos` : '');
 }
 $('v3dur').oninput = e => { V3.dur = +e.target.value; v3DurLabel(); };
 $('v3share').onclick = v3ShareVideo;
@@ -3554,7 +3631,8 @@ $('drawer').addEventListener('click', e => {
   const b = e.target.closest('button[data-act]'); if (!b) return;
   closeMenu();
   const act = b.dataset.act;
-  if (act === 'home') showHome();
+  if (act === 'home') { fromHist = false; if ($('histView').classList.contains('on')) renderHome(); else showHome(); }
+  if (act === 'hist') { if ($('actView').classList.contains('on') && history.state && history.state.v === 'act') { fromHist = true; history.back(); } else showHist(); }
   if (act === 'add') { pendingTripId = null; $('fileInput').click(); }
   if (act === 'trip') openTripModal();
   if (act === 'drive') openDriveModal();
@@ -3653,8 +3731,10 @@ $('tripModalOk').onclick = confirmTripModal;
 $('tripModalName').onkeydown = e => { if (e.key === 'Enter') confirmTripModal(); };
 $('tripModal').addEventListener('click', e => { if (e.target.id === 'tripModal') closeTripModal(); });
 $('btnFirst').onclick = () => { pendingTripId = null; $('fileInput').click(); };
-$('btnBrand').onclick = showHome;
-$('btnBack').onclick = showHome;
+$('btnBrand').onclick = () => { fromHist = false; if ($('histView').classList.contains('on')) renderHome(); else showHome(); };
+$('btnBack').onclick = () => { fromHist = false; if ($('histView').classList.contains('on')) renderHome(); else showHome(); };
+$('btnHist').onclick = () => { if ($('actView').classList.contains('on') && history.state && history.state.v === 'act') { fromHist = true; history.back(); } else showHist(); };
+$('btnHistHome').onclick = showHist;
 $('fileInput').onchange = e => { const fs = [...e.target.files]; e.target.value = ''; if (fs.length) openFiles(fs); else pendingTripId = null; };
 $('tripSelect').onchange = changeTrip;
 $('tripNewOk').onclick = confirmNewTrip;
