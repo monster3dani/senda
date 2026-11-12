@@ -553,6 +553,7 @@ select.pill { appearance: none; padding-right: 14px; }
             <h2 id="townsTitle">Poblaciones cercanas</h2>
             <label class="toggle"><input type="checkbox" id="townToggle" checked> En el mapa</label>
           </div>
+          <button class="trip-link" id="btnTownsAgain" type="button">Buscar de nuevo</button>
           <ul class="places" id="places"></ul>
           <p class="note" id="placesNote">Buscando…</p>
         </div>
@@ -1053,7 +1054,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '2.5.0';
+const APP_VERSION = '2.6.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -2389,22 +2390,50 @@ async function queryTowns(P, distance) {
   const sample = [];
   for (let k = 0; k < n; k++) { const q = P[Math.floor(k * (P.length - 1) / Math.max(1, n - 1))]; sample.push(q.lat.toFixed(5), q.lon.toFixed(5)); }
   const radius = distance > 30000 ? 2500 : 5000;
-  const query = `[out:json][timeout:25];node(around:${radius},${sample.join(',')})["place"~"^(city|town|village|hamlet|locality)$"]["name"];out body 120;`;
+  // ciudades y pueblos grandes con más radio, para que no se escapen (por ejemplo, al llegar a Santiago)
+  const query = `[out:json][timeout:40];(node(around:${radius},${sample.join(',')})["place"~"^(village|hamlet|locality)$"]["name"];node(around:${Math.max(radius, 6000)},${sample.join(',')})["place"~"^(city|town)$"]["name"];);out body 400;`;
   const endpoints = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
   let data = null;
   for (const url of endpoints) {
     try {
       const r = await fetch(url, { method: 'POST', body: 'data=' + encodeURIComponent(query), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
-      if (r.ok) { data = await r.json(); break; }
+      if (r.ok) {
+        const j = await r.json();
+        // si el servidor estaba saturado responde sin datos y con un aviso: eso no es "no hay pueblos"
+        if (j && Array.isArray(j.elements) && !(j.remark && /error|timeout|out of memory/i.test(j.remark) && !j.elements.length)) { data = j; break; }
+      }
     } catch (e) { /* probar el siguiente */ }
   }
   if (!data) return null;
   const sampled = P.filter((_, i) => i % Math.max(1, Math.floor(P.length / 400)) === 0);
-  return data.elements.map(el => {
+  const all = data.elements.map(el => {
     let best = Infinity, bi = 0;
     sampled.forEach((q, i) => { const dd = haversine(q, { lat: el.lat, lon: el.lon }); if (dd < best) { best = dd; bi = i; } });
     return { name: el.tags.name, type: el.tags.place, lat: el.lat, lon: el.lon, dist: best, pos: bi / sampled.length };
-  }).sort((a, b) => a.dist - b.dist).slice(0, 25);
+  }).sort((a, b) => a.dist - b.dist);
+  // se guardan siempre las ciudades y pueblos grandes cercanos, y los más cercanos del resto
+  const big = all.filter(x => (x.type === 'city' || x.type === 'town') && x.dist < 6000);
+  const rest = all.filter(x => !big.includes(x)).slice(0, 30);
+  return [...big, ...rest].sort((a, b) => a.dist - b.dist);
+}
+async function refreshTowns() {
+  const cur = A; if (!cur) return;
+  const btn = $('btnTownsAgain'); btn.disabled = true;
+  const saveTowns = (id, res) => { const l = loadHistory(); const e = l.find(x => x.id === id); if (e) { e.towns = res; saveHistory(l); } };
+  $('places').innerHTML = ''; $('placesNote').style.display = '';
+  let ok = 0, fail = 0;
+  const list = cur.isTrip ? cur.stages : [cur];
+  for (let i = 0; i < list.length; i++) {
+    $('placesNote').textContent = list.length > 1 ? `Buscando poblaciones… etapa ${i + 1} de ${list.length}` : 'Buscando poblaciones cerca de la ruta…';
+    const s = list[i];
+    const res = await queryTowns(s.points, s.distance);
+    if (res) { s.cachedTowns = res; saveTowns(s.id, res); ok++; } else fail++;
+  }
+  btn.disabled = false;
+  if (A !== cur) return;
+  if (!ok) { $('placesNote').textContent = 'El servicio de mapas no ha respondido. Prueba otra vez en un rato.'; return; }
+  if (cur.isTrip) await loadTowns(); else { towns = cur.cachedTowns.slice(0, 20); renderTowns(); }
+  toast(fail ? `Poblaciones actualizadas (${fail} ${fail === 1 ? 'etapa' : 'etapas'} sin respuesta).` : 'Poblaciones actualizadas.');
 }
 async function loadTowns() {
   townLayer.clearLayers(); towns = [];
@@ -2424,7 +2453,7 @@ async function loadTowns() {
   if (A.cachedTowns) { towns = A.cachedTowns.slice(0, 15); renderTowns(); return; }
   const cur = A, myId = cur.id;
   const res = await queryTowns(cur.points, cur.distance);
-  if (!res) { if (A === cur) $('placesNote').textContent = 'No se han podido consultar las poblaciones. Comprueba la conexión y vuelve a abrir la caminata.'; return; }
+  if (!res) { if (A === cur) $('placesNote').textContent = 'No se han podido consultar las poblaciones. Pulsa «Buscar de nuevo» en un rato.'; return; }
   const list = loadHistory(); const e = list.find(x => x.id === myId);
   if (e) { e.towns = res; saveHistory(list); }
   if (A !== cur) return;
@@ -2450,7 +2479,7 @@ function renderTowns() {
     const s = document.createElement('span');
     s.textContent = A.isTrip
       ? `Etapa ${t.stage + 1}, ${(PLACE_LABEL[t.type] || 'lugar').toLowerCase()}`
-      : `${PLACE_LABEL[t.type] || 'Lugar'}, a ${t.dist < 1000 ? Math.round(t.dist / 10) * 10 + ' m' : (t.dist / 1000).toFixed(1) + ' km'} de la ruta`;
+      : `${PLACE_LABEL[t.type] || 'Lugar'}, a ${t.dist < 1000 ? Math.round(t.dist / 10) * 10 + ' m' : fmtDec(t.dist / 1000) + ' km'} de la ruta`;
     li.append(b, s); ul.appendChild(li);
     const onMap = A.isTrip ? (t.type === 'city' || t.type === 'town') : (t.type !== 'hamlet' && t.type !== 'locality');
     if (onMap) {
@@ -2941,7 +2970,7 @@ $('driveModal').addEventListener('click', e => { if (e.target.id === 'driveModal
 $('btnDriveRestore').onclick = () => openDriveModal();
 // ---------- Vuelo 3D y vídeo ----------
 const V3 = { map: null, pts: null, total: 0, dur: 40, playing: false, raf: 0, t0: 0, s: 0, rec: null, bearing: 0, cam: null, photos: [], shown: new Set(), icon: null, busy: false };
-const V3_INTRO = 3, V3_OUTRO = 5, V3_PAUSE = 3;
+const V3_INTRO = 3, V3_OUTRO = 8, V3_PAUSE = 3;
 function v3Load() {
   if (window.maplibregl) return Promise.resolve();
   return new Promise((res, rej) => {
@@ -3057,7 +3086,13 @@ function v3Camera(s, dt) {
   if (s > D - V3_OUTRO) k = 1 - v3Ease((s - (D - V3_OUTRO)) / 2.5);
   const lerp = (x, y) => x + (y - x) * k;
   let bd = ((V3.bearing - ov.bearing + 540) % 360) - 180;
-  V3.map.jumpTo({
+  if (s > D - V3_OUTRO) {
+    // llegada: vuelta completa alrededor del destino mientras la cámara se aleja
+    if (V3.outB == null) { V3.outB = V3.bearing; V3.outZ = Z; }
+    const u = Math.min(1, (s - (D - V3_OUTRO)) / (V3_OUTRO - 0.5)), e = v3Ease(u);
+    const end = v3At(V3.total);
+    V3.map.jumpTo({ center: [end.lon, end.lat], bearing: (V3.outB + 360 * e) % 360, zoom: V3.outZ - 2.4 * e, pitch: 62 - 14 * e });
+  } else V3.map.jumpTo({
     center: [lerp(ov.center.lng, here.lon), lerp(ov.center.lat, here.lat)],
     zoom: lerp(ov.zoom, Z), pitch: lerp(ov.pitch, V3.cam === 'fixed' ? 52 : V3.cam === 'orbit' ? 58 : 62), bearing: (ov.bearing + bd * k + 360) % 360
   });
@@ -3154,7 +3189,7 @@ function v3DrawOverlay(s, st) {
     }
   }
   // final: los cuatro datos
-  const outA = v3Ease((s - (D - V3_OUTRO + 1.2)) / 0.8);
+  const outA = v3Ease((s - (D - 3.2)) / 0.8);
   if (outA > 0.01) {
     g.globalAlpha = outA;
     g.fillStyle = 'rgba(244,239,227,.96)'; g.beginPath(); g.roundRect ? g.roundRect(40, 1110, 1000, 540, 30) : g.rect(40, 1110, 1000, 540); g.fill();
@@ -3207,6 +3242,7 @@ function v3Compose() {
 }
 function v3Start() {
   v3Plan();
+  V3.outB = null;
   V3.ov = v3Overview(); V3.bearing = V3.ov.bearing; V3.shown = new Set(); V3.photos.forEach(p => p.at = null);
   V3.playing = true; V3.last = 0; V3.t0 = performance.now();
   $('v3play').textContent = 'Parar';
@@ -3227,6 +3263,7 @@ async function v3Preload() {
   V3.ov = v3Overview();
   const idle = () => new Promise(res => { let done = false; const fin = () => { if (!done) { done = true; res(); } }; V3.map.once('idle', fin); setTimeout(fin, 3500); });
   V3.map.jumpTo(V3.ov); await idle();
+  { const e = v3At(V3.total); V3.map.jumpTo({ center: [e.lon, e.lat], zoom: v3FollowZoom() - 2.4, pitch: 50, bearing: 0 }); await idle(); }
   for (let i = 0; i <= n; i++) {
     if (!$('view3d').classList.contains('on')) return false;
     const p = v3At(V3.total * i / n), q = v3At(V3.total * i / n + Math.max(120, V3.total * 0.03));
@@ -3831,6 +3868,7 @@ $('tripModalOk').onclick = confirmTripModal;
 $('tripModalName').onkeydown = e => { if (e.key === 'Enter') confirmTripModal(); };
 $('tripModal').addEventListener('click', e => { if (e.target.id === 'tripModal') closeTripModal(); });
 $('btnFirst').onclick = () => { pendingTripId = null; $('fileInput').click(); };
+$('btnTownsAgain').onclick = refreshTowns;
 $('btnBrand').onclick = () => { fromHist = false; if ($('histView').classList.contains('on')) renderHome(); else showHome(); };
 $('btnBack').onclick = () => { fromHist = false; if ($('histView').classList.contains('on')) renderHome(); else showHome(); };
 $('btnHist').onclick = () => { if ($('actView').classList.contains('on') && history.state && history.state.v === 'act') { fromHist = true; history.back(); } else showHist(); };
