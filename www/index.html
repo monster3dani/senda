@@ -144,7 +144,7 @@ button { cursor: pointer; }
 .view3d { position: fixed; inset: 0; z-index: 2700; background: #0F1716; display: none; flex-direction: column; align-items: center;
   padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); }
 .view3d.on { display: flex; }
-.v3frame { position: relative; flex: 1; width: 100%; max-width: calc((100vh - 200px) * 9 / 16); aspect-ratio: 9 / 16; max-height: calc(100vh - 200px);
+.v3frame { position: relative; flex: 1; width: 100%; max-width: calc((100vh - 250px) * 9 / 16); aspect-ratio: 9 / 16; max-height: calc(100vh - 250px);
   margin: 8px auto 0; border-radius: 14px; overflow: hidden; background: linear-gradient(#9CC3D9, #E4EEF2); }
 #map3d { position: absolute; inset: 0; }
 #v3over { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -154,10 +154,11 @@ button { cursor: pointer; }
 .v3bar div { height: 100%; width: 0; background: #F2B705; }
 .v3controls { width: 100%; max-width: 520px; padding: 10px 14px 12px; color: #fff; }
 .v3cam { display: flex; align-items: center; gap: 10px; font-size: 15px; margin-bottom: 10px; }
-#v3cams { flex: 1; display: flex; background: rgba(255,255,255,.1); border-radius: 10px; padding: 3px; gap: 3px; }
-#v3cams button { flex: 1; border: 0; background: none; color: #fff; padding: 8px 4px; border-radius: 8px; font-weight: 600; font-size: 15px; }
-#v3cams button[aria-pressed="true"] { background: #F2B705; color: #1E2B2A; }
-#v3cams button:disabled { opacity: .5; }
+.v3cam > span { width: 74px; flex: none; }
+.v3seg { flex: 1; display: flex; background: rgba(255,255,255,.1); border-radius: 10px; padding: 3px; gap: 3px; }
+.v3seg button { flex: 1; border: 0; background: none; color: #fff; padding: 7px 4px; border-radius: 8px; font-weight: 600; font-size: 15px; }
+.v3seg button[aria-pressed="true"] { background: #F2B705; color: #1E2B2A; }
+.v3seg button:disabled { opacity: .5; }
 .v3dur { display: flex; align-items: center; gap: 10px; font-size: 15px; margin-bottom: 10px; }
 .v3dur input { flex: 1; accent-color: #F2B705; }
 .v3btns { display: flex; gap: 8px; }
@@ -600,10 +601,15 @@ select.pill { appearance: none; padding-right: 14px; }
     <div class="v3bar"><div id="v3prog"></div></div>
   </div>
   <div class="v3controls">
-    <div class="v3cam"><span>Cámara</span><div id="v3cams" role="group" aria-label="Modo de cámara">
+    <div class="v3cam"><span>Cámara</span><div id="v3cams" class="v3seg" role="group" aria-label="Modo de cámara">
       <button type="button" data-cam="follow" aria-pressed="true">Seguir</button>
       <button type="button" data-cam="orbit" aria-pressed="false">Órbita</button>
       <button type="button" data-cam="fixed" aria-pressed="false">Fija</button>
+    </div></div>
+    <div class="v3cam"><span>Distancia</span><div id="v3zooms" class="v3seg" role="group" aria-label="Distancia de la cámara">
+      <button type="button" data-zoom="near" aria-pressed="false">Cerca</button>
+      <button type="button" data-zoom="mid" aria-pressed="true">Media</button>
+      <button type="button" data-zoom="far" aria-pressed="false">Lejos</button>
     </div></div>
     <label class="v3dur">Duración del vídeo <input type="range" id="v3dur" min="30" max="60" step="5" value="40"> <b id="v3durTxt">40 s</b></label>
     <div class="v3btns">
@@ -1047,7 +1053,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '2.4.0';
+const APP_VERSION = '2.5.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -2953,6 +2959,8 @@ function v3Prep() {
   const pts = []; for (let i = 0; i < P.length; i += step) pts.push(P[i]);
   if (pts[pts.length - 1] !== P[P.length - 1]) pts.push(P[P.length - 1]);
   V3.pts = pts; V3.total = pts[pts.length - 1].d - pts[0].d;
+  V3.stageT = {};
+  for (const q of pts) { const s = q.stage || 0; if (V3.stageT[s] == null && q.t) V3.stageT[s] = q.t; }
   V3.photos = photos.map(ph => ({ ...ph, d: A.points[ph.idx].d - pts[0].d }));
 }
 function v3At(dist) {
@@ -2962,6 +2970,22 @@ function v3At(dist) {
   const b = P[lo], a = P[Math.max(0, lo - 1)];
   const k = b.d === a.d ? 0 : (target - a.d) / (b.d - a.d);
   return { lon: a.lon + (b.lon - a.lon) * k, lat: a.lat + (b.lat - a.lat) * k, ele: a.es != null && b.es != null ? a.es + (b.es - a.es) * k : (b.ele ?? null), idx: lo };
+}
+// Tramos de la ruta, cada etapa de un viaje con su color
+function v3StageColor(k) { return STAGE_COLORS[k % STAGE_COLORS.length]; }
+function v3Segments(dist, faint, here) {
+  const P = V3.pts, d0 = P[0].d, feats = [];
+  let cur = [], k = P[0].stage || 0;
+  const color = s => A.isTrip ? v3StageColor(s) : (faint ? '#ffffff' : '#C8102E');
+  for (const q of P) {
+    if (q.d - d0 > dist) break;
+    const s = q.stage || 0;
+    if (s !== k && cur.length) { feats.push({ type: 'Feature', properties: { c: color(k) }, geometry: { type: 'LineString', coordinates: cur.length > 1 ? cur : [cur[0], cur[0]] } }); cur = [cur[cur.length - 1]]; k = s; }
+    cur.push([q.lon, q.lat]);
+  }
+  if (here) cur.push([here.lon, here.lat]);
+  if (cur.length) feats.push({ type: 'Feature', properties: { c: color(k) }, geometry: { type: 'LineString', coordinates: cur.length > 1 ? cur : [cur[0], cur[0]] } });
+  return { type: 'FeatureCollection', features: feats };
 }
 function v3Bearing(p, q) {
   const r = Math.PI / 180, y = Math.sin((q.lon - p.lon) * r) * Math.cos(q.lat * r);
@@ -2976,7 +3000,8 @@ function v3Overview() {
   const cam = V3.map.cameraForBounds([[c, a], [d, b]], { padding: { top: 120, bottom: 200, left: 50, right: 50 }, pitch: 40, bearing: br });
   return { center: cam.center, zoom: Math.min(16, cam.zoom), pitch: 40, bearing: br };
 }
-function v3FollowZoom() { const km = Math.max(0.3, V3.total / 1000); return Math.max(13, Math.min(16.2, 16.4 - Math.log2(km / 1.5))); }
+const V3_ZOOMS = { near: 0.9, mid: 0, far: -1.4 };
+function v3FollowZoom() { const km = Math.max(0.3, V3.total / 1000); return Math.max(11.5, Math.min(17.2, Math.max(13, Math.min(16.2, 16.4 - Math.log2(km / 1.5))) + (V3_ZOOMS[V3.zoom] || 0))); }
 // El vídeo dura lo elegido más 3 s por cada foto, en las que el vuelo se detiene
 function v3Plan() {
   const F = V3.dur - V3_INTRO - V3_OUTRO;
@@ -2999,6 +3024,12 @@ function v3Timeline(s) {
 const V3_CAMS = { follow: 'Seguir', orbit: 'Órbita', fixed: 'Fija' };
 const V3_ORBIT = 360 / 26;   // grados por segundo: una vuelta cada 26 s
 V3.cam = (() => { try { return localStorage.getItem('senda.v3cam') || 'follow'; } catch { return 'follow'; } })();
+V3.zoom = (() => { try { return localStorage.getItem('senda.v3zoom') || 'mid'; } catch { return 'mid'; } })();
+function v3SetZoom(z) {
+  V3.zoom = V3_ZOOMS[z] != null ? z : 'mid';
+  try { localStorage.setItem('senda.v3zoom', V3.zoom); } catch {}
+  document.querySelectorAll('#v3zooms button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.zoom === V3.zoom)));
+}
 function v3SetCam(m) {
   V3.cam = V3_CAMS[m] ? m : 'follow';
   try { localStorage.setItem('senda.v3cam', V3.cam); } catch {}
@@ -3031,10 +3062,7 @@ function v3Camera(s, dt) {
     zoom: lerp(ov.zoom, Z), pitch: lerp(ov.pitch, V3.cam === 'fixed' ? 52 : V3.cam === 'orbit' ? 58 : 62), bearing: (ov.bearing + bd * k + 360) % 360
   });
   // ruta recorrida y caminante
-  const done = V3.pts.filter(q => q.d - V3.pts[0].d <= dist).map(q => [q.lon, q.lat]);
-  done.push([here.lon, here.lat]);
-  if (done.length < 2) done.push([here.lon, here.lat]);
-  V3.map.getSource('done').setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: done } });
+  V3.map.getSource('done').setData(v3Segments(dist, false, here));
   V3.map.getSource('walker').setData({ type: 'Feature', geometry: { type: 'Point', coordinates: [here.lon, here.lat] } });
   return { f, dist, here, photo: tl.photo, pt: tl.pt };
 }
@@ -3074,16 +3102,41 @@ function v3DrawOverlay(s, st) {
     const a = Math.min(1, (s - V3_INTRO) / 0.8) * (1 - v3Ease((s - (D - V3_OUTRO)) / 0.5));
     g.globalAlpha = a;
     const tw = v3TownAt(st.here);
-    g.fillStyle = 'rgba(20,28,27,.72)'; g.beginPath(); g.roundRect ? g.roundRect(40, 80, 560, tw ? 180 : 120, 22) : g.rect(40, 80, 560, tw ? 180 : 120); g.fill();
-    if (tw) {
-      g.fillStyle = '#F2B705'; g.beginPath(); g.arc(84, 230, 11, Math.PI, 0); g.lineTo(84, 252); g.closePath(); g.fill();
-      g.fillStyle = '#fff'; g.font = '600 40px "Barlow Semi Condensed", sans-serif'; g.textBaseline = 'alphabetic';
-      g.fillText(v3Lines(g, tw.name, 470, 1)[0], 110, 247);
+    const pt = V3.pts[st.here.idx] || V3.pts[0];
+    const stage = A.isTrip ? (pt.stage || 0) : null;
+    const row2 = tw || stage != null;
+    g.fillStyle = 'rgba(20,28,27,.72)'; g.beginPath(); g.roundRect ? g.roundRect(40, 80, 1000, row2 ? 180 : 120, 22) : g.rect(40, 80, 1000, row2 ? 180 : 120); g.fill();
+    // cuatro datos: distancia, altitud, velocidad y tiempo
+    const t0 = A.isTrip ? (V3.stageT[stage] ?? V3.pts[0].t) : V3.pts[0].t;
+    const secs = pt.t && t0 ? Math.max(0, (pt.t - t0) / 1000) : null;
+    const vals = [
+      [fmtKm(st.dist), 'km'],
+      [st.here.ele != null ? fmtNum(st.here.ele) : '–', 'm'],
+      [pt.v != null && isFinite(pt.v) ? fmtDec(pt.v * 3.6) : '–', 'km/h'],
+      [secs != null ? fmtClock(secs) : '–', secs != null && secs >= 3600 ? 'h' : 'min']
+    ];
+    g.textBaseline = 'alphabetic';
+    vals.forEach(([v, u], i) => {
+      const x0 = 66 + i * 245;
+      g.fillStyle = '#fff'; g.font = '700 56px "Barlow Semi Condensed", sans-serif'; g.fillText(v, x0, 160);
+      const w = g.measureText(v).width; g.font = '600 26px "Barlow Semi Condensed", sans-serif'; g.fillStyle = 'rgba(255,255,255,.8)'; g.fillText(u, x0 + w + 6, 160);
+    });
+    if (row2) {
+      let x = 70;
+      if (stage != null) {
+        const lbl = `Etapa ${stage + 1}`;
+        g.font = '700 34px "Barlow Semi Condensed", sans-serif';
+        const lw = g.measureText(lbl).width + 28;
+        g.fillStyle = v3StageColor(stage); g.beginPath(); g.roundRect ? g.roundRect(x - 4, 208, lw, 46, 10) : g.rect(x - 4, 208, lw, 46); g.fill();
+        g.fillStyle = '#fff'; g.fillText(lbl, x + 10, 243);
+        x += lw + 18;
+      }
+      if (tw) {
+        g.fillStyle = '#F2B705'; g.beginPath(); g.arc(x + 14, 222, 11, Math.PI, 0); g.lineTo(x + 14, 246); g.closePath(); g.fill();
+        g.fillStyle = '#fff'; g.font = '600 40px "Barlow Semi Condensed", sans-serif';
+        g.fillText(v3Lines(g, tw.name, 940 - x, 1)[0], x + 36, 245);
+      }
     }
-    g.fillStyle = '#fff'; g.textBaseline = 'alphabetic';
-    g.font = '700 64px "Barlow Semi Condensed", sans-serif'; g.fillText(fmtKm(st.dist), 70, 165);
-    let x = 70 + g.measureText(fmtKm(st.dist)).width + 8; g.font = '600 32px "Barlow Semi Condensed", sans-serif'; g.fillText('km', x, 165);
-    if (st.here.ele != null) { g.font = '700 64px "Barlow Semi Condensed", sans-serif'; const ev = fmtNum(st.here.ele); g.fillText(ev, 340, 165); const evw = g.measureText(ev).width; g.font = '600 32px "Barlow Semi Condensed", sans-serif'; g.fillText('m', 348 + evw, 165); }
     g.globalAlpha = 1;
     // fotos al pasar
     {
@@ -3218,7 +3271,7 @@ async function v3Record() {
   mr.start(1000);
   v3Start();
 }
-function v3Buttons(on) { $('v3play').disabled = !on; $('v3rec').disabled = !on; $('v3dur').disabled = !on; document.querySelectorAll('#v3cams button').forEach(b => b.disabled = !on); }
+function v3Buttons(on) { $('v3play').disabled = !on; $('v3rec').disabled = !on; $('v3dur').disabled = !on; document.querySelectorAll('#v3cams button, #v3zooms button').forEach(b => b.disabled = !on); }
 let v3Blob = null;
 function v3ShowResult(blob) {
   v3Blob = blob;
@@ -3255,6 +3308,27 @@ async function v3ShareVideo() {
   }
 }
 function v3CloseResult() { $('v3result').classList.remove('on'); const v = $('v3video'); if (v.src) { URL.revokeObjectURL(v.src); v.removeAttribute('src'); } v3Blob = null; }
+// Antes del vuelo, busca los pueblos de las caminatas que todavía no los tengan
+async function v3EnsureTowns() {
+  const cur = A;
+  const saveTowns = (id, res) => { const l = loadHistory(); const e = l.find(x => x.id === id); if (e) { e.towns = res; saveHistory(l); } };
+  if (cur.isTrip) {
+    const missing = cur.stages.filter(s => !s.cachedTowns);
+    for (let i = 0; i < missing.length; i++) {
+      if (!$('view3d').classList.contains('on')) return;
+      $('v3status').textContent = `Buscando los pueblos del recorrido… ${i + 1} de ${missing.length}`;
+      const s = missing[i];
+      const res = await queryTowns(s.points, s.distance);
+      if (res) { s.cachedTowns = res; saveTowns(s.id, res); }
+    }
+    if (missing.length && A === cur) loadTowns();
+  } else if (!cur.cachedTowns) {
+    $('v3status').textContent = 'Buscando los pueblos del recorrido…';
+    const res = await queryTowns(cur.points, cur.distance);
+    if (res) { cur.cachedTowns = res; saveTowns(cur.id, res); if (A === cur) { towns = res.slice(0, 15); renderTowns(); } }
+  }
+  $('v3status').textContent = 'Cargando el mapa 3D…';
+}
 async function open3D() {
   if (!A || A.points.length < 2) return;
   stopAnim(false);
@@ -3262,6 +3336,8 @@ async function open3D() {
   $('v3status').hidden = false; $('v3status').textContent = 'Cargando el mapa 3D…'; $('v3prog').style.width = '0%';
   v3Buttons(false);
   try { await v3Load(); } catch (e) { toast(e.message); close3D(); return; }
+  await v3EnsureTowns();
+  if (!$('view3d').classList.contains('on')) return;
   v3Prep(); v3Plan();
   $('v3dur').max = v3MaxDur(); V3.dur = v3DefaultDur(); $('v3dur').value = V3.dur; v3DurLabel();
   if (!V3.icon) loadImg('icon-senda-192.png').then(i => V3.icon = i).catch(() => {});
@@ -3290,12 +3366,12 @@ async function open3D() {
   V3.map = map;
   map.on('load', () => {
     const all = V3.pts.map(q => [q.lon, q.lat]);
-    map.addSource('all', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: all } } });
-    map.addSource('done', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: [all[0], all[0]] } } });
+    map.addSource('all', { type: 'geojson', data: v3Segments(Infinity, true) });
+    map.addSource('done', { type: 'geojson', data: v3Segments(-1, false) });
     map.addSource('walker', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'Point', coordinates: all[0] } } });
-    map.addLayer({ id: 'all', type: 'line', source: 'all', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#ffffff', 'line-width': 4, 'line-opacity': 0.55 } });
+    map.addLayer({ id: 'all', type: 'line', source: 'all', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': ['get', 'c'], 'line-width': 4, 'line-opacity': A.isTrip ? 0.7 : 0.55 } });
     map.addLayer({ id: 'done-casing', type: 'line', source: 'done', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#ffffff', 'line-width': 9 } });
-    map.addLayer({ id: 'done', type: 'line', source: 'done', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#C8102E', 'line-width': 5 } });
+    map.addLayer({ id: 'done', type: 'line', source: 'done', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': ['get', 'c'], 'line-width': 5 } });
     v3AddMarkers(map);
     map.addLayer({ id: 'walker', type: 'circle', source: 'walker', paint: { 'circle-radius': 9, 'circle-color': '#F2B705', 'circle-stroke-color': '#1E2B2A', 'circle-stroke-width': 3 } });
     V3.bearing0 = v3Bearing(v3At(0), v3At(Math.max(150, V3.total * 0.1)));
@@ -3366,8 +3442,30 @@ function v3TownAt(p) {
   for (const tw of V3.towns || []) { const d = haversine(p, tw); if (d < bd) { bd = d; best = tw; } }
   return best;
 }
+function v3StageImage(n, color) {
+  const S = 64, c = document.createElement('canvas'); c.width = S; c.height = S;
+  const g = c.getContext('2d');
+  g.beginPath(); g.arc(S / 2, S / 2, S / 2 - 3, 0, Math.PI * 2); g.fillStyle = color; g.fill(); g.lineWidth = 5; g.strokeStyle = '#fff'; g.stroke();
+  g.fillStyle = '#fff'; g.font = `700 ${String(n).length > 1 ? 28 : 34}px "Barlow Semi Condensed", Arial, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(String(n), S / 2, S / 2 + 1);
+  return g.getImageData(0, 0, S, S);
+}
 function v3AddMarkers(map) {
   v3AddTowns(map);
+  if (A.isTrip) {
+    const feats = [];
+    const P = V3.pts; let last = -1;
+    for (const q of P) {
+      const s = q.stage || 0;
+      if (s !== last) {
+        last = s;
+        map.addImage('stage-' + s, v3StageImage(s + 1, v3StageColor(s)), { pixelRatio: 2 });
+        feats.push({ type: 'Feature', properties: { icon: 'stage-' + s }, geometry: { type: 'Point', coordinates: [q.lon, q.lat] } });
+      }
+    }
+    map.addSource('stages', { type: 'geojson', data: { type: 'FeatureCollection', features: feats } });
+    map.addLayer({ id: 'stages', type: 'symbol', source: 'stages', layout: { 'icon-image': ['get', 'icon'], 'icon-allow-overlap': true, 'icon-ignore-placement': true, 'icon-pitch-alignment': 'viewport' } });
+  }
   map.addImage('pin-start', v3PinImage('#2E7D4F', 'start'), { pixelRatio: 2 });
   map.addImage('pin-end', v3PinImage('#C8102E', 'end'), { pixelRatio: 2 });
   map.addImage('pin-photo', v3PinImage('#F2B705', 'photo'), { pixelRatio: 2 });
@@ -3405,6 +3503,8 @@ window.__senda3d = { V3, v3Timeline }; // para pruebas
 $('v3close').onclick = close3D;
 document.querySelectorAll('#v3cams button').forEach(b => b.onclick = () => { if (!V3.busy && !V3.playing) v3SetCam(b.dataset.cam); });
 v3SetCam(V3.cam);
+document.querySelectorAll('#v3zooms button').forEach(b => b.onclick = () => { if (!V3.busy && !V3.playing) v3SetZoom(b.dataset.zoom); });
+v3SetZoom(V3.zoom);
 $('v3play').onclick = () => V3.playing ? v3Stop(false) : v3Start();
 $('v3rec').onclick = v3Record;
 function v3DurLabel() {
