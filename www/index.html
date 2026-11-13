@@ -128,6 +128,11 @@ button { cursor: pointer; }
 .coffee-thanks { color: var(--muted); font-size: 13px; margin: 0; }
 #driveActions { flex-wrap: wrap; }
 .btn-hist { margin-top: 16px; }
+.hist-sort { margin-top: 14px; color: var(--muted); }
+.hist-seg { background: var(--panel); border: 1px solid var(--line); }
+#histSort button { color: var(--ink); font-size: 14px; padding: 8px 2px; }
+#histSort button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.fixed-note { color: var(--muted); font-size: 12px; }
 .hist-sec { font: 600 15px Barlow, sans-serif; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin: 26px 0 2px; }
 .hist-month { font: 600 18px "Barlow Semi Condensed", sans-serif; margin: 18px 0 2px; color: var(--ink); }
 .stage-add { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
@@ -455,6 +460,12 @@ select.pill { appearance: none; padding-right: 14px; }
   <section id="histView" class="view">
     <div class="home">
       <div class="home-head"><h1>Historial</h1><p id="histSub"></p></div>
+      <div class="v3cam hist-sort"><span>Ordenar</span><div id="histSort" class="v3seg hist-seg" role="group" aria-label="Ordenar el historial">
+        <button type="button" data-sort="date" aria-pressed="true">Fecha</button>
+        <button type="button" data-sort="dist" aria-pressed="false">Distancia</button>
+        <button type="button" data-sort="climb" aria-pressed="false">Desnivel</button>
+        <button type="button" data-sort="time" aria-pressed="false">Duración</button>
+      </div></div>
       <div id="histList"></div>
     </div>
   </section>
@@ -1054,7 +1065,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '2.6.0';
+const APP_VERSION = '2.7.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -1245,9 +1256,35 @@ function unpackActivity(e) {
   a.id = e.id; a.title = e.title || null; a.tripId = e.tripId || null; a.cachedTowns = e.towns || null;
   return a;
 }
+// Desnivel "a prueba de ruido": se suaviza la altitud de la ruta antes de sumar subidas y bajadas
+function robustClimb(pts) {
+  const e = pts.map(p => p[2]).map(v => (v == null || !isFinite(v)) ? null : +v);
+  const valid = e.filter(v => v != null);
+  if (valid.length < 10) return null;
+  let last = valid[0]; const f = e.map(v => (v == null ? last : (last = v)));
+  const med = f.map((_, i) => { const w = f.slice(Math.max(0, i - 3), i + 4).sort((a, b) => a - b); return w[w.length >> 1]; });
+  const avg = med.map((_, i) => { let s = 0, n = 0; for (let j = Math.max(0, i - 4); j <= Math.min(med.length - 1, i + 4); j++) { s += med[j]; n++; } return s / n; });
+  let up = 0, down = 0, ref = avg[0];
+  for (const v of avg) { const d = v - ref; if (d >= 4) { up += d; ref = v; } else if (d <= -4) { down -= d; ref = v; } }
+  return { up: Math.round(up), down: Math.round(down) };
+}
+// Si el desnivel guardado es imposible o muy superior al de la propia ruta, se corrige
+function checkClimb(entry) {
+  const s = entry.session || {}, km = (s.distance || 0) / 1000;
+  if (!entry.pts || km < 0.3 || s.ascent == null) return false;
+  const rc = robustClimb(entry.pts);
+  if (!rc) return false;
+  const tooMuch = s.ascent > km * 300 || s.ascent > rc.up * 2 + 50;
+  if (!tooMuch) return false;
+  s.ascentOrig = s.ascentOrig ?? s.ascent; s.descentOrig = s.descentOrig ?? s.descent;
+  s.ascent = rc.up; s.descent = rc.down;
+  entry.session = s; entry.climbFixed = true;
+  return true;
+}
 function storeActivity(a) {
   const list = loadHistory();
   const packed = packActivity(a);
+  if (checkClimb(packed)) { a.ascent = packed.session.ascent; a.descent = packed.session.descent; }
   a.id = packed.id;
   const i = list.findIndex(x => x.id === packed.id);
   if (i >= 0) { packed.towns = list[i].towns; packed.title = packed.title || list[i].title || null; packed.tripId = list[i].tripId || null; list[i] = packed; } else list.unshift(packed);
@@ -1314,6 +1351,13 @@ function renderHistory() {
 }
 // Historial: primero los viajes y luego las caminatas sueltas, cada grupo por fecha (lo más reciente arriba)
 let fromHist = false;
+let histSort = (() => { try { return localStorage.getItem('senda.histsort') || 'date'; } catch { return 'date'; } })();
+function setHistSort(k) {
+  histSort = ['date', 'dist', 'climb', 'time'].includes(k) ? k : 'date';
+  try { localStorage.setItem('senda.histsort', histSort); } catch {}
+  document.querySelectorAll('#histSort button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sort === histSort)));
+  if ($('histView').classList.contains('on')) renderHistList();
+}
 function walkDate(e) { const t = e && e.pts && e.pts[0] ? +e.pts[0][3] : 0; return isFinite(t) ? t : 0; }
 function renderHistList() {
   const list = loadHistory(), trips = loadTrips();
@@ -1322,7 +1366,13 @@ function renderHistList() {
   const shortDate = t => t ? new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const tripItems = trips.map(trip => { const st = tripStages(trip.id, list); return { trip, st, date: st.length ? walkDate(st[0]) : (trip.created || 0) }; })
     .sort((a, b) => (b.st.length ? 1 : 0) - (a.st.length ? 1 : 0) || b.date - a.date);
-  const loose = list.filter(e => !e.tripId || !tripIds.has(e.tripId)).sort((a, b) => walkDate(b) - walkDate(a));
+  const sortKey = histSort;
+  const metric = e => sortKey === 'dist' ? (e.session.distance || 0) : sortKey === 'climb' ? (e.session.ascent || 0) : sortKey === 'time' ? (e.session.elapsed || 0) : walkDate(e);
+  const loose = list.filter(e => !e.tripId || !tripIds.has(e.tripId)).sort((a, b) => metric(b) - metric(a));
+  if (sortKey !== 'date') {
+    const tm = it => it.st.reduce((s, e) => s + (sortKey === 'dist' ? (e.session.distance || 0) : sortKey === 'climb' ? (e.session.ascent || 0) : (e.session.elapsed || 0)), 0);
+    tripItems.sort((a, b) => tm(b) - tm(a));
+  }
   $('histSub').textContent = `${list.length} ${list.length === 1 ? 'caminata' : 'caminatas'}` + (trips.length ? ` y ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : '');
   const row = (strong, sub, km, onclick, isTrip) => {
     const r = document.createElement('button'); r.type = 'button'; r.className = 'walk-row' + (isTrip ? ' is-trip' : '');
@@ -1348,9 +1398,13 @@ function renderHistList() {
     let lastMonth = '';
     for (const e of loose) {
       const d = walkDate(e);
-      const m = d ? new Date(d).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'Sin fecha';
-      if (m !== lastMonth) { lastMonth = m; const h = document.createElement('h3'); h.className = 'hist-month'; h.textContent = m.charAt(0).toUpperCase() + m.slice(1); box.appendChild(h); }
-      box.appendChild(row(titleFor(e.name, d, e.sport, e.title), `${shortDate(d)}, ${fmtDur(e.session.elapsed)}, +${fmtNum(e.session.ascent)} m`, fmtKm(e.session.distance), () => showActivity(unpackActivity(e), false)));
+      if (sortKey === 'date') {
+        const m = d ? new Date(d).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'Sin fecha';
+        if (m !== lastMonth) { lastMonth = m; const h = document.createElement('h3'); h.className = 'hist-month'; h.textContent = m.charAt(0).toUpperCase() + m.slice(1); box.appendChild(h); }
+      }
+      const r = row(titleFor(e.name, d, e.sport, e.title), `${shortDate(d)}, ${fmtDur(e.session.elapsed)}, +${fmtNum(e.session.ascent)} m`, fmtKm(e.session.distance), () => showActivity(unpackActivity(e), false));
+      if (e.climbFixed) { const fx = document.createElement('span'); fx.className = 'w-sub fixed-note'; fx.textContent = `Desnivel corregido (el dato original era +${fmtNum(e.session.ascentOrig)} m)`; r.appendChild(fx); }
+      box.appendChild(r);
     }
   }
   if (!tripItems.length && !loose.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Todavía no hay caminatas guardadas.'; box.appendChild(p); }
@@ -3873,6 +3927,8 @@ $('btnBrand').onclick = () => { fromHist = false; if ($('histView').classList.co
 $('btnBack').onclick = () => { fromHist = false; if ($('histView').classList.contains('on')) renderHome(); else showHome(); };
 $('btnHist').onclick = () => { if ($('actView').classList.contains('on') && history.state && history.state.v === 'act') { fromHist = true; history.back(); } else showHist(); };
 $('btnHistHome').onclick = showHist;
+document.querySelectorAll('#histSort button').forEach(b => b.onclick = () => setHistSort(b.dataset.sort));
+setHistSort(histSort);
 $('fileInput').onchange = e => { const fs = [...e.target.files]; e.target.value = ''; if (fs.length) openFiles(fs); else pendingTripId = null; };
 $('tripSelect').onchange = changeTrip;
 $('tripNewOk').onclick = confirmNewTrip;
@@ -3993,6 +4049,12 @@ document.addEventListener('drop', e => { e.preventDefault(); const fs = [...e.da
 bindProfile();
 initStore().then(async () => {
   // Arreglo de la 2.2.2: algunos pueblos quedaron guardados en la caminata equivocada. Se vuelven a buscar.
+  if (!localStorage.getItem('senda.climbfix.v1')) {
+    const l = loadHistory(); let n = 0;
+    l.forEach(e => { if (checkClimb(e)) n++; });
+    if (n) { saveHistory(l); setTimeout(() => toast(`He corregido el desnivel de ${n} ${n === 1 ? 'caminata que tenía' : 'caminatas que tenían'} datos imposibles.`, 6000), 1500); }
+    localStorage.setItem('senda.climbfix.v1', '1');
+  }
   if (!localStorage.getItem('senda.townsfix.v1')) {
     const l = loadHistory(); let n = 0;
     l.forEach(e => { if (e.towns) { delete e.towns; n++; } });
