@@ -5,7 +5,7 @@
 <h1 align="center">Senda</h1>
 
 <p align="center">
-  <b>Tus caminatas y viajes por etapas, sobre el mapa.</b><br>
+  <b>Tus caminatas, rutas en bici y viajes por etapas, sobre el mapa.</b><br>
   Una app para Android de <b>DanLab</b>.
 </p>
 
@@ -17,7 +17,7 @@
 
 ---
 
-Senda guarda cada ruta que haces con tu reloj y te la enseña con su mapa, su perfil, tus fotos y los pueblos por los que pasaste. Agrupa caminatas en viajes por etapas, como el Camino de Santiago, y convierte cualquier ruta en un vídeo en 3D para compartir.
+Senda guarda cada ruta que haces con tu reloj y te la enseña con su mapa, su perfil, tus fotos y los pueblos por los que pasaste. Vale para andar, correr o ir en bici. Agrupa actividades en viajes por etapas, como el Camino de Santiago, y convierte cualquier ruta en un vídeo en 3D para compartir.
 
 <p align="center">
   <img src="docs/captura-inicio.jpg" alt="Pantalla de inicio" width="200">
@@ -34,23 +34,32 @@ Satélite con calles y pueblos, topográfico o callejero. La ruta se colorea por
 **📊 Todos tus datos**
 Distancia, tiempo, desnivel de subida y bajada, velocidad, ritmo, pulso, calorías y el perfil de altitud.
 
-**⌚ Detecta tus caminatas sola**
-Con Health Connect, Senda te avisa de cada caminata nueva de tu reloj (Zepp y otros) sin exportar nada. También abre archivos GPX, TCX y FIT.
+**🚶 🏃 🚴 Andar, correr o bici**
+Cada actividad con su tipo: ritmo si corres, velocidad media y máxima si vas en bici.
+
+**⌚ Detecta tus actividades sola**
+Con Health Connect, Senda te avisa de cada actividad nueva de tu reloj (Zepp y otros) y te pregunta de qué tipo es, sin exportar nada. También abre archivos GPX, TCX y FIT.
 
 **📷 Tus fotos en el camino**
-Busca en tu galería las fotos que hiciste durante la caminata y las coloca en su punto de la ruta. Las de WhatsApp, sin hora, las colocas tú tocando el mapa.
+Busca en tu galería las fotos que hiciste durante la actividad y las coloca en su punto de la ruta. Las de WhatsApp, sin hora, las colocas tú tocando el mapa.
 
 **🥾 Viajes por etapas**
-Agrupa caminatas en un viaje y míralo entero: el recorrido completo con cada etapa en su color, los totales y los pueblos del camino.
+Agrupa actividades en un viaje y míralo entero: el recorrido completo con cada etapa en su color, los totales y los pueblos del camino.
+
+**🐚 Modo Camino de Santiago**
+Elige tu Camino y desde dónde sales, y Senda te dice cuántos kilómetros te quedan para Santiago, el porcentaje hecho y lo que quedaba al terminar cada etapa.
+
+**📈 Estadísticas y récords**
+Kilómetros, horas y desnivel por meses y por años, y tus récords: la más larga, la de más desnivel, la más rápida y el mejor mes.
 
 **🎬 Vuelo 3D y vídeo**
-Un vuelo sobre el relieve siguiendo tus pasos, con chinchetas, kilómetros y tus fotos, que se graba como vídeo vertical para WhatsApp, Instagram o TikTok.
+Un vuelo sobre el relieve siguiendo tus pasos, con chinchetas, kilómetros y tus fotos. Se graba en vertical, horizontal o cuadrado, con la canción que elijas de tu móvil.
 
 **📤 Compartir como imagen**
 Una imagen con el mapa y tus datos, lista para enviar.
 
 **☁️ Copia en Google Drive**
-Copia automática de tus caminatas, viajes y fotos en tu propia cuenta de Google. Si cambias de móvil, la recuperas al instalar Senda.
+Copia automática de tus actividades, viajes y fotos en tu propia cuenta de Google. Si cambias de móvil, la recuperas al instalar Senda.
 
 **🔄 Siempre al día**
 Senda te avisa cuando hay versión nueva y se actualiza con un toque.
@@ -65,8 +74,8 @@ Las versiones nuevas se instalan encima, sin perder nada.
 
 ## Primeros pasos
 
-- **Con Health Connect**: en Zepp, ve a *Perfil*, luego a *Servicios de terceros* y activa *Health Connect*. En Senda, pulsa *Configurar* y da permiso. A partir de ahí, Senda te avisará de cada caminata nueva.
-- **Con archivos**: exporta la actividad desde la app de tu reloj, mejor en formato **FIT**, y ábrela desde el menú de Senda, en *Añadir caminata*.
+- **Con Health Connect**: en Zepp, ve a *Perfil*, luego a *Servicios de terceros* y activa *Health Connect*. En Senda, pulsa *Configurar* y da permiso. A partir de ahí, Senda te avisará de cada actividad nueva.
+- **Con archivos**: exporta la actividad desde la app de tu reloj, mejor en formato **FIT**, y ábrela desde el menú de Senda, en *Añadir actividad*.
 - **Copia de seguridad**: en el menú, entra en *Google Drive* y pulsa *Conectar con Google*.
 
 ## Privacidad

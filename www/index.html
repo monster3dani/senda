@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#1E2B2A">
 <meta name="author" content="DanLab">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>Senda · mis caminatas</title>
+<title>Senda · mis actividades</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -128,6 +128,48 @@ button { cursor: pointer; }
 .coffee-thanks { color: var(--muted); font-size: 13px; margin: 0; }
 #driveActions { flex-wrap: wrap; }
 .btn-hist { margin-top: 16px; }
+.home-kinds { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 0 0; color: var(--muted); font-size: 15px; }
+.home-kinds b { color: var(--ink); font-weight: 600; }
+.w-ic { margin-right: 6px; }
+.kind-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 15px; }
+.kind-chip small { color: var(--muted); font-weight: 500; font-size: 13px; }
+.kind-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+.kind-grid button { border: 2px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 12px; padding: 12px 4px 10px; font-weight: 600; font-size: 14px; display: grid; gap: 4px; justify-items: center; }
+.kind-grid button span { font-size: 30px; line-height: 1; }
+.kind-grid button[aria-pressed="true"] { border-color: var(--gr); background: color-mix(in srgb, var(--gr) 12%, var(--panel)); }
+.stage-pick .hc-kind { grid-column: 2 / span 2; justify-self: start; margin-top: 4px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 5px 8px; font-weight: 600; }
+.st-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.st-chips button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 7px 13px; font-weight: 600; font-size: 14px; }
+.st-chips button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+#statsMetric { flex: none; width: 190px; }
+#statsMetric button { color: var(--ink); font-size: 14px; padding: 6px 2px; }
+#statsMetric button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+#statsChart { width: 100%; height: 210px; display: block; }
+.st-table { margin-top: 6px; }
+.st-table .walk-row, .st-rec .walk-row { cursor: default; }
+.st-rec button.walk-row { cursor: pointer; }
+.st-rec .w-lbl { color: var(--muted); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; grid-column: 1; }
+.camino { border: 2px solid #1F4E9C; border-radius: 14px; padding: 14px 14px 12px; background: color-mix(in srgb, #1F4E9C 7%, var(--panel)); }
+.camino-head { display: flex; align-items: center; gap: 12px; }
+.camino-head h2 { margin: 0; }
+.camino-head p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+.concha { width: 46px; height: 46px; flex: none; border-radius: 10px; background: #1F4E9C; display: grid; place-items: center; }
+.concha svg { width: 34px; height: 34px; }
+.camino-big { font: 600 22px/1.15 "Barlow Semi Condensed", sans-serif; margin: 14px 0 8px; }
+.camino-big b { font-size: 40px; font-weight: 700; color: #1F4E9C; }
+@media (prefers-color-scheme: dark) { .camino-big b { color: #8FB3F0; } .camino { border-color: #5B82C9; } }
+.camino-track { position: relative; height: 16px; border-radius: 8px; background: var(--line); margin: 0 10px 0 0; }
+.camino-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 8px; background: #F2B705; }
+.camino-arrow { position: absolute; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: #1F4E9C; border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.35); display: grid; place-items: center; }
+.camino-arrow::after { content: ""; width: 0; height: 0; border-left: 9px solid #F2B705; border-top: 6px solid transparent; border-bottom: 6px solid transparent; margin-left: 3px; }
+.camino-ends { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; margin: 6px 0 12px; }
+.camino .facts { margin-top: 4px; }
+.camino-sel { width: 100%; border: 2px solid var(--line); border-radius: 8px; padding: 10px; background: var(--bg); color: var(--ink); font-size: 16px; margin: 4px 0 10px; }
+.v3music { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.v3music button { border: 1px solid rgba(255,255,255,.4); background: transparent; color: #fff; border-radius: 8px; padding: 7px 10px; font-weight: 600; font-size: 14px; flex: none; }
+.v3music span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; color: rgba(255,255,255,.8); }
 .hist-sort { margin-top: 14px; color: var(--muted); }
 .hist-seg { background: var(--panel); border: 1px solid var(--line); }
 #histSort button { color: var(--ink); font-size: 14px; padding: 8px 2px; }
@@ -149,9 +191,11 @@ button { cursor: pointer; }
 .view3d { position: fixed; inset: 0; z-index: 2700; background: #0F1716; display: none; flex-direction: column; align-items: center;
   padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); }
 .view3d.on { display: flex; }
-.v3frame { position: relative; flex: 1; width: 100%; max-width: calc((100vh - 250px) * 9 / 16); aspect-ratio: 9 / 16; max-height: calc(100vh - 250px);
+.v3frame { position: relative; flex: 1; width: 100%; max-width: calc((100vh - 330px) * 9 / 16); aspect-ratio: 9 / 16; max-height: calc(100vh - 330px);
   margin: 8px auto 0; border-radius: 14px; overflow: hidden; background: linear-gradient(#9CC3D9, #E4EEF2); }
 #map3d { position: absolute; inset: 0; }
+.v3frame.fmt-h { flex: none; aspect-ratio: 16 / 9; width: min(100% - 16px, calc((100vh - 330px) * 16 / 9)); max-width: none; max-height: none; }
+.v3frame.fmt-s { flex: none; aspect-ratio: 1; width: min(100% - 16px, calc(100vh - 330px)); max-width: none; max-height: none; }
 #v3over { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .v3status { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background: rgba(15,23,22,.85); color: #fff;
   padding: 12px 16px; border-radius: 10px; font-weight: 600; text-align: center; max-width: 80%; }
@@ -431,10 +475,12 @@ select.pill { appearance: none; padding-right: 14px; }
     <div class="home-map-wrap" id="homeMapWrap" hidden><div id="homeMap"></div></div>
     <div class="home">
       <div id="homeHead" class="home-head" hidden>
-        <h1>Mis caminatas</h1>
+        <h1>Mis actividades</h1>
         <p id="homeSub"></p>
         <div class="signpost" id="homeTotals"></div>
+        <p class="home-kinds" id="homeKinds" hidden></p>
         <button class="btn-share btn-hist" id="btnHistHome" type="button">Ver el historial</button>
+        <button class="btn-share" id="btnStatsHome" type="button">Estadísticas y récords</button>
       </div>
       <div id="welcome" class="welcome" hidden>
         <div class="welcome-sign" aria-hidden="true">
@@ -442,14 +488,14 @@ select.pill { appearance: none; padding-right: 14px; }
           <div class="plate"><b>Viajes por etapas</b></div>
           <div class="plate"><b>Fotos y pueblos</b></div>
         </div>
-        <h1>Tus caminatas, sobre el mapa</h1>
+        <h1>Tus actividades, sobre el mapa</h1>
         <p>Guarda cada ruta que haces con el reloj y revívela con su mapa, su perfil, tus fotos y los pueblos por los que pasaste.</p>
         <ol class="steps">
           <li>En Zepp, abre la actividad y expórtala, mejor en formato FIT.</li>
-          <li>Añádela aquí desde el menú, o conecta Health Connect y Senda te avisará sola de cada caminata nueva.</li>
+          <li>Añádela aquí desde el menú, o conecta Health Connect y Senda te avisará sola de cada actividad nueva.</li>
           <li>Si haces varias etapas, como el Camino de Santiago, agrúpalas en un viaje.</li>
         </ol>
-        <button class="btn-main" id="btnFirst" type="button">Añadir mi primera caminata</button>
+        <button class="btn-main" id="btnFirst" type="button">Añadir mi primera actividad</button>
         <button class="btn-line" id="btnDriveRestore" type="button" hidden>¿Ya usabas Senda? Recuperar desde Google Drive</button>
       </div>
       <div id="homeList"></div>
@@ -467,6 +513,26 @@ select.pill { appearance: none; padding-right: 14px; }
         <button type="button" data-sort="time" aria-pressed="false">Duración</button>
       </div></div>
       <div id="histList"></div>
+    </div>
+  </section>
+
+  <section id="statsView" class="view">
+    <div class="home">
+      <div class="home-head"><h1>Estadísticas</h1><p id="statsSub"></p></div>
+      <div class="st-chips" id="statsYears" role="group" aria-label="Año"></div>
+      <div class="st-chips" id="statsKinds" role="group" aria-label="Tipo de actividad"></div>
+      <div class="signpost" id="statsTotals"></div>
+      <div class="section">
+        <div class="section-head"><h2 id="statsChartTitle">Por meses</h2>
+          <div class="v3seg hist-seg" id="statsMetric" role="group" aria-label="Dato del gráfico">
+            <button type="button" data-m="km" aria-pressed="true">km</button>
+            <button type="button" data-m="h" aria-pressed="false">Horas</button>
+            <button type="button" data-m="up" aria-pressed="false">Desnivel</button>
+          </div></div>
+        <div class="chart-box"><canvas id="statsChart"></canvas></div>
+        <div class="st-table" id="statsTable"></div>
+      </div>
+      <div class="section st-rec"><h2>Récords</h2><div id="statsRecords"></div></div>
     </div>
   </section>
 
@@ -505,11 +571,12 @@ select.pill { appearance: none; padding-right: 14px; }
             <button class="rename" id="btnRename" type="button">Cambiar título</button>
           </div>
           <p id="actSub"></p>
+          <button class="kind-chip" id="kindChip" type="button" hidden></button>
           <button class="trip-link" id="tripLink" type="button" hidden></button>
           <div class="trip-bar" id="tripBar">
             <label for="tripSelect">Viaje</label>
             <select id="tripSelect"></select>
-            <button class="del-act" id="btnDelAct" type="button">Borrar caminata</button>
+            <button class="del-act" id="btnDelAct" type="button">Borrar actividad</button>
             <div class="trip-new" id="tripNew" hidden>
               <input id="tripNewName" type="text" maxlength="60" placeholder="Nombre del viaje, p. ej. Camino Francés 2027" aria-label="Nombre del nuevo viaje">
               <button class="btn-line" id="tripNewOk" type="button">Crear</button>
@@ -520,6 +587,16 @@ select.pill { appearance: none; padding-right: 14px; }
         <button class="btn-share" id="btnShare" type="button">Compartir como imagen</button>
         <button class="btn-share btn-3d" id="btn3d" type="button">Vuelo 3D y vídeo</button>
 
+        <div class="section camino" id="caminoSection" hidden>
+          <div class="camino-head"><span class="concha"><svg viewBox="0 0 40 40" aria-hidden="true"><g stroke="#F2B705" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M20 34 L6 12"/><path d="M20 34 L10 8"/><path d="M20 34 L16 6"/><path d="M20 34 L24 6"/><path d="M20 34 L30 8"/><path d="M20 34 L34 12"/><path d="M4 15 Q20 -2 36 15"/></g><circle cx="20" cy="34" r="3" fill="#F2B705"/></svg></span><div><h2>Camino de Santiago</h2><p id="caminoRoute"></p></div></div>
+          <div class="camino-big" id="caminoBig"></div>
+          <div class="camino-track"><div class="camino-fill" id="caminoFill"></div><span class="camino-arrow" id="caminoArrow"></span></div>
+          <div class="camino-ends"><span id="caminoFrom"></span><span>Santiago</span></div>
+          <div class="facts" id="caminoFacts"></div>
+          <p class="note" id="caminoNote"></p>
+          <button class="trip-link" id="caminoEdit" type="button">Cambiar el Camino o los kilómetros</button>
+        </div>
+
         <div class="section" id="stagesSection" hidden>
           <div class="section-head">
             <h2>Etapas</h2>
@@ -527,7 +604,7 @@ select.pill { appearance: none; padding-right: 14px; }
           </div>
           <ol class="stages" id="stages"></ol>
           <div class="stage-add">
-            <button class="btn-line" id="btnAddFromSaved" type="button">Añadir de mis caminatas</button>
+            <button class="btn-line" id="btnAddFromSaved" type="button">Añadir de mis actividades</button>
             <span>o abre un archivo nuevo con «Añadir etapa».</span>
           </div>
         </div>
@@ -554,7 +631,7 @@ select.pill { appearance: none; padding-right: 14px; }
             <button class="btn-line" id="btnPhotos" type="button">Buscar fotos</button>
           </div>
           <div class="photos" id="photos"></div>
-          <p class="note" id="photoNote">Pulsa «Buscar fotos» y elige en la galería todas las fotos de ese día, sin preocuparte de cuáles: Senda se queda con las que hiciste durante la caminata y te deja marcar las que quieres publicar.</p>
+          <p class="note" id="photoNote">Pulsa «Buscar fotos» y elige en la galería todas las fotos de ese día, sin preocuparte de cuáles: Senda se queda con las que hiciste durante la actividad y te deja marcar las que quieres publicar.</p>
           <p class="busy" id="photoBusy" hidden></p>
           <button class="trip-link" id="btnPhotosManual" type="button" hidden>Elegir fotos a mano</button>
         </div>
@@ -570,6 +647,7 @@ select.pill { appearance: none; padding-right: 14px; }
         </div>
 
         <div class="trip-actions" id="tripActions" hidden>
+          <button class="btn-line" id="btnCamino" type="button">Es un Camino de Santiago</button>
           <button class="btn-line" id="btnDelTrip" type="button">Borrar viaje</button>
         </div>
       </div>
@@ -585,10 +663,11 @@ select.pill { appearance: none; padding-right: 14px; }
   </div>
   <button class="item" data-act="home" type="button">Inicio</button>
   <button class="item" data-act="hist" type="button">Historial</button>
+  <button class="item" data-act="stats" type="button">Estadísticas</button>
   <h3>Añadir</h3>
-  <button class="item primary" data-act="add" type="button">Añadir caminata</button>
+  <button class="item primary" data-act="add" type="button">Añadir actividad</button>
   <button class="item" data-act="trip" type="button">Nuevo viaje</button>
-  <button class="item" data-act="health" type="button" id="menuHealth" hidden>Detectar caminatas (Health Connect)</button>
+  <button class="item" data-act="health" type="button" id="menuHealth" hidden>Detectar actividades (Health Connect)</button>
   <h3>Copias de seguridad</h3>
   <button class="item" data-act="drive" type="button" id="menuDrive" hidden>Google Drive</button>
   <button class="item" data-act="backup" type="button">Guardar copia</button>
@@ -599,7 +678,7 @@ select.pill { appearance: none; padding-right: 14px; }
   <button class="item" data-act="maps" type="button">Mapas guardados</button>
   <button class="item" data-act="about" type="button">Acerca de Senda</button>
   <button class="item" data-act="coffee" type="button">☕ Invítame a un café</button>
-  <p class="drawer-note">Tus caminatas se guardan en este navegador. Guarda una copia de vez en cuando por si borras los datos o cambias de móvil. La copia con fotos ocupa más, pero lo guarda todo.</p>
+  <p class="drawer-note">Tus actividades se guardan en este navegador. Guarda una copia de vez en cuando por si borras los datos o cambias de móvil. La copia con fotos ocupa más, pero lo guarda todo.</p>
   <div class="drawer-foot">
     <div class="danlab-sign"><span class="dl-box"><svg class="dl-sym" viewBox="-20 -20 280 280" aria-hidden="true" focusable="false"><defs><clipPath id="dlc1"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc1)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg></span><span>Senda, por <b>DanLab</b></span></div>
     <p style="margin:8px 0 0">Versión <span class="app-ver"></span></p>
@@ -623,6 +702,17 @@ select.pill { appearance: none; padding-right: 14px; }
       <button type="button" data-zoom="mid" aria-pressed="true">Media</button>
       <button type="button" data-zoom="far" aria-pressed="false">Lejos</button>
     </div></div>
+    <div class="v3cam"><span>Formato</span><div id="v3fmts" class="v3seg" role="group" aria-label="Formato del vídeo">
+      <button type="button" data-fmt="v" aria-pressed="true">Vertical</button>
+      <button type="button" data-fmt="h" aria-pressed="false">Horizontal</button>
+      <button type="button" data-fmt="s" aria-pressed="false">Cuadrado</button>
+    </div></div>
+    <div class="v3cam"><span>Música</span><div class="v3music">
+      <button type="button" id="v3musicPick">Elegir canción</button>
+      <span id="v3musicName">Sin música</span>
+      <button type="button" id="v3musicOff" hidden>Quitar</button>
+    </div></div>
+    <input id="musicInput" type="file" accept="audio/*" hidden>
     <label class="v3dur">Duración del vídeo <input type="range" id="v3dur" min="30" max="60" step="5" value="40"> <b id="v3durTxt">40 s</b></label>
     <div class="v3btns">
       <button class="btn-line" id="v3close" type="button">Cerrar</button>
@@ -676,7 +766,7 @@ select.pill { appearance: none; padding-right: 14px; }
 <div class="modal" id="exitModal" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
   <div class="modal-box">
     <h2 id="exitTitle">¿Salir de Senda?</h2>
-    <p>Tus caminatas quedan guardadas.</p>
+    <p>Tus actividades quedan guardadas.</p>
     <div class="modal-actions">
       <button class="btn-line" id="exitNo" type="button">Seguir aquí</button>
       <button class="btn-main" id="exitYes" type="button">Salir</button>
@@ -689,7 +779,7 @@ select.pill { appearance: none; padding-right: 14px; }
     <h2 id="aboutTitle">Senda</h2>
     <p class="ver">Versión <span class="app-ver"></span></p>
     <p class="by">Una app de DanLab</p>
-    <p>Tus caminatas y viajes por etapas sobre el mapa, con su perfil, su animación, tus fotos y los pueblos por los que pasaste. Lee los archivos GPX, TCX y FIT que exporta Zepp.</p>
+    <p>Tus actividades y viajes por etapas sobre el mapa, con su perfil, su animación, tus fotos y los pueblos por los que pasaste. Lee los archivos GPX, TCX y FIT que exporta Zepp.</p>
     <p>Mapas de OpenStreetMap y OpenTopoMap. Poblaciones de OpenStreetMap.</p>
     <div class="modal-actions"><button class="btn-line" id="aboutUpdate" type="button" hidden>Buscar actualizaciones</button><button class="btn-main" id="aboutClose" type="button">Cerrar</button></div>
   </div>
@@ -712,7 +802,7 @@ select.pill { appearance: none; padding-right: 14px; }
 <div class="modal" id="stagePickModal" role="dialog" aria-modal="true" aria-labelledby="stagePickTitle">
   <div class="modal-box pick-box">
     <h2 id="stagePickTitle">Añadir etapas</h2>
-    <p id="stagePickInfo">Marca las caminatas que quieres añadir a este viaje.</p>
+    <p id="stagePickInfo">Marca las actividades que quieres añadir a este viaje.</p>
     <div class="stage-pick" id="stagePickList"></div>
     <div class="modal-actions">
       <button class="btn-line" id="stagePickCancel" type="button">Cancelar</button>
@@ -723,7 +813,7 @@ select.pill { appearance: none; padding-right: 14px; }
 <div class="modal" id="tripModal" role="dialog" aria-modal="true" aria-labelledby="tripModalTitle">
   <div class="modal-box">
     <h2 id="tripModalTitle">Nuevo viaje</h2>
-    <p>Un viaje agrupa varias caminatas como etapas, por ejemplo el Camino de Santiago.</p>
+    <p>Un viaje agrupa varias actividades como etapas, por ejemplo el Camino de Santiago.</p>
     <input id="tripModalName" type="text" maxlength="60" placeholder="Camino Francés 2027" aria-label="Nombre del viaje">
     <div class="modal-actions">
       <button class="btn-line" id="tripModalCancel" type="button">Cancelar</button>
@@ -731,8 +821,30 @@ select.pill { appearance: none; padding-right: 14px; }
     </div>
   </div>
 </div>
+<div class="modal" id="kindModal" role="dialog" aria-modal="true" aria-labelledby="kindTitle">
+  <div class="modal-box">
+    <h2 id="kindTitle">¿Qué actividad era?</h2>
+    <p id="kindInfo">Así Senda muestra los datos que tocan: ritmo si corres, velocidad si vas en bici.</p>
+    <div class="kind-grid" id="kindGrid"></div>
+    <div class="modal-actions"><button class="btn-line" id="kindClose" type="button">Cerrar</button></div>
+  </div>
+</div>
+<div class="modal" id="caminoModal" role="dialog" aria-modal="true" aria-labelledby="caminoTitle">
+  <div class="modal-box">
+    <h2 id="caminoTitle">Tu Camino de Santiago</h2>
+    <p>Elige qué Camino haces y desde dónde. Los kilómetros son aproximados: cámbialos si tu guía dice otra cosa.</p>
+    <select class="camino-sel" id="caminoPreset" aria-label="Camino"></select>
+    <label for="caminoKm" class="note">Kilómetros hasta Santiago desde la salida</label>
+    <input id="caminoKm" type="number" min="10" max="3000" step="1" inputmode="numeric">
+    <div class="modal-actions">
+      <button class="btn-line" id="caminoOff" type="button">No es un Camino</button>
+      <button class="btn-line" id="caminoCancel" type="button">Cancelar</button>
+      <button class="btn-main" id="caminoOk" type="button">Guardar</button>
+    </div>
+  </div>
+</div>
 <div class="hc-bar" id="hcBar" hidden role="status">
-  <div><b id="hcBarTitle">Nueva caminata detectada</b><span id="hcBarText"></span></div>
+  <div><b id="hcBarTitle">Nueva actividad detectada</b><span id="hcBarText"></span></div>
   <button type="button" class="btn-main" id="hcBarGo">Añadir</button>
   <button type="button" class="btn-line" id="hcBarLater">Ahora no</button>
 </div>
@@ -755,7 +867,7 @@ select.pill { appearance: none; padding-right: 14px; }
   <div class="lb-actions"><button id="lbClose" type="button">Cerrar</button><button id="lbDelete" type="button">Quitar foto</button></div></div></div>
 <div class="modal" id="pickModal" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
   <div class="modal-box pick-box">
-    <h2 id="pickTitle">Fotos de esta caminata</h2>
+    <h2 id="pickTitle">Fotos de esta actividad</h2>
     <p id="pickInfo"></p>
     <div class="pick-tools"><button id="pickAll" type="button">Marcar todas</button><button id="pickNone" type="button">Desmarcar todas</button></div>
     <div class="pick-grid" id="pickGrid"></div>
@@ -1065,7 +1177,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '2.7.0';
+const APP_VERSION = '3.0.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -1079,6 +1191,36 @@ const NativeHealth = NATIVE ? CAP.registerPlugin('SendaHealth') : null;
 const NativeApp = NATIVE ? CAP.registerPlugin('App') : null;
 const NativeDrive = NATIVE ? CAP.registerPlugin('SendaDrive') : null;
 document.querySelectorAll('.app-ver').forEach(el => el.textContent = APP_VERSION);
+// ---------- Tipos de actividad ----------
+const KINDS = {
+  walk: { name: 'Caminata', icon: '🚶', foot: true },
+  hike: { name: 'Senderismo', icon: '🥾', foot: true },
+  run: { name: 'Carrera', icon: '🏃', foot: true, pace: true },
+  bike: { name: 'Bici', icon: '🚴', bike: true },
+  mtb: { name: 'Bici de montaña', icon: '🚵', bike: true },
+  other: { name: 'Otra', icon: '📍' }
+};
+const KIND_ORDER = ['walk', 'hike', 'run', 'bike', 'mtb', 'other'];
+function guessKind(sport, distance, elapsed) {
+  const s = String(sport || '');
+  if (/monta\S* .*bic|bic\S* .*monta|mtb|mountain/i.test(s)) return 'mtb';
+  if (/cicl|bici|bike|biking|cycl/i.test(s)) return 'bike';
+  if (/carrera|correr|run|trail/i.test(s)) return 'run';
+  if (/sender|hik|monta|trek|alpin/i.test(s)) return 'hike';
+  if (/camin|walk|paseo/i.test(s)) return 'walk';
+  const v = distance && elapsed ? distance / elapsed * 3.6 : 0;
+  if (v > 13) return 'bike';
+  if (v > 7.5) return 'run';
+  return 'walk';
+}
+function kindOf(e) {
+  if (!e) return 'walk';
+  if (e.kind && KINDS[e.kind]) return e.kind;
+  const s = e.session || e;
+  return guessKind(e.sport, s.distance, s.elapsed);
+}
+const kindName = k => (KINDS[k] || KINDS.walk).name;
+const kindIcon = k => (KINDS[k] || KINDS.walk).icon;
 const STAGE_COLORS = ['#C8102E', '#2F6DB5', '#E8A100', '#2E7D4F', '#7B4FA0', '#E8711A', '#1C8C9C', '#B0306E'];
 let pendingTripId = null;
 let A = null;          // actividad analizada
@@ -1167,7 +1309,7 @@ function toast(msg, ms = 3500) {
 }
 
 // ---------- Historial ----------
-// Las caminatas y los viajes se guardan en la base de datos del móvil (mucho más espacio).
+// Las actividades y los viajes se guardan en la base de datos del móvil (mucho más espacio).
 // Se mantiene una copia en memoria para que la app vaya rápida.
 const mem = { hist: '[]', trips: '[]' };
 let kvDbPromise = null;
@@ -1241,7 +1383,7 @@ function packActivity(a) {
   if (step > 1) pts.push([lastP.lat, lastP.lon, lastP.ele, lastP.t, lastP.hr || 0, lastP.d]);
   return {
     id: String(a.start || Date.now()) + '-' + Math.round(a.distance),
-    name: a.name, title: a.title || null, sport: a.sport, device: a.device,
+    name: a.name, title: a.title || null, sport: a.sport, kind: a.kindSet ? a.kind : null, device: a.device,
     session: { distance: a.distance, elapsed: a.elapsed, ascent: a.ascent, descent: a.descent, calories: a.calories, avgHr: a.hrAvg, maxHr: a.hrMax },
     moving: a.moving, pts
   };
@@ -1254,6 +1396,7 @@ function unpackActivity(e) {
   const a = analyze(act);
   if (e.moving != null) a.moving = e.moving;
   a.id = e.id; a.title = e.title || null; a.tripId = e.tripId || null; a.cachedTowns = e.towns || null;
+  a.kind = kindOf(e); a.kindSet = !!e.kind;
   return a;
 }
 // Desnivel "a prueba de ruido": se suaviza la altitud de la ruta antes de sumar subidas y bajadas
@@ -1287,9 +1430,10 @@ function storeActivity(a) {
   if (checkClimb(packed)) { a.ascent = packed.session.ascent; a.descent = packed.session.descent; }
   a.id = packed.id;
   const i = list.findIndex(x => x.id === packed.id);
-  if (i >= 0) { packed.towns = list[i].towns; packed.title = packed.title || list[i].title || null; packed.tripId = list[i].tripId || null; list[i] = packed; } else list.unshift(packed);
+  if (i >= 0) { packed.towns = list[i].towns; packed.title = packed.title || list[i].title || null; packed.tripId = list[i].tripId || null; packed.kind = packed.kind || list[i].kind || null; list[i] = packed; } else list.unshift(packed);
   if (pendingTripId && loadTrips().some(x => x.id === pendingTripId)) packed.tripId = pendingTripId;
   a.title = packed.title; a.tripId = packed.tripId || null;
+  a.kindSet = !!packed.kind; a.kind = kindOf(packed);
   list.sort((x, y) => (y.pts[0][3] || 0) - (x.pts[0][3] || 0));
   saveHistory(list);
 }
@@ -1332,7 +1476,7 @@ function renderHistory() {
   const km = list.reduce((s, e) => s + (e.session.distance || 0), 0);
   const up = list.reduce((s, e) => s + (e.session.ascent || 0), 0);
   const secs = list.reduce((s, e) => s + (e.session.elapsed || 0), 0);
-  $('homeSub').textContent = `${list.length} ${list.length === 1 ? 'caminata guardada' : 'caminatas guardadas'}` +
+  $('homeSub').textContent = `${list.length} ${list.length === 1 ? 'actividad guardada' : 'actividades guardadas'}` +
     (trips.length ? ` y ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : '');
   const tot = $('homeTotals'); tot.innerHTML = '';
   const hh = Math.floor(secs / 3600), mm = Math.round(secs % 3600 / 60);
@@ -1344,12 +1488,19 @@ function renderHistory() {
     d.append(s, b); tot.appendChild(d);
   }
 
+  {
+    const by = {};
+    for (const e of list) { const k = kindOf(e); by[k] = (by[k] || 0) + (e.session.distance || 0); }
+    const ks = KIND_ORDER.filter(k => by[k]);
+    const hk = $('homeKinds'); hk.innerHTML = ''; hk.hidden = ks.length < 2;
+    for (const k of ks) { const s = document.createElement('span'); s.textContent = kindIcon(k) + ' ' + kindName(k) + ' '; const b = document.createElement('b'); b.textContent = fmtKm(by[k]) + ' km'; s.appendChild(b); hk.appendChild(s); }
+  }
   const tripIds = new Set(trips.map(x => x.id));
-  $('btnHistHome').textContent = `Ver el historial (${list.length} ${list.length === 1 ? 'caminata' : 'caminatas'}${trips.length ? `, ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : ''})`;
+  $('btnHistHome').textContent = `Ver el historial (${list.length} ${list.length === 1 ? 'actividad' : 'actividades'}${trips.length ? `, ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : ''})`;
   drawHomeMap(list, tripIds);
   renderHealthCard();
 }
-// Historial: primero los viajes y luego las caminatas sueltas, cada grupo por fecha (lo más reciente arriba)
+// Historial: primero los viajes y luego las actividades sueltas, cada grupo por fecha (lo más reciente arriba)
 let fromHist = false;
 let histSort = (() => { try { return localStorage.getItem('senda.histsort') || 'date'; } catch { return 'date'; } })();
 function setHistSort(k) {
@@ -1373,11 +1524,12 @@ function renderHistList() {
     const tm = it => it.st.reduce((s, e) => s + (sortKey === 'dist' ? (e.session.distance || 0) : sortKey === 'climb' ? (e.session.ascent || 0) : (e.session.elapsed || 0)), 0);
     tripItems.sort((a, b) => tm(b) - tm(a));
   }
-  $('histSub').textContent = `${list.length} ${list.length === 1 ? 'caminata' : 'caminatas'}` + (trips.length ? ` y ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : '');
-  const row = (strong, sub, km, onclick, isTrip) => {
+  $('histSub').textContent = `${list.length} ${list.length === 1 ? 'actividad' : 'actividades'}` + (trips.length ? ` y ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : '');
+  const row = (strong, sub, km, onclick, isTrip, icon) => {
     const r = document.createElement('button'); r.type = 'button'; r.className = 'walk-row' + (isTrip ? ' is-trip' : '');
     const st = document.createElement('strong'); st.textContent = strong;
-    if (isTrip) { const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = 'Viaje'; st.appendChild(tag); }
+    if (icon) { const ic = document.createElement('span'); ic.className = 'w-ic'; ic.setAttribute('aria-hidden', 'true'); ic.textContent = icon; st.prepend(ic); }
+    if (isTrip) { const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = isTrip === 'camino' ? 'Camino de Santiago' : 'Viaje'; st.appendChild(tag); }
     const kmEl = document.createElement('span'); kmEl.className = 'w-km'; kmEl.textContent = km;
     if (km) { const sm = document.createElement('small'); sm.textContent = 'km'; kmEl.appendChild(sm); }
     const s = document.createElement('span'); s.className = 'w-sub'; s.textContent = sub;
@@ -1390,11 +1542,11 @@ function renderHistList() {
     for (const it of tripItems) {
       const n = it.st.length;
       const tkm = it.st.reduce((s, e) => s + (e.session.distance || 0), 0), tup = it.st.reduce((s, e) => s + (e.session.ascent || 0), 0);
-      box.appendChild(row(it.trip.name, n ? `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${shortDate(walkDate(it.st[0]))} al ${shortDate(walkDate(it.st[n - 1]))}, +${fmtNum(tup)} m` : 'Sin etapas todavía', n ? fmtKm(tkm) : '', () => showTrip(it.trip.id), true));
+      box.appendChild(row(it.trip.name, n ? `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${shortDate(walkDate(it.st[0]))} al ${shortDate(walkDate(it.st[n - 1]))}, +${fmtNum(tup)} m` : 'Sin etapas todavía', n ? fmtKm(tkm) : '', () => showTrip(it.trip.id), caminoOn(it.trip, it.st) ? 'camino' : true));
     }
   }
   if (loose.length) {
-    sec(tripItems.length ? 'Caminatas sueltas' : 'Caminatas');
+    sec(tripItems.length ? 'Actividades sueltas' : 'Actividades');
     let lastMonth = '';
     for (const e of loose) {
       const d = walkDate(e);
@@ -1402,21 +1554,264 @@ function renderHistList() {
         const m = d ? new Date(d).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'Sin fecha';
         if (m !== lastMonth) { lastMonth = m; const h = document.createElement('h3'); h.className = 'hist-month'; h.textContent = m.charAt(0).toUpperCase() + m.slice(1); box.appendChild(h); }
       }
-      const r = row(titleFor(e.name, d, e.sport, e.title), `${shortDate(d)}, ${fmtDur(e.session.elapsed)}, +${fmtNum(e.session.ascent)} m`, fmtKm(e.session.distance), () => showActivity(unpackActivity(e), false));
+      const r = row(titleFor(e.name, d, kindOf(e), e.title), `${shortDate(d)}, ${fmtDur(e.session.elapsed)}, +${fmtNum(e.session.ascent)} m`, fmtKm(e.session.distance), () => showActivity(unpackActivity(e), false), false, kindIcon(kindOf(e)));
       if (e.climbFixed) { const fx = document.createElement('span'); fx.className = 'w-sub fixed-note'; fx.textContent = `Desnivel corregido (el dato original era +${fmtNum(e.session.ascentOrig)} m)`; r.appendChild(fx); }
       box.appendChild(r);
     }
   }
-  if (!tripItems.length && !loose.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Todavía no hay caminatas guardadas.'; box.appendChild(p); }
+  if (!tripItems.length && !loose.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Todavía no hay actividades guardadas.'; box.appendChild(p); }
 }
 function showHist() {
   if (placing) endPlacing();
   stopAnim();
-  fromHist = true;
-  $('homeView').classList.remove('on'); $('actView').classList.remove('on'); $('histView').classList.add('on');
+  fromHist = true; fromStats = false;
+  $('homeView').classList.remove('on'); $('actView').classList.remove('on'); $('statsView').classList.remove('on'); $('histView').classList.add('on');
   $('btnBack').hidden = false; $('btnHist').hidden = true;
   window.scrollTo(0, 0);
   renderHistList();
+}
+// ---------- Estadísticas ----------
+let fromStats = false;
+const ST = { year: null, kind: 'all', metric: 'km' };
+const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+function showStats() {
+  if (placing) endPlacing();
+  stopAnim();
+  fromStats = true; fromHist = false;
+  $('homeView').classList.remove('on'); $('actView').classList.remove('on'); $('histView').classList.remove('on'); $('statsView').classList.add('on');
+  $('btnBack').hidden = false; $('btnHist').hidden = false;
+  window.scrollTo(0, 0);
+  renderStatsView();
+}
+function entryMaxEle(e) {
+  const v = e.pts.map(p => p[2]).filter(x => x != null && isFinite(x));
+  return v.length > 10 ? quantile(v, .995) : null;
+}
+function entrySpeed(e) {
+  const s = e.moving || e.session.elapsed;
+  return s && e.session.distance >= 1000 ? e.session.distance / s * 3.6 : null;
+}
+function chips(box, items, cur, onPick) {
+  box.innerHTML = '';
+  for (const [v, txt] of items) {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = txt;
+    b.setAttribute('aria-pressed', String(v === cur)); b.onclick = () => onPick(v);
+    box.appendChild(b);
+  }
+}
+function renderStatsView() {
+  const all = loadHistory();
+  const years = [...new Set(all.map(e => walkDate(e)).filter(Boolean).map(d => new Date(d).getFullYear()))].sort((a, b) => b - a);
+  if (ST.year == null || (ST.year !== 'all' && !years.includes(ST.year))) ST.year = years[0] || 'all';
+  const kindsHere = KIND_ORDER.filter(k => all.some(e => kindOf(e) === k));
+  if (ST.kind !== 'all' && !kindsHere.includes(ST.kind)) ST.kind = 'all';
+  chips($('statsYears'), [...years.map(y => [y, String(y)]), ...(years.length > 1 ? [['all', 'Todos los años']] : [])], ST.year, v => { ST.year = v; renderStatsView(); });
+  $('statsKinds').hidden = kindsHere.length < 2;
+  chips($('statsKinds'), [['all', 'Todo'], ...kindsHere.map(k => [k, `${kindIcon(k)} ${kindName(k)}`])], ST.kind, v => { ST.kind = v; renderStatsView(); });
+  document.querySelectorAll('#statsMetric button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === ST.metric)));
+  const byKind = all.filter(e => ST.kind === 'all' || kindOf(e) === ST.kind);
+  const list = byKind.filter(e => ST.year === 'all' || (walkDate(e) && new Date(walkDate(e)).getFullYear() === ST.year));
+  const km = list.reduce((s, e) => s + (e.session.distance || 0), 0);
+  const secs = list.reduce((s, e) => s + (e.session.elapsed || 0), 0);
+  const up = list.reduce((s, e) => s + (e.session.ascent || 0), 0);
+  const per = ST.year === 'all' ? 'en total' : `en ${ST.year}`;
+  $('statsSub').textContent = list.length ? `${list.length} ${list.length === 1 ? 'actividad' : 'actividades'} ${per}` + (ST.kind !== 'all' ? ` de ${kindName(ST.kind).toLowerCase()}` : '') : `No hay actividades ${per}.`;
+  const hh = Math.floor(secs / 3600), mm = Math.round(secs % 3600 / 60);
+  fillPlates([['Distancia', fmtKm(km), 'km'], ['Tiempo', `${hh}:${String(mm).padStart(2, '0')}`, 'h'], ['Desnivel', '+' + fmtNum(up), 'm'], ['Actividades', String(list.length), list.length === 1 ? 'salida' : 'salidas']], $('statsTotals'));
+  // grupos: meses del año elegido, o años
+  const groups = [];
+  if (ST.year === 'all') {
+    for (const y of years.slice().reverse()) groups.push({ key: y, label: String(y), short: String(y), items: list.filter(e => new Date(walkDate(e)).getFullYear() === y) });
+  } else {
+    for (let m = 0; m < 12; m++) groups.push({ key: m, label: MONTHS[m].charAt(0).toUpperCase() + MONTHS[m].slice(1) + ' ' + ST.year, short: MONTHS[m].slice(0, 3), items: list.filter(e => new Date(walkDate(e)).getMonth() === m) });
+  }
+  const val = (g, m) => g.items.reduce((s, e) => s + (m === 'km' ? (e.session.distance || 0) / 1000 : m === 'h' ? (e.session.elapsed || 0) / 3600 : (e.session.ascent || 0)), 0);
+  $('statsChartTitle').textContent = ST.year === 'all' ? 'Por años' : 'Por meses';
+  drawStatsChart(groups.map(g => ({ label: g.short, v: val(g, ST.metric) })), ST.metric);
+  const tb = $('statsTable'); tb.innerHTML = '';
+  for (const g of groups.slice().reverse()) {
+    if (!g.items.length) continue;
+    const r = document.createElement('div'); r.className = 'walk-row';
+    const st = document.createElement('strong'); st.textContent = g.label;
+    const kmEl = document.createElement('span'); kmEl.className = 'w-km'; kmEl.textContent = fmtKm(val(g, 'km') * 1000);
+    const sm = document.createElement('small'); sm.textContent = 'km'; kmEl.appendChild(sm);
+    const s = document.createElement('span'); s.className = 'w-sub';
+    const gh = val(g, 'h');
+    s.textContent = `${g.items.length} ${g.items.length === 1 ? 'actividad' : 'actividades'}, ${Math.floor(gh)}:${String(Math.round(gh % 1 * 60)).padStart(2, '0')} h, +${fmtNum(val(g, 'up'))} m`;
+    r.append(st, kmEl, s); tb.appendChild(r);
+  }
+  // récords
+  const rb = $('statsRecords'); rb.innerHTML = '';
+  const shortDate = d => d ? new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  const rec = (label, e, value, unit) => {
+    const r = document.createElement('button'); r.type = 'button'; r.className = 'walk-row';
+    const l = document.createElement('span'); l.className = 'w-lbl'; l.textContent = label;
+    const st = document.createElement('strong'); st.textContent = `${kindIcon(kindOf(e))} ${titleFor(e.name, walkDate(e), kindOf(e), e.title)}`;
+    const kmEl = document.createElement('span'); kmEl.className = 'w-km'; kmEl.textContent = value;
+    if (unit) { const sm = document.createElement('small'); sm.textContent = unit; kmEl.appendChild(sm); }
+    kmEl.style.gridRow = '1 / span 3';
+    const s = document.createElement('span'); s.className = 'w-sub'; s.textContent = shortDate(walkDate(e));
+    r.append(l, kmEl, st, s);
+    r.onclick = () => { fromStats = true; fromHist = false; showActivity(unpackActivity(e), false); fromStats = true; };
+    rb.appendChild(r);
+  };
+  const best = (arr, f) => arr.reduce((b, e) => { const v = f(e); return v != null && (b == null || v > b.v) ? { e, v } : b; }, null);
+  if (!list.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Sin récords todavía.'; rb.appendChild(p); return; }
+  let b;
+  if ((b = best(list, e => e.session.distance))) rec('La más larga', b.e, fmtKm(b.v), 'km');
+  if ((b = best(list, e => e.session.ascent))) rec('Más desnivel', b.e, '+' + fmtNum(b.v), 'm');
+  if ((b = best(list, e => e.session.elapsed))) rec('Más tiempo', b.e, fmtClock(b.v), b.v >= 3600 ? 'h' : 'min');
+  for (const k of KIND_ORDER) {
+    const lk = list.filter(e => kindOf(e) === k);
+    if (!lk.length || (b = best(lk, entrySpeed)) == null) continue;
+    const lbl = 'La más rápida' + (ST.kind === 'all' && kindsHere.length > 1 ? ` (${kindName(k).toLowerCase()})` : '');
+    if (KINDS[k].pace) rec(lbl, b.e, fmtPace(3600 / b.v).replace(' /km', ''), 'min/km'); else rec(lbl, b.e, fmtDec(b.v), 'km/h');
+  }
+  if ((b = best(list, entryMaxEle))) rec('Más alto', b.e, fmtNum(b.v), 'm');
+  const gBest = groups.filter(g => g.items.length).sort((x, y) => val(y, 'km') - val(x, 'km'))[0];
+  if (gBest) {
+    const r = document.createElement('div'); r.className = 'walk-row';
+    const l = document.createElement('span'); l.className = 'w-lbl'; l.textContent = ST.year === 'all' ? 'El mejor año' : 'El mejor mes';
+    const st = document.createElement('strong'); st.textContent = gBest.label;
+    const kmEl = document.createElement('span'); kmEl.className = 'w-km'; kmEl.textContent = fmtKm(val(gBest, 'km') * 1000); kmEl.style.gridRow = '1 / span 3';
+    const sm = document.createElement('small'); sm.textContent = 'km'; kmEl.appendChild(sm);
+    const s = document.createElement('span'); s.className = 'w-sub'; s.textContent = `${gBest.items.length} ${gBest.items.length === 1 ? 'actividad' : 'actividades'}`;
+    r.append(l, kmEl, st, s); rb.appendChild(r);
+  }
+}
+function drawStatsChart(data, metric) {
+  const c = $('statsChart'), dpr = window.devicePixelRatio || 1;
+  const w = c.clientWidth || 320, h = c.clientHeight || 210;
+  c.width = w * dpr; c.height = h * dpr;
+  const g = c.getContext('2d'); g.scale(dpr, dpr);
+  const cs = getComputedStyle(document.documentElement);
+  const ink = cs.getPropertyValue('--ink').trim(), muted = cs.getPropertyValue('--muted').trim(), line = cs.getPropertyValue('--line').trim(), red = cs.getPropertyValue('--gr').trim();
+  const pad = { l: 8, r: 8, t: 22, b: 24 };
+  const max = Math.max(1e-9, ...data.map(d => d.v));
+  const n = data.length, slot = (w - pad.l - pad.r) / n, bw = Math.min(46, slot * 0.66);
+  g.strokeStyle = line; g.lineWidth = 1; g.beginPath(); g.moveTo(pad.l, h - pad.b + .5); g.lineTo(w - pad.r, h - pad.b + .5); g.stroke();
+  const fmt = v => metric === 'up' ? fmtNum(Math.round(v)) : metric === 'h' ? (v < 10 ? v.toLocaleString('es-ES', { maximumFractionDigits: 1 }) : Math.round(v)) : (v < 10 ? v.toLocaleString('es-ES', { maximumFractionDigits: 1 }) : fmtNum(Math.round(v)));
+  g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+  data.forEach((d, i) => {
+    const x = pad.l + slot * i + slot / 2;
+    const bh = d.v / max * (h - pad.t - pad.b);
+    if (d.v > 0) {
+      g.fillStyle = red; g.beginPath();
+      if (g.roundRect) g.roundRect(x - bw / 2, h - pad.b - bh, bw, bh, [4, 4, 0, 0]); else g.rect(x - bw / 2, h - pad.b - bh, bw, bh);
+      g.fill();
+      g.fillStyle = ink; g.font = `600 ${n > 8 ? 11 : 13}px "Barlow Semi Condensed", sans-serif`;
+      g.fillText(fmt(d.v), x, h - pad.b - bh - 5);
+    }
+    g.fillStyle = muted; g.font = `500 ${n > 8 ? 11 : 13}px Barlow, sans-serif`;
+    g.fillText(d.label, x, h - 7);
+  });
+}
+// ---------- Camino de Santiago ----------
+const SANTIAGO = { lat: 42.8806, lon: -8.5446 };
+const CAMINOS = [
+  { id: 'fr-sjpp', name: 'Camino Francés', from: 'Saint-Jean-Pied-de-Port', lat: 43.163, lon: -1.238, km: 770 },
+  { id: 'fr-ronc', name: 'Camino Francés', from: 'Roncesvalles', lat: 43.009, lon: -1.320, km: 745 },
+  { id: 'fr-pamp', name: 'Camino Francés', from: 'Pamplona', lat: 42.818, lon: -1.644, km: 705 },
+  { id: 'fr-burg', name: 'Camino Francés', from: 'Burgos', lat: 42.341, lon: -3.704, km: 490 },
+  { id: 'fr-leon', name: 'Camino Francés', from: 'León', lat: 42.599, lon: -5.567, km: 310 },
+  { id: 'fr-astg', name: 'Camino Francés', from: 'Astorga', lat: 42.457, lon: -6.056, km: 260 },
+  { id: 'fr-ponf', name: 'Camino Francés', from: 'Ponferrada', lat: 42.546, lon: -6.598, km: 205 },
+  { id: 'fr-cebr', name: 'Camino Francés', from: 'O Cebreiro', lat: 42.708, lon: -7.043, km: 160 },
+  { id: 'fr-sarr', name: 'Camino Francés', from: 'Sarria', lat: 42.777, lon: -7.414, km: 115 },
+  { id: 'pt-lisb', name: 'Camino Portugués', from: 'Lisboa', lat: 38.711, lon: -9.137, km: 620 },
+  { id: 'pt-port', name: 'Camino Portugués', from: 'Oporto', lat: 41.142, lon: -8.611, km: 240 },
+  { id: 'pt-cost', name: 'Camino Portugués por la Costa', from: 'Oporto', lat: 41.150, lon: -8.674, km: 280 },
+  { id: 'pt-tui', name: 'Camino Portugués', from: 'Tui', lat: 42.047, lon: -8.645, km: 119 },
+  { id: 'no-irun', name: 'Camino del Norte', from: 'Irún', lat: 43.339, lon: -1.789, km: 815 },
+  { id: 'no-bilb', name: 'Camino del Norte', from: 'Bilbao', lat: 43.257, lon: -2.923, km: 650 },
+  { id: 'pr-ovie', name: 'Camino Primitivo', from: 'Oviedo', lat: 43.362, lon: -5.844, km: 320 },
+  { id: 'in-ferr', name: 'Camino Inglés', from: 'Ferrol', lat: 43.483, lon: -8.233, km: 119 },
+  { id: 'pl-sevi', name: 'Vía de la Plata', from: 'Sevilla', lat: 37.389, lon: -5.984, km: 1000 },
+  { id: 'sa-ourn', name: 'Camino Sanabrés', from: 'Ourense', lat: 42.336, lon: -7.864, km: 105 },
+  { id: 'otro', name: 'Otro Camino', from: '', km: null }
+];
+function caminoOn(trip, stages) {
+  if (!trip) return false;
+  if (trip.camino === false) return false;
+  if (trip.camino) return true;
+  if (/camino|santiago|compostela|xacobeo|jacobeo|peregrin/i.test(trip.name || '')) return true;
+  const last = stages && stages.length ? stages[stages.length - 1].pts : null;
+  return !!(last && last.length && haversine({ lat: last[last.length - 1][0], lon: last[last.length - 1][1] }, SANTIAGO) < 2500);
+}
+function caminoPresetFor(T) {
+  const cfg = T.trip.camino;
+  if (cfg && cfg.route) return CAMINOS.find(x => x.id === cfg.route) || CAMINOS[CAMINOS.length - 1];
+  const p0 = T.points[0]; let best = null, bd = 30000;
+  for (const c of CAMINOS) { if (c.lat == null) continue; const d = haversine(p0, c); if (d < bd) { bd = d; best = c; } }
+  return best;
+}
+function caminoInfo(T) {
+  if (!T || !T.isTrip || !caminoOn(T.trip, tripStages(T.trip.id))) return null;
+  const cfg = T.trip.camino || {};
+  const preset = caminoPresetFor(T);
+  const total = cfg.total || (preset && preset.km) || null;
+  const done = T.distance / 1000;
+  const end = T.points[T.points.length - 1];
+  const air = haversine(end, SANTIAGO) / 1000;
+  const arrived = air < 2;
+  let remaining = arrived ? 0 : total ? Math.max(0, total - done) : null;
+  if (remaining != null && !arrived && remaining < air) remaining = air * 1.15;
+  const pct = arrived ? 100 : remaining != null ? Math.min(99, done / (done + remaining) * 100) : null;
+  const n = T.stages.length, avg = done / n;
+  const bike = !!(KINDS[T.kind] && KINDS[T.kind].bike);
+  return { preset, total, done, air, arrived, remaining, pct, n, avg, bike, left: remaining ? Math.ceil(remaining / Math.max(5, avg)) : 0 };
+}
+function renderCamino() {
+  const sec = $('caminoSection');
+  const C = A && A.isTrip ? caminoInfo(A) : null;
+  sec.hidden = !C; $('btnCamino').hidden = !A || !A.isTrip || !!C;
+  if (!C) return;
+  const P = C.preset;
+  $('caminoRoute').textContent = P && P.id !== 'otro' ? `${P.name}, desde ${P.from}` : (P ? 'Tu Camino' : 'Elige tu Camino para ver lo que te queda');
+  const big = $('caminoBig'); big.innerHTML = '';
+  const b = document.createElement('b');
+  if (C.arrived) { big.append('¡Llegaste a Santiago!', document.createElement('br')); b.textContent = fmtKm(C.done * 1000) + ' km'; big.append(b, ' de Camino'); }
+  else if (C.remaining != null) { big.append('Te quedan '); b.textContent = fmtKm(C.remaining * 1000) + ' km'; big.append(b, ' para Santiago'); }
+  else { big.append('Estás a '); b.textContent = fmtKm(C.air * 1000) + ' km'; big.append(b, ' de Santiago en línea recta'); }
+  const pct = C.pct == null ? 0 : C.pct;
+  $('caminoFill').style.width = pct + '%'; $('caminoArrow').style.left = pct + '%';
+  $('caminoArrow').parentElement.setAttribute('aria-label', `${Math.round(pct)} % del Camino hecho`);
+  $('caminoFrom').textContent = P && P.from ? P.from : 'Salida';
+  const facts = [['Hecho', fmtKm(C.done * 1000) + ' km']];
+  if (C.pct != null) facts.push(['Completado', Math.round(pct) + ' %']);
+  facts.push(['Etapas', String(C.n)], ['Media por etapa', fmtKm(C.avg * 1000) + ' km']);
+  if (!C.arrived && C.left) facts.push(['Etapas que faltan', `unas ${C.left}`]);
+  if (!C.arrived) facts.push(['A la catedral', fmtKm(C.air * 1000) + ' km en línea recta']);
+  const f = $('caminoFacts'); f.innerHTML = '';
+  for (const [l, v] of facts) { const d = document.createElement('div'); d.className = 'fact'; const s = document.createElement('span'); s.textContent = l; const bb = document.createElement('b'); bb.textContent = v; d.append(s, bb); f.appendChild(d); }
+  const need = C.bike ? 200 : 100;
+  $('caminoNote').textContent = C.arrived
+    ? (C.done >= need ? `Has hecho más de los ${need} km ${C.bike ? 'en bici' : 'a pie'} que piden para la Compostela. ¡Buen Camino! Recuerda llevar la credencial sellada.` : `Para la Compostela piden al menos los últimos ${need} km ${C.bike ? 'en bici' : 'a pie'} y la credencial sellada.`)
+    : `Para la Compostela piden al menos los últimos 100 km a pie (200 en bici) y la credencial con sus sellos. ¡Buen Camino!`;
+}
+function openCaminoModal() {
+  if (!A || !A.isTrip) return;
+  const sel = $('caminoPreset'); sel.innerHTML = '';
+  for (const c of CAMINOS) { const o = document.createElement('option'); o.value = c.id; o.textContent = c.id === 'otro' ? 'Otro Camino' : `${c.name}, desde ${c.from} (unos ${c.km} km)`; sel.appendChild(o); }
+  const P = caminoPresetFor(A) || CAMINOS[CAMINOS.length - 1];
+  sel.value = P.id;
+  const cfg = A.trip.camino || {};
+  $('caminoKm').value = cfg.total || P.km || '';
+  $('caminoOff').hidden = !caminoOn(A.trip, tripStages(A.trip.id));
+  $('caminoModal').classList.add('on');
+}
+function saveCamino(on) {
+  const tl = loadTrips(); const tr = tl.find(x => x.id === A.trip.id);
+  if (!tr) return;
+  if (!on) tr.camino = false;
+  else {
+    const km = Math.round(+$('caminoKm').value);
+    tr.camino = { route: $('caminoPreset').value, total: km >= 10 ? km : null };
+  }
+  saveTrips(tl); A.trip.camino = tr.camino;
+  $('caminoModal').classList.remove('on');
+  renderCamino(); renderStages();
+  toast(on ? '¡Modo Camino de Santiago activado!' : 'Este viaje ya no se muestra como Camino.');
 }
 function drawHomeMap(list, tripIds) {
   if (!list.length) return;
@@ -1516,7 +1911,7 @@ async function importBackup(file) {
         try { await photoPut({ id: f.id, act: f.act, time: f.time, lat: f.lat, lon: f.lon, src: f.src || null, blob: b64ToBlob(f.data) }); photosAdded++; } catch (e) { console.error(e); }
       }
     }
-    if (saveHistory(list)) toast((added ? `${added} caminata(s) recuperadas` : 'Las caminatas ya estaban en el historial') + (photosAdded ? ` y ${photosAdded} foto(s).` : '.'), 5000);
+    if (saveHistory(list)) toast((added ? `${added} actividad(s) recuperadas` : 'Las actividades ya estaban en el historial') + (photosAdded ? ` y ${photosAdded} foto(s).` : '.'), 5000);
     renderHistory();
   } catch {
     toast('Ese archivo no es una copia de Senda.');
@@ -1528,7 +1923,7 @@ function startRename() {
   const h = $('actTitle');
   const input = document.createElement('input');
   input.className = 'title-input'; input.type = 'text'; input.maxLength = 80;
-  input.value = h.textContent; input.setAttribute('aria-label', 'Título de la caminata');
+  input.value = h.textContent; input.setAttribute('aria-label', 'Título de la actividad');
   h.style.display = 'none'; $('btnRename').textContent = 'Guardar';
   row.insertBefore(input, h);
   input.focus(); input.select();
@@ -1549,7 +1944,7 @@ function startRename() {
       }
     }
     input.remove(); h.style.display = ''; $('btnRename').textContent = A.isTrip ? 'Cambiar nombre' : 'Cambiar título';
-    h.textContent = A.isTrip ? A.name : titleFor(A.name, A.start, A.sport, A.title);
+    h.textContent = A.isTrip ? A.name : titleFor(A.name, A.start, A.kind || A.sport, A.title);
   };
   input.addEventListener('keydown', ev => { if (ev.key === 'Enter') finish(true); if (ev.key === 'Escape') finish(false); });
   input.addEventListener('blur', () => finish(true));
@@ -1558,8 +1953,8 @@ function titleFor(name, t, sport, custom) {
   if (custom) return custom;
   if (name && !/^\d{8}\s/.test(name)) return name;
   const d = t ? new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : '';
-  const word = name ? name.replace(/^\d{8}\s*/, '') : (sport && sport !== 'Ejercicio' ? sport : (sport ? 'Ruta' : 'Caminata'));
-  return `${word || 'Caminata'} del ${d}`;
+  const word = KINDS[sport] ? KINDS[sport].name : name ? name.replace(/^\d{8}\s*/, '') : (sport && sport !== 'Ejercicio' ? sport : (sport ? 'Ruta' : 'Actividad'));
+  return `${word || 'Actividad'} del ${d}`;
 }
 
 // ---------- Carga de archivos ----------
@@ -1593,7 +1988,7 @@ async function openFiles(files) {
     showActivity(done[0], true);
   } else {
     showHome();
-    toast(`${done.length} caminatas guardadas.` + (failed ? ` ${failed} archivo(s) no se pudieron leer.` : ''), 4500);
+    toast(`${done.length} actividades guardadas.` + (failed ? ` ${failed} archivo(s) no se pudieron leer.` : '') + ' Senda ha supuesto el tipo de cada una; puedes cambiarlo al abrirla.', 6000);
     fetchTownsInBackground(done);
   }
 }
@@ -1601,7 +1996,7 @@ async function fetchTownsInBackground(acts) {
   for (const a of acts) {
     const list = loadHistory(); const e = list.find(x => x.id === a.id);
     if (!e || e.towns) continue;
-    const res = await queryTowns(a.points, a.distance);
+    const res = await queryTowns(a.points, a.distance, a.kind);
     if (!res) continue;
     const l2 = loadHistory(); const e2 = l2.find(x => x.id === a.id);
     if (e2) { e2.towns = res; saveHistory(l2); }
@@ -1623,8 +2018,10 @@ function buildTrip(tripId) {
   const sum = key => stages.reduce((acc, s) => acc + (s[key] || 0), 0);
   const eles = stages.flatMap(s => [s.eleMax, s.eleMin]).filter(v => v != null);
   const hrS = stages.filter(s => s.hrAvg);
+  const kc = {}; stages.forEach(s => kc[s.kind] = (kc[s.kind] || 0) + s.distance);
+  const kind = Object.keys(kc).sort((a, b) => kc[b] - kc[a])[0] || 'walk';
   return {
-    isTrip: true, trip, stages, points, id: trip.id, name: trip.name,
+    isTrip: true, trip, stages, points, id: trip.id, name: trip.name, kind,
     start: stages[0].start, end: stages[stages.length - 1].end,
     distance: sum('distance'), elapsed: sum('elapsed'),
     moving: stages.every(s => s.moving) ? sum('moving') : null,
@@ -1650,16 +2047,20 @@ function showTrip(tripId) {
 }
 function renderStages() {
   const ol = $('stages'); ol.innerHTML = '';
+  const C = caminoInfo(A); let acc = 0;
   A.stages.forEach((s, k) => {
+    acc += s.distance / 1000;
     const li = document.createElement('li');
     const b = document.createElement('button'); b.type = 'button';
     const n = document.createElement('span'); n.className = 'stage-n'; n.textContent = k + 1;
     n.style.background = STAGE_COLORS[k % STAGE_COLORS.length];
-    const st = document.createElement('strong'); st.textContent = titleFor(s.name, s.start, s.sport, s.title);
+    const st = document.createElement('strong'); st.textContent = titleFor(s.name, s.start, s.kind || s.sport, s.title);
     const num = document.createElement('span'); num.className = 'st-num'; num.textContent = fmtKm(s.distance) + ' km';
     const sm = document.createElement('small'); sm.textContent = '+' + fmtNum(s.ascent) + ' m'; num.appendChild(sm);
     const dt = document.createElement('span'); dt.className = 'st-date';
     dt.textContent = s.start ? new Date(s.start).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }) + ', ' + fmtDur(s.elapsed) : fmtDur(s.elapsed);
+    if (C && C.total && !(C.arrived && k === A.stages.length - 1)) { const q = Math.max(0, C.total - acc); dt.textContent += q > 0.5 ? `, quedaban ${fmtKm(q * 1000)} km` : ', ¡en Santiago!'; }
+    else if (C && C.arrived && k === A.stages.length - 1) dt.textContent += ', ¡en Santiago!';
     b.append(n, st, num, dt);
     b.onclick = () => showActivity(s, false);
     li.appendChild(b); ol.appendChild(li);
@@ -1668,7 +2069,7 @@ function renderStages() {
 function renderTripBar() {
   const sel = $('tripSelect'); sel.innerHTML = '';
   const add = (v, txt) => { const o = document.createElement('option'); o.value = v; o.textContent = txt; sel.appendChild(o); };
-  add('', 'Caminata suelta');
+  add('', 'Actividad suelta');
   for (const tr of loadTrips()) add(tr.id, tr.name);
   add('__new', 'Nuevo viaje…');
   sel.value = A.tripId && loadTrips().some(x => x.id === A.tripId) ? A.tripId : '';
@@ -1688,7 +2089,7 @@ function changeTrip() {
   if (v === '__new') { $('tripNew').hidden = false; $('tripNewName').value = ''; $('tripNewName').focus(); return; }
   setActivityTrip(A.id, v || null); A.tripId = v || null;
   renderTripBar();
-  toast(v ? 'Caminata añadida al viaje.' : 'La caminata ya no forma parte de ningún viaje.');
+  toast(v ? 'Actividad añadida al viaje.' : 'La actividad ya no forma parte de ningún viaje.');
 }
 function confirmNewTrip() {
   const name = $('tripNewName').value.trim();
@@ -1696,7 +2097,7 @@ function confirmNewTrip() {
   const tr = createTrip(name);
   setActivityTrip(A.id, tr.id); A.tripId = tr.id;
   renderTripBar();
-  toast('Viaje creado con esta caminata como primera etapa.');
+  toast('Viaje creado con esta actividad como primera etapa.');
 }
 
 // ---------- Mapa ----------
@@ -1924,7 +2325,7 @@ function renderTripStats() {
     ['Distancia', fmtKm(A.distance), 'km'],
     ['Tiempo', `${h}:${String(m).padStart(2, '0')}`, 'h'],
     ['Desnivel', fmtDesnivel(A), 'm'],
-    ['Velocidad', fmtDec(avgSpeed(A)), 'km/h']
+    speedPlate(A)
   ]);
   const longest = A.stages.reduce((a, s) => s.distance > a.distance ? s : a, A.stages[0]);
   const facts = [
@@ -1940,8 +2341,8 @@ function renderTripStats() {
   if (A.calories) facts.push(['Calorías', fmtNum(A.calories) + ' kcal']);
   fillFacts(facts);
 }
-function fillPlates(plates) {
-  const sp = $('signpost'); sp.innerHTML = '';
+function fillPlates(plates, sp = $('signpost')) {
+  sp.innerHTML = '';
   for (const [l, v, u] of plates) {
     const d = document.createElement('div'); d.className = 'plate' + (String(v).length > 7 ? ' compact' : '');
     const s = document.createElement('span'); s.textContent = l;
@@ -1959,8 +2360,47 @@ function fillFacts(facts) {
     d.append(s, b); f.appendChild(d);
   }
 }
+function maxSpeed(a) {
+  const v = a.points.map(q => q.v).filter(x => x != null && isFinite(x) && x > 0);
+  return v.length > 20 ? quantile(v, .98) * 3.6 : null;
+}
+function speedPlate(a) {
+  const K = KINDS[a.kind] || KINDS.walk;
+  if (K.pace) { const secs = a.moving || a.elapsed; return ['Ritmo', secs && a.distance ? fmtPace(secs / (a.distance / 1000)).replace(' /km', '') : '–', 'min/km']; }
+  return ['Velocidad', fmtDec(avgSpeed(a)), 'km/h'];
+}
+function renderKindChip() {
+  const c = $('kindChip');
+  c.hidden = !!A.isTrip;
+  if (A.isTrip) return;
+  c.textContent = `${kindIcon(A.kind)} ${kindName(A.kind)} `;
+  const sm = document.createElement('small'); sm.textContent = A.kindSet ? 'cambiar' : 'cambiar (supuesto por Senda)'; c.appendChild(sm);
+}
+function openKindPicker(isNew) {
+  $('kindTitle').textContent = isNew ? '¿Qué actividad era?' : 'Tipo de actividad';
+  const grid = $('kindGrid'); grid.innerHTML = '';
+  for (const k of KIND_ORDER) {
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', String(k === A.kind));
+    const ic = document.createElement('span'); ic.setAttribute('aria-hidden', 'true'); ic.textContent = kindIcon(k);
+    b.append(ic, document.createTextNode(kindName(k)));
+    b.onclick = () => { $('kindModal').classList.remove('on'); setKind(k); };
+    grid.appendChild(b);
+  }
+  $('kindClose').textContent = isNew ? `Dejar «${kindName(A.kind)}»` : 'Cerrar';
+  $('kindClose').onclick = () => { $('kindModal').classList.remove('on'); if (isNew) setKind(A.kind, true); };
+  $('kindModal').classList.add('on');
+}
+function setKind(k, quiet) {
+  if (!A || A.isTrip || !KINDS[k]) return;
+  A.kind = k; A.kindSet = true;
+  const list = loadHistory(); const e = list.find(x => x.id === A.id);
+  if (e) { e.kind = k; saveHistory(list); }
+  renderStats();
+  if (!quiet) toast(`Guardada como ${kindName(k).toLowerCase()}.`);
+}
 function renderStats() {
   const isTrip = !!A.isTrip;
+  renderKindChip();
   $('tripBar').hidden = isTrip; $('stagesSection').hidden = !isTrip; $('tripActions').hidden = !isTrip;
   $('photosSection').hidden = false; $('btnPhotos').hidden = isTrip; $('btnPhotosManual').hidden = isTrip || !NATIVE; $('tripLink').hidden = true;
   $('btnRename').textContent = isTrip ? 'Cambiar nombre' : 'Cambiar título';
@@ -1970,9 +2410,10 @@ function renderStats() {
   $('hrToggleWrap').style.display = A.hasHr ? '' : 'none';
   $('colorMode').querySelector('option[value="hr"]').disabled = !A.hasHr;
   $('colorMode').querySelector('option[value="v"]').disabled = !A.hasTime;
+  renderCamino();
   if (isTrip) { renderTripStats(); renderStages(); return; }
   renderTripBar();
-  $('actTitle').textContent = titleFor(A.name, A.start, A.sport, A.title);
+  $('actTitle').textContent = titleFor(A.name, A.start, A.kind || A.sport, A.title);
   const sub = [fmtDate(A.start)];
   if (A.start) sub.push(`de ${fmtHour(A.start)} a ${fmtHour(A.end)}`);
   $('actSub').textContent = sub.join(', ');
@@ -1980,19 +2421,22 @@ function renderStats() {
     ['Distancia', fmtKm(A.distance), 'km'],
     ['Tiempo', A.elapsed != null ? fmtClock(A.elapsed) : '–', A.elapsed >= 3600 ? 'h' : 'min'],
     ['Desnivel', fmtDesnivel(A), 'm'],
-    ['Velocidad', fmtDec(avgSpeed(A)), 'km/h']
+    speedPlate(A)
   ]);
+  const K = KINDS[A.kind] || KINDS.walk;
   const facts = [];
   if (A.moving) facts.push(['En movimiento', fmtDur(A.moving)]);
   facts.push(['Bajada', '−' + fmtNum(A.descent) + ' m']);
   if (A.eleMax != null) facts.push(['Altitud máxima', fmtNum(A.eleMax) + ' m']);
   if (A.eleMin != null) facts.push(['Altitud mínima', fmtNum(A.eleMin) + ' m']);
-  if (A.moving) facts.push(['Ritmo medio', fmtPace(A.moving / (A.distance / 1000))]);
+  if (A.moving && K.foot) facts.push(['Ritmo medio', fmtPace(A.moving / (A.distance / 1000))]);
   if (A.moving) facts.push(['Velocidad en movimiento', fmtDec(A.distance / A.moving * 3.6) + ' km/h']);
+  if (K.pace) facts.push(['Velocidad media', fmtDec(avgSpeed(A)) + ' km/h']);
+  if (!K.foot || K.pace) { const vm = maxSpeed(A); if (vm) facts.push(['Velocidad máxima', fmtDec(vm) + ' km/h']); }
   if (A.hrAvg) facts.push(['Pulso medio', A.hrAvg + ' ppm']);
   if (A.hrMax) facts.push(['Pulso máximo', A.hrMax + ' ppm']);
   if (A.calories) facts.push(['Calorías', fmtNum(A.calories) + ' kcal']);
-  if (A.sport) facts.push(['Actividad', A.sport]);
+  facts.push(['Actividad', `${kindIcon(A.kind)} ${kindName(A.kind)}`]);
   if (A.device) facts.push(['Reloj', A.device]);
   fillFacts(facts);
 }
@@ -2242,19 +2686,19 @@ async function addPhotos(files) {
   }
   busy.hidden = true;
   if (!found.length) {
-    toast(repeated ? 'Esas fotos ya están publicadas en esta caminata.' : 'No se ha podido leer ninguna foto.', 5000);
+    toast(repeated ? 'Esas fotos ya están publicadas en esta actividad.' : 'No se ha podido leer ninguna foto.', 5000);
     return;
   }
   found.sort((a, b) => (a.idx ?? 1e9) - (b.idx ?? 1e9));
   const ok = found.filter(f => !f.needsPlace).length, loose = found.length - ok;
   let info = '';
-  if (ok) info += ok === 1 ? '1 foto se hizo durante la caminata y se coloca sola. ' : `${ok} fotos se hicieron durante la caminata y se colocan solas. `;
-  if (loose) info += `${loose} ${loose === 1 ? 'foto no tiene' : 'fotos no tienen'} la hora de la caminata (pasa con las de WhatsApp): al publicar, te pediré que toques en el mapa o en el perfil dónde ${loose === 1 ? 'ponerla' : 'ponerlas'}. `;
+  if (ok) info += ok === 1 ? '1 foto se hizo durante la actividad y se coloca sola. ' : `${ok} fotos se hicieron durante la actividad y se colocan solas. `;
+  if (loose) info += `${loose} ${loose === 1 ? 'foto no tiene' : 'fotos no tienen'} la hora de la actividad (pasa con las de WhatsApp): al publicar, te pediré que toques en el mapa o en el perfil dónde ${loose === 1 ? 'ponerla' : 'ponerlas'}. `;
   info += 'Desmarca las que no quieras publicar.';
   openPick(found.map(f => ({ ...f, url: URL.createObjectURL(f.file), on: true })), info);
 }
 async function findNativePhotos() {
-  if (!A.hasTime) { toast('Esta caminata no tiene horas, así que no se pueden buscar sus fotos.'); return; }
+  if (!A.hasTime) { toast('Esta actividad no tiene horas, así que no se pueden buscar sus fotos.'); return; }
   const busy = $('photoBusy');
   busy.hidden = false; busy.textContent = 'Buscando fotos en tu galería…';
   let res;
@@ -2270,13 +2714,13 @@ async function findNativePhotos() {
   const have = await publishedSources(A.id);
   const list = (res.photos || []).filter(p => !have.has('n:' + p.id));
   if (!list.length) {
-    toast((res.photos || []).length ? 'Las fotos de esta caminata ya están publicadas.' : 'No hay fotos en tu galería hechas durante esta caminata.', 5000);
+    toast((res.photos || []).length ? 'Las fotos de esta actividad ya están publicadas.' : 'No hay fotos en tu galería hechas durante esta actividad.', 5000);
     return;
   }
   const items = list.map(p => ({ native: true, uri: p.uri, rotation: p.rotation || 0, src: 'n:' + p.id, time: p.time, idx: idxAtTime(p.time), on: !p.screenshot, url: null }));
   items.sort((a, b) => a.idx - b.idx);
   const shots = items.filter(p => !p.on).length;
-  openPick(items, `Hay ${items.length} ${items.length === 1 ? 'foto hecha' : 'fotos hechas'} durante la caminata.` +
+  openPick(items, `Hay ${items.length} ${items.length === 1 ? 'foto hecha' : 'fotos hechas'} durante la actividad.` +
     (shots ? ` He desmarcado ${shots} ${shots === 1 ? 'captura de pantalla' : 'capturas de pantalla'}.` : '') + ' Toca las que no quieras publicar.');
   // miniaturas, una tras otra
   const mine = pickState;
@@ -2318,7 +2762,7 @@ async function confirmPick() {
   $('pickModal').classList.remove('on');
   if (A && A.id === actId) await loadPhotos();
   if (failed) toast(`No se pudieron guardar ${failed} foto(s). Puede que el móvil se haya quedado sin espacio.`, 5000);
-  else if (auto.length) toast(`${auto.length} ${auto.length === 1 ? 'foto publicada' : 'fotos publicadas'} en la caminata.`);
+  else if (auto.length) toast(`${auto.length} ${auto.length === 1 ? 'foto publicada' : 'fotos publicadas'} en la actividad.`);
   if (keep.length) startPlacing(keep);
 }
 async function savePickedPhoto(p, idx, actId) {
@@ -2426,7 +2870,7 @@ function openLightbox(ph) {
   $('lbDelete').hidden = !!A.isTrip;
   $('lbDelete').onclick = async ev => {
     ev.stopPropagation();
-    if (!confirm('¿Quitar esta foto de la caminata?')) return;
+    if (!confirm('¿Quitar esta foto de la actividad?')) return;
     await photoDelete(ph.id);
     lb.classList.remove('on');
     URL.revokeObjectURL(ph.url);
@@ -2439,11 +2883,11 @@ function openLightbox(ph) {
 
 // ---------- Poblaciones cercanas ----------
 const PLACE_LABEL = { city: 'Ciudad', town: 'Población', village: 'Pueblo', hamlet: 'Aldea', suburb: 'Barrio', locality: 'Paraje', isolated_dwelling: 'Casa aislada' };
-async function queryTowns(P, distance) {
+async function queryTowns(P, distance, kind) {
   const n = Math.min(distance > 30000 ? 80 : 40, P.length);
   const sample = [];
   for (let k = 0; k < n; k++) { const q = P[Math.floor(k * (P.length - 1) / Math.max(1, n - 1))]; sample.push(q.lat.toFixed(5), q.lon.toFixed(5)); }
-  const radius = distance > 30000 ? 2500 : 5000;
+  const radius = KINDS[kind] && KINDS[kind].bike ? 2000 : distance > 30000 ? 2500 : 5000;
   // ciudades y pueblos grandes con más radio, para que no se escapen (por ejemplo, al llegar a Santiago)
   const query = `[out:json][timeout:40];(node(around:${radius},${sample.join(',')})["place"~"^(village|hamlet|locality)$"]["name"];node(around:${Math.max(radius, 6000)},${sample.join(',')})["place"~"^(city|town)$"]["name"];);out body 400;`;
   const endpoints = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
@@ -2480,7 +2924,7 @@ async function refreshTowns() {
   for (let i = 0; i < list.length; i++) {
     $('placesNote').textContent = list.length > 1 ? `Buscando poblaciones… etapa ${i + 1} de ${list.length}` : 'Buscando poblaciones cerca de la ruta…';
     const s = list[i];
-    const res = await queryTowns(s.points, s.distance);
+    const res = await queryTowns(s.points, s.distance, s.kind);
     if (res) { s.cachedTowns = res; saveTowns(s.id, res); ok++; } else fail++;
   }
   btn.disabled = false;
@@ -2506,7 +2950,7 @@ async function loadTowns() {
   }
   if (A.cachedTowns) { towns = A.cachedTowns.slice(0, 15); renderTowns(); return; }
   const cur = A, myId = cur.id;
-  const res = await queryTowns(cur.points, cur.distance);
+  const res = await queryTowns(cur.points, cur.distance, cur.kind);
   if (!res) { if (A === cur) $('placesNote').textContent = 'No se han podido consultar las poblaciones. Pulsa «Buscar de nuevo» en un rato.'; return; }
   const list = loadHistory(); const e = list.find(x => x.id === myId);
   if (e) { e.towns = res; saveHistory(list); }
@@ -2555,7 +2999,7 @@ function showActivity(a, isNew) {
   if (!history.state || history.state.v !== 'act') history.pushState({ v: 'act' }, '');
   stopAnim(); anim.f = 0;
   photos.forEach(p => URL.revokeObjectURL(p.url)); photos = [];
-  $('homeView').classList.remove('on'); $('histView').classList.remove('on'); $('actView').classList.add('on'); $('btnBack').hidden = false; $('btnHist').hidden = false;
+  $('homeView').classList.remove('on'); $('histView').classList.remove('on'); $('statsView').classList.remove('on'); $('actView').classList.add('on'); $('btnBack').hidden = false; $('btnHist').hidden = false;
   initMap();
   setTimeout(() => {
     map.invalidateSize();
@@ -2568,7 +3012,8 @@ function showActivity(a, isNew) {
     prof.cursor = null; $('tip').style.display = 'none';
     renderStats(); drawRoute(); drawMarkers(); renderPhotos(); fitRoute(); drawProfile();
     loadTowns(); loadPhotos();
-    if (isNew) toast('Caminata guardada en tu historial.');
+    if (isNew && !A.isTrip && !A.kindSet) openKindPicker(true);
+    else if (isNew) toast('Actividad guardada en tu historial.');
   }, 30);
 }
 function showHome() {
@@ -2593,7 +3038,7 @@ function handleBack() {
     if (A && !A.isTrip && A.tripId && loadTrips().some(x => x.id === A.tripId)) { showTrip(A.tripId); return; }
     showHome(); return;
   }
-  if ($('histView').classList.contains('on')) { renderHome(); return; }
+  if ($('histView').classList.contains('on') || $('statsView').classList.contains('on')) { renderHome(); return; }
   $('exitModal').classList.add('on');
 }
 if (NATIVE) {
@@ -2606,20 +3051,20 @@ window.addEventListener('popstate', () => {
   if ($('lightbox').classList.contains('on')) $('lightbox').classList.remove('on');
   if (pickState) closePick();
   closeMenu(); closeTripModal(); $('aboutModal').classList.remove('on');
-  if ($('actView').classList.contains('on')) { if (fromHist) showHist(); else renderHome(); }
+  if ($('actView').classList.contains('on')) { if (fromStats) showStats(); else if (fromHist) showHist(); else renderHome(); }
 });
 function renderHome() {
   if (placing) endPlacing();
   stopAnim();
-  fromHist = false;
-  $('actView').classList.remove('on'); $('histView').classList.remove('on'); $('homeView').classList.add('on'); $('btnBack').hidden = true;
+  fromHist = false; fromStats = false;
+  $('actView').classList.remove('on'); $('histView').classList.remove('on'); $('statsView').classList.remove('on'); $('homeView').classList.add('on'); $('btnBack').hidden = true;
   $('btnHist').hidden = !(loadHistory().length || loadTrips().length);
   window.scrollTo(0, 0);
   renderHistory();
 }
 
 // ---------- Eventos ----------
-// ---------- Health Connect: detectar caminatas nuevas ----------
+// ---------- Health Connect: detectar actividades nuevas ----------
 const HC_DAYS = 60;
 let hcState = { imported: [], dismissed: [] }, hcPending = [], hcLastCheck = 0;
 async function hcLoad() {
@@ -2662,23 +3107,24 @@ async function checkHealthNew(manual) {
   if (st.status !== 'ready') { if (manual) openHealthSetup(st.status); return; }
   let res;
   try { res = await NativeHealth.listSessions({ since: Date.now() - HC_DAYS * 86400000 }); }
-  catch (e) { console.error(e); if (manual) toast('No se han podido leer las caminatas de Health Connect.'); return; }
+  catch (e) { console.error(e); if (manual) toast('No se han podido leer las actividades de Health Connect.'); return; }
   const all = (res.sessions || []).filter(s => s.route !== 'no');
   const fresh = all.filter(s => !hcAlreadyHave(s));
   if (manual) {
-    if (!fresh.length) { toast(all.length ? 'Ya tienes en Senda todas las caminatas de Health Connect.' : 'No hay caminatas con recorrido en Health Connect de los últimos dos meses.', 5000); return; }
+    if (!fresh.length) { toast(all.length ? 'Ya tienes en Senda todas las actividades de Health Connect.' : 'No hay actividades con recorrido en Health Connect de los últimos dos meses.', 5000); return; }
     openHealthList(fresh);
     return;
   }
   hcPending = fresh.filter(s => !hcState.dismissed.includes(s.id));
   if (!hcPending.length) return;
   if (hcPending.length === 1) {
-    $('hcBarTitle').textContent = 'Nueva caminata detectada';
+    $('hcBarTitle').textContent = 'Nueva actividad detectada';
+    $('hcBarTitle').textContent = `${kindIcon(guessKind(hcPending[0].type))} Nueva actividad detectada`;
     $('hcBarText').textContent = hcWhen(hcPending[0]) + '. ¿La añades a Senda?';
     $('hcBarGo').textContent = 'Añadir';
     $('hcBarGo').onclick = () => { $('hcBar').hidden = true; importHealth([hcPending[0].id]); };
   } else {
-    $('hcBarTitle').textContent = `${hcPending.length} caminatas nuevas detectadas`;
+    $('hcBarTitle').textContent = `${hcPending.length} actividades nuevas detectadas`;
     $('hcBarText').textContent = 'Están en Health Connect y aún no las tienes en Senda.';
     $('hcBarGo').textContent = 'Ver';
     $('hcBarGo').onclick = () => { $('hcBar').hidden = true; openHealthList(hcPending); };
@@ -2686,7 +3132,7 @@ async function checkHealthNew(manual) {
   $('hcBarLater').onclick = () => {
     $('hcBar').hidden = true;
     hcState.dismissed.push(...hcPending.map(s => s.id)); hcSave();
-    toast('Vale. Puedes añadirlas cuando quieras desde el menú, en «Detectar caminatas».', 5000);
+    toast('Vale. Puedes añadirlas cuando quieras desde el menú, en «Detectar actividades».', 5000);
   };
   $('hcBar').hidden = false;
 }
@@ -2698,11 +3144,11 @@ function closeHealth() { $('hcModal').classList.remove('on'); }
 function openHealthSetup(status) {
   const info = $('hcInfo'); info.innerHTML = ''; $('hcList').innerHTML = ''; $('hcList').hidden = true;
   const p = txt => { const e = document.createElement('p'); e.textContent = txt; info.appendChild(e); };
-  $('hcTitle').textContent = 'Detectar caminatas';
+  $('hcTitle').textContent = 'Detectar actividades';
   if (status === 'not_installed' || status === 'update_required' || status === 'unavailable') {
-    p('Senda puede encontrar sola tus caminatas nuevas, sin exportarlas desde Zepp. Para eso usa Health Connect, la app de Android que comparte datos de salud entre aplicaciones.');
+    p('Senda puede encontrar sola tus actividades nuevas, sin exportarlas desde Zepp. Para eso usa Health Connect, la app de Android que comparte datos de salud entre aplicaciones.');
     p(status === 'update_required' ? 'Tienes Health Connect, pero hay que actualizarlo.' : 'No tienes Health Connect instalado en este móvil.');
-    hcButtons([['Cerrar', 'btn-line', closeHealth], [status === 'update_required' ? 'Actualizar Health Connect' : 'Instalar Health Connect', 'btn-main', async () => { closeHealth(); await NativeHealth.openInstall(); toast('Cuando lo tengas, vuelve a Senda y entra otra vez en «Detectar caminatas».', 6000); }]]);
+    hcButtons([['Cerrar', 'btn-line', closeHealth], [status === 'update_required' ? 'Actualizar Health Connect' : 'Instalar Health Connect', 'btn-main', async () => { closeHealth(); await NativeHealth.openInstall(); toast('Cuando lo tengas, vuelve a Senda y entra otra vez en «Detectar actividades».', 6000); }]]);
   } else if (status === 'no_permission') {
     p('Faltan dos cosas, solo esta vez:');
     const ol = document.createElement('ol');
@@ -2711,12 +3157,12 @@ function openHealthSetup(status) {
     hcButtons([['Cerrar', 'btn-line', closeHealth], ['Dar permiso', 'btn-main', async () => {
       try {
         const r = await NativeHealth.requestAccess();
-        if (r.granted) { closeHealth(); renderHistory(); toast('¡Conectado! Buscando caminatas…'); checkHealthNew(true); }
-        else toast('Sin ese permiso Senda no puede ver tus caminatas.', 5000);
+        if (r.granted) { closeHealth(); renderHistory(); toast('¡Conectado! Buscando actividades…'); checkHealthNew(true); }
+        else toast('Sin ese permiso Senda no puede ver tus actividades.', 5000);
       } catch (e) { console.error(e); toast('No se pudo pedir el permiso.'); }
     }]]);
   } else if (status === 'ready') {
-    p('Senda está conectada a Health Connect. Cada vez que la abras, te avisará si hay caminatas nuevas para añadir.');
+    p('Senda está conectada a Health Connect. Cada vez que la abras, te avisará si hay actividades nuevas para añadir.');
     hcButtons([['Cerrar', 'btn-line', closeHealth], ['Buscar ahora', 'btn-main', () => { closeHealth(); checkHealthNew(true); }]]);
   } else {
     p('Ahora mismo no se puede usar Health Connect. Vuelve a intentarlo en un rato.');
@@ -2725,9 +3171,9 @@ function openHealthSetup(status) {
   $('hcModal').classList.add('on');
 }
 function openHealthList(list) {
-  $('hcTitle').textContent = list.length === 1 ? 'Caminata nueva' : 'Caminatas nuevas';
+  $('hcTitle').textContent = list.length === 1 ? 'Actividad nueva' : 'Actividades nuevas';
   const info = $('hcInfo'); info.innerHTML = '';
-  const p = document.createElement('p'); p.textContent = 'Estas caminatas están en Health Connect y todavía no las tienes en Senda. Marca las que quieras añadir.'; info.appendChild(p);
+  const p = document.createElement('p'); p.textContent = 'Estas actividades están en Health Connect y todavía no las tienes en Senda. Marca las que quieras añadir y elige de qué tipo es cada una.'; info.appendChild(p);
   const box = $('hcList'); box.innerHTML = ''; box.hidden = false;
   for (const s of list) {
     const lab = document.createElement('label');
@@ -2735,12 +3181,16 @@ function openHealthList(list) {
     const st = document.createElement('strong'); st.textContent = s.title || s.type;
     const sub = document.createElement('span'); sub.className = 'sp-sub'; sub.textContent = hcWhen(s) + (hcOrigin(s.origin) ? `, de ${hcOrigin(s.origin)}` : '');
     const k = document.createElement('span'); k.className = 'sp-km'; k.textContent = '';
-    lab.append(cb, st, k, sub); box.appendChild(lab);
+    const sel = document.createElement('select'); sel.className = 'hc-kind'; sel.dataset.id = s.id; sel.setAttribute('aria-label', 'Tipo de actividad');
+    for (const kk of KIND_ORDER) { const o = document.createElement('option'); o.value = kk; o.textContent = `${kindIcon(kk)} ${kindName(kk)}`; sel.appendChild(o); }
+    sel.value = guessKind(s.type, s.distance, (s.end - s.start) / 1000);
+    lab.append(cb, st, k, sub, sel); box.appendChild(lab);
   }
   hcButtons([['Cancelar', 'btn-line', closeHealth], ['Añadir', 'btn-main', () => {
     const ids = [...box.querySelectorAll('input:checked')].map(i => i.value);
+    const kinds = {}; box.querySelectorAll('select.hc-kind').forEach(s => kinds[s.dataset.id] = s.value);
     closeHealth();
-    if (ids.length) importHealth(ids);
+    if (ids.length) importHealth(ids, kinds);
   }]]);
   $('hcModal').classList.add('on');
 }
@@ -2760,23 +3210,24 @@ function hcToActivity(d) {
   if (d.ascent != null && !points.some(q => q.ele != null)) session.ascent = Math.round(d.ascent);
   return { name: d.title || null, sport: d.type, device: hcOrigin(d.origin), points, session };
 }
-async function importHealth(ids) {
+async function importHealth(ids, kinds) {
   const done = []; let noRoute = 0, failed = 0;
-  toast(ids.length === 1 ? 'Añadiendo la caminata…' : `Añadiendo ${ids.length} caminatas…`, 8000);
+  toast(ids.length === 1 ? 'Añadiendo la actividad…' : `Añadiendo ${ids.length} actividades…`, 8000);
   for (const id of ids) {
     try {
       const d = await NativeHealth.readSession({ id });
       const act = hcToActivity(d);
       if (act.points.length < 2) { noRoute++; continue; }
       const a = analyze(act);
+      if (kinds && KINDS[kinds[id]]) { a.kind = kinds[id]; a.kindSet = true; }
       storeActivity(a);
       hcState.imported.push(id);
       done.push(a);
     } catch (e) { console.error(e); failed++; }
   }
   hcSave();
-  if (!done.length) { toast(noRoute ? 'Esa caminata no tiene recorrido GPS en Health Connect.' : 'No se ha podido añadir. Vuelve a intentarlo.', 5000); return; }
-  if (done.length === 1) showActivity(done[0], true); else { showHome(); toast(`${done.length} caminatas añadidas.`); }
+  if (!done.length) { toast(noRoute ? 'Esa actividad no tiene recorrido GPS en Health Connect.' : 'No se ha podido añadir. Vuelve a intentarlo.', 5000); return; }
+  if (done.length === 1) showActivity(done[0], true); else { showHome(); toast(`${done.length} actividades añadidas.`); }
   if (noRoute || failed) setTimeout(() => toast(`${noRoute + failed} no se pudieron añadir (sin recorrido GPS o con error).`, 5000), 2500);
   fetchTownsInBackground(done);
 }
@@ -2787,14 +3238,14 @@ async function renderHealthCard() {
   if (st.status === 'ready' || st.status === 'web' || st.status === 'error') return;
   if (!$('homeView').classList.contains('on') || document.getElementById('hcCard')) return;
   const c = document.createElement('div'); c.className = 'hc-card'; c.id = 'hcCard';
-  const h = document.createElement('h3'); h.textContent = 'Que Senda encuentre tus caminatas sola';
+  const h = document.createElement('h3'); h.textContent = 'Que Senda encuentre tus actividades sola';
   const p = document.createElement('p'); p.textContent = st.status === 'no_permission'
-    ? 'Ya tienes Health Connect. Falta conectarlo para que Senda te avise de cada caminata nueva, sin exportar nada desde Zepp.'
-    : 'Con Health Connect, Senda te avisará de cada caminata nueva sin exportarla desde Zepp. Necesitas instalarlo una vez.';
+    ? 'Ya tienes Health Connect. Falta conectarlo para que Senda te avise de cada actividad nueva, sin exportar nada desde Zepp.'
+    : 'Con Health Connect, Senda te avisará de cada actividad nueva sin exportarla desde Zepp. Necesitas instalarlo una vez.';
   const row = document.createElement('div'); row.className = 'row';
   const b1 = document.createElement('button'); b1.type = 'button'; b1.className = 'btn-main'; b1.textContent = 'Configurar'; b1.onclick = () => openHealthSetup(st.status);
   const b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'btn-line'; b2.textContent = 'No, gracias';
-  b2.onclick = () => { localStorage.setItem('senda.hc.card', 'off'); c.remove(); toast('Si cambias de idea, está en el menú: «Detectar caminatas».', 5000); };
+  b2.onclick = () => { localStorage.setItem('senda.hc.card', 'off'); c.remove(); toast('Si cambias de idea, está en el menú: «Detectar actividades».', 5000); };
   row.append(b1, b2); c.append(h, p, row);
   const list = $('homeList'); list.insertBefore(c, list.firstChild);
 }
@@ -2890,7 +3341,7 @@ async function driveBackup(manual) {
       const f = byName.get('foto-' + pid + '.jpg');
       if (f) { try { await gfetch(`${DRIVE_API}/${f.id}`, { method: 'DELETE' }); } catch {} }
     }
-    driveStatus('Guardando tus caminatas en Google Drive…');
+    driveStatus('Guardando tus actividades en Google Drive…');
     const data = JSON.stringify({ app: 'senda', version: 4, date: Date.now(), appVersion: APP_VERSION, caminatas: cams, viajes: trips, borrados: del });
     const nFotos = recs.length + (remote ? 0 : 0);
     await driveUpload('senda-datos.json', new Blob([data], { type: 'application/json' }), 'application/json',
@@ -2917,7 +3368,7 @@ async function driveRestore(found) {
   try {
     if (!found) found = await driveFindBackup();
     if (!found) { toast('No hay ninguna copia de Senda en esta cuenta de Google.'); return; }
-    driveStatus('Descargando tus caminatas…'); driveFoundProg('Descargando tus caminatas…');
+    driveStatus('Descargando tus actividades…'); driveFoundProg('Descargando tus actividades…');
     const data = await (await gfetch(`${DRIVE_API}/${found.file.id}?alt=media`)).json();
     const st = driveState(), del = st.del || {};
     const cams = driveMerge(loadHistory(), data.caminatas, del.cam);
@@ -2939,7 +3390,7 @@ async function driveRestore(found) {
     const s2 = driveState(); s2.connected = true; s2.dirty = false; s2.last = found.fecha || Date.now(); s2.restored = Date.now(); driveSave(s2);
     driveStatus(''); $('driveFound').classList.remove('on');
     renderHistory(); renderDriveModal();
-    { const nc = data.caminatas ? data.caminatas.length : 0; toast(`Copia recuperada: ${nc} ${nc === 1 ? 'caminata' : 'caminatas'}` + (ok ? ` y ${ok} ${ok === 1 ? 'foto' : 'fotos'}.` : '.'), 6000); }
+    { const nc = data.caminatas ? data.caminatas.length : 0; toast(`Copia recuperada: ${nc} ${nc === 1 ? 'actividad' : 'actividades'}` + (ok ? ` y ${ok} ${ok === 1 ? 'foto' : 'fotos'}.` : '.'), 6000); }
   } catch (e) {
     console.error(e); driveStatus(''); driveFoundProg('');
     toast('No se ha podido recuperar la copia. Revisa la conexión y vuelve a intentarlo.', 5000);
@@ -2948,7 +3399,7 @@ async function driveRestore(found) {
 function driveFoundProg(txt) { const el = $('driveFoundProg'); if (el) { el.textContent = txt; el.hidden = !txt; } }
 function showDriveFound(found) {
   const f = new Date(found.fecha);
-  $('driveFoundText').textContent = `Hay una copia de Senda en tu Google Drive del ${f.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })} a las ${f.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}, con ${found.caminatas} ${found.caminatas === 1 ? 'caminata' : 'caminatas'}` + (found.viajes ? `, ${found.viajes} ${found.viajes === 1 ? 'viaje' : 'viajes'}` : '') + (found.fotos ? ` y ${found.fotos} ${found.fotos === 1 ? 'foto' : 'fotos'}` : '') + '.';
+  $('driveFoundText').textContent = `Hay una copia de Senda en tu Google Drive del ${f.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })} a las ${f.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}, con ${found.caminatas} ${found.caminatas === 1 ? 'actividad' : 'actividades'}` + (found.viajes ? `, ${found.viajes} ${found.viajes === 1 ? 'viaje' : 'viajes'}` : '') + (found.fotos ? ` y ${found.fotos} ${found.fotos === 1 ? 'foto' : 'fotos'}` : '') + '.';
   driveFoundProg('');
   $('driveFoundGo').onclick = () => driveRestore(found);
   $('driveFound').classList.add('on');
@@ -2984,7 +3435,7 @@ function renderDriveModal() {
   const btn = (t, fn, main) => { const b = document.createElement('button'); b.type = 'button'; b.className = main ? 'btn-main' : 'btn-line'; b.textContent = t; b.onclick = fn; $('driveActions').appendChild(b); };
   $('driveActions').innerHTML = '';
   if (!s.connected) {
-    p('Guarda una copia automática de tus caminatas, viajes y fotos en tu cuenta de Google. Si cambias de móvil o lo formateas, al instalar Senda de nuevo la recuperas.');
+    p('Guarda una copia automática de tus actividades, viajes y fotos en tu cuenta de Google. Si cambias de móvil o lo formateas, al instalar Senda de nuevo la recuperas.');
     p('La copia va a una carpeta privada de Senda en tu Drive: no la verás entre tus archivos, pero ocupa algo de espacio de tu cuenta.').className = 'note';
     btn('Cerrar', () => $('driveModal').classList.remove('on'));
     btn('Conectar con Google', driveConnect, true);
@@ -3025,6 +3476,63 @@ $('btnDriveRestore').onclick = () => openDriveModal();
 // ---------- Vuelo 3D y vídeo ----------
 const V3 = { map: null, pts: null, total: 0, dur: 40, playing: false, raf: 0, t0: 0, s: 0, rec: null, bearing: 0, cam: null, photos: [], shown: new Set(), icon: null, busy: false };
 const V3_INTRO = 3, V3_OUTRO = 8, V3_PAUSE = 3;
+// Formatos del vídeo: tamaño del dibujo (w, h) y del vídeo grabado (rw, rh)
+const V3_FMTS = { v: { w: 1080, h: 1920, rw: 720, rh: 1280 }, h: { w: 1920, h: 1080, rw: 1280, rh: 720 }, s: { w: 1080, h: 1080, rw: 960, rh: 960 } };
+V3.fmt = (() => { try { const f = localStorage.getItem('senda.v3fmt'); return V3_FMTS[f] ? f : 'v'; } catch { return 'v'; } })();
+function v3PixelRatio() {
+  const w = $('v3frame').clientWidth || 300;
+  return Math.min(4, Math.max(Math.min(2, window.devicePixelRatio || 1), V3_FMTS[V3.fmt].rw / w));
+}
+function v3SetFmt(f) {
+  V3.fmt = V3_FMTS[f] ? f : 'v';
+  try { localStorage.setItem('senda.v3fmt', V3.fmt); } catch {}
+  $('v3frame').className = 'v3frame fmt-' + V3.fmt;
+  document.querySelectorAll('#v3fmts button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.fmt === V3.fmt)));
+  if (V3.map) {
+    V3.map.resize();
+    if (V3.map.setPixelRatio) V3.map.setPixelRatio(v3PixelRatio());
+    v3SizeOverlay();
+    if (V3.pts && !V3.playing && V3.ready) { V3.ov = v3Overview(); V3.map.jumpTo(V3.ov); v3DrawOverlay(1.5, null); }
+  }
+}
+// Música: una canción del móvil que suena en el vuelo y se graba en el vídeo
+let v3Ctx = null;
+function v3Audio() { if (!v3Ctx) v3Ctx = new (window.AudioContext || window.webkitAudioContext)(); return v3Ctx; }
+function v3MusicLabel() {
+  $('v3musicName').textContent = V3.music ? V3.music.name : 'Sin música';
+  $('v3musicOff').hidden = !V3.music;
+  $('v3musicPick').textContent = V3.music ? 'Cambiar' : 'Elegir canción';
+}
+async function v3PickMusic(file) {
+  if (!file) return;
+  $('v3musicName').textContent = 'Cargando la canción…';
+  try {
+    const buf = await v3Audio().decodeAudioData(await file.arrayBuffer());
+    V3.music = { name: file.name.replace(/\.[^.]+$/, ''), buf };
+  } catch (e) { console.error(e); V3.music = null; toast('No se ha podido leer esa canción. Prueba con un MP3.'); }
+  v3MusicLabel();
+}
+function v3MusicStart(toRecord) {
+  v3MusicStop();
+  if (!V3.music) return null;
+  const ctx = v3Audio(); if (ctx.resume) ctx.resume();
+  const src = ctx.createBufferSource(); src.buffer = V3.music.buf; src.loop = true;
+  const gain = ctx.createGain(); const t0 = ctx.currentTime, L = V3.len || V3.dur;
+  gain.gain.setValueAtTime(0, t0); gain.gain.linearRampToValueAtTime(0.9, t0 + 1.2);
+  gain.gain.setValueAtTime(0.9, t0 + Math.max(1.3, L - 3)); gain.gain.linearRampToValueAtTime(0, t0 + L);
+  src.connect(gain); gain.connect(ctx.destination);
+  let dest = null;
+  if (toRecord && ctx.createMediaStreamDestination) { dest = ctx.createMediaStreamDestination(); gain.connect(dest); }
+  src.start();
+  V3.audio = { src, gain };
+  return dest;
+}
+function v3MusicStop() {
+  if (!V3.audio) return;
+  try { V3.audio.src.stop(); } catch {}
+  try { V3.audio.gain.disconnect(); } catch {}
+  V3.audio = null;
+}
 function v3Load() {
   if (window.maplibregl) return Promise.resolve();
   return new Promise((res, rej) => {
@@ -3080,7 +3588,8 @@ function v3Overview() {
   const P = V3.pts; let a = 90, b = -90, c = 180, d = -180;
   for (const q of P) { a = Math.min(a, q.lat); b = Math.max(b, q.lat); c = Math.min(c, q.lon); d = Math.max(d, q.lon); }
   const br = V3.cam === 'fixed' ? 0 : V3.bearing0;
-  const cam = V3.map.cameraForBounds([[c, a], [d, b]], { padding: { top: 120, bottom: 200, left: 50, right: 50 }, pitch: 40, bearing: br });
+  const el = $('map3d'), fw = el.clientWidth || 330, fh = el.clientHeight || 590;
+  const cam = V3.map.cameraForBounds([[c, a], [d, b]], { padding: { top: fh * 0.2, bottom: fh * 0.3, left: fw * 0.12, right: fw * 0.12 }, pitch: 40, bearing: br });
   return { center: cam.center, zoom: Math.min(16, cam.zoom), pitch: 40, bearing: br };
 }
 const V3_ZOOMS = { near: 0.9, mid: 0, far: -1.4 };
@@ -3165,25 +3674,25 @@ function v3Lines(g, text, maxW, maxLines) {
 function v3DrawOverlay(s, st) {
   const c = $('v3over'), g = c.getContext('2d');
   const W = c.width, H = c.height; g.clearRect(0, 0, W, H);
-  g.save(); g.scale(W / 1080, H / 1920);
+  const F = V3_FMTS[V3.fmt] || V3_FMTS.v, LW = F.w, LH = F.h, tall = LH > LW;
+  g.save(); g.scale(W / LW, H / LH);
   const D = V3.len || V3.dur;
-  const title = A.isTrip ? A.name : titleFor(A.name, A.start, A.sport, A.title);
-  // marca de agua: Senda + DanLab
+  const title = A.isTrip ? A.name : titleFor(A.name, A.start, A.kind || A.sport, A.title);
   g.globalAlpha = 0.92;
   // portada
   const inA = Math.min(1, s / 0.6) * (1 - v3Ease((s - V3_INTRO + 0.4) / 0.8));
   if (inA > 0.01) {
     g.globalAlpha = inA;
-    const grad = g.createLinearGradient(0, 1050, 0, 1920); grad.addColorStop(0, 'rgba(20,28,27,0)'); grad.addColorStop(1, 'rgba(20,28,27,.88)');
-    g.fillStyle = grad; g.fillRect(0, 1050, 1080, 870);
+    const grad = g.createLinearGradient(0, LH - 870, 0, LH); grad.addColorStop(0, 'rgba(20,28,27,0)'); grad.addColorStop(1, 'rgba(20,28,27,.88)');
+    g.fillStyle = grad; g.fillRect(0, LH - 870, LW, 870);
     g.fillStyle = '#fff'; g.font = '700 84px "Barlow Semi Condensed", "Arial Narrow", sans-serif'; g.textBaseline = 'alphabetic';
-    const tl = v3Lines(g, title, 980, 2);
-    tl.forEach((l, i) => g.fillText(l, 50, 1540 - (tl.length - 1 - i) * 88));
+    const tl = v3Lines(g, title, Math.min(LW - 100, 1500), 2);
+    tl.forEach((l, i) => g.fillText(l, 50, LH - 380 - (tl.length - 1 - i) * 88));
     g.font = '500 40px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.9)';
-    let sub = A.isTrip ? `${A.stages.length} etapas` : fmtDate(A.start);
+    let sub = A.isTrip ? `${A.stages.length} etapas` : `${kindIcon(A.kind)} ${fmtDate(A.start)}`;
     const nt = !A.isTrip ? nearestTown(towns) : null; if (nt) sub += `, ${nt.name}`;
-    g.fillText(sub, 50, 1600);
-    g.fillStyle = '#C8102E'; g.fillRect(50, 1632, 140, 10); g.fillStyle = '#fff'; g.fillRect(200, 1632, 140, 10);
+    g.fillText(sub, 50, LH - 320);
+    g.fillStyle = '#C8102E'; g.fillRect(50, LH - 288, 140, 10); g.fillStyle = '#fff'; g.fillRect(200, LH - 288, 140, 10);
     g.globalAlpha = 1;
   }
   // datos en vuelo
@@ -3194,7 +3703,8 @@ function v3DrawOverlay(s, st) {
     const pt = V3.pts[st.here.idx] || V3.pts[0];
     const stage = A.isTrip ? (pt.stage || 0) : null;
     const row2 = tw || stage != null;
-    g.fillStyle = 'rgba(20,28,27,.72)'; g.beginPath(); g.roundRect ? g.roundRect(40, 80, 1000, row2 ? 180 : 120, 22) : g.rect(40, 80, 1000, row2 ? 180 : 120); g.fill();
+    const BW = 1000, sp = 245;
+    g.fillStyle = 'rgba(20,28,27,.72)'; g.beginPath(); g.roundRect ? g.roundRect(40, 80, BW, row2 ? 180 : 120, 22) : g.rect(40, 80, BW, row2 ? 180 : 120); g.fill();
     // cuatro datos: distancia, altitud, velocidad y tiempo
     const t0 = A.isTrip ? (V3.stageT[stage] ?? V3.pts[0].t) : V3.pts[0].t;
     const secs = pt.t && t0 ? Math.max(0, (pt.t - t0) / 1000) : null;
@@ -3206,7 +3716,7 @@ function v3DrawOverlay(s, st) {
     ];
     g.textBaseline = 'alphabetic';
     vals.forEach(([v, u], i) => {
-      const x0 = 66 + i * 245;
+      const x0 = 66 + i * sp;
       g.fillStyle = '#fff'; g.font = '700 56px "Barlow Semi Condensed", sans-serif'; g.fillText(v, x0, 160);
       const w = g.measureText(v).width; g.font = '600 26px "Barlow Semi Condensed", sans-serif'; g.fillStyle = 'rgba(255,255,255,.8)'; g.fillText(u, x0 + w + 6, 160);
     });
@@ -3223,7 +3733,7 @@ function v3DrawOverlay(s, st) {
       if (tw) {
         g.fillStyle = '#F2B705'; g.beginPath(); g.arc(x + 14, 222, 11, Math.PI, 0); g.lineTo(x + 14, 246); g.closePath(); g.fill();
         g.fillStyle = '#fff'; g.font = '600 40px "Barlow Semi Condensed", sans-serif';
-        g.fillText(v3Lines(g, tw.name, 940 - x, 1)[0], x + 36, 245);
+        g.fillText(v3Lines(g, tw.name, BW - 60 - x, 1)[0], x + 36, 245);
       }
     }
     g.globalAlpha = 1;
@@ -3233,8 +3743,9 @@ function v3DrawOverlay(s, st) {
       if (ph && ph.img) {
         const t = st.pt, al = Math.min(1, t / 0.35) * Math.min(1, (V3_PAUSE - t) / 0.35);
         g.globalAlpha = al;
-        const iw = ph.img.naturalWidth, ih = ph.img.naturalHeight, maxW = 780, maxH = 900, k = Math.min(maxW / iw, maxH / ih);
-        const w = iw * k, h = ih * k, x0 = (1080 - w) / 2, y0 = 560 - h / 2 + 200;
+        const maxW = Math.min(780, LW - 160), maxH = tall ? 900 : LH - 600, cy = tall ? 760 : LH / 2 + 20;
+        const iw = ph.img.naturalWidth, ih = ph.img.naturalHeight, k = Math.min(maxW / iw, maxH / ih);
+        const w = iw * k, h = ih * k, x0 = (LW - w) / 2, y0 = cy - h / 2;
         g.fillStyle = '#fff'; g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 30; g.fillRect(x0 - 16, y0 - 16, w + 32, h + 70); g.shadowBlur = 0;
         g.drawImage(ph.img, x0, y0, w, h);
         if (ph.time) { g.fillStyle = '#333'; g.font = '500 30px Barlow, sans-serif'; g.fillText(fmtHour(ph.time), x0, y0 + h + 42); }
@@ -3246,29 +3757,33 @@ function v3DrawOverlay(s, st) {
   const outA = v3Ease((s - (D - 3.2)) / 0.8);
   if (outA > 0.01) {
     g.globalAlpha = outA;
-    g.fillStyle = 'rgba(244,239,227,.96)'; g.beginPath(); g.roundRect ? g.roundRect(40, 1110, 1000, 540, 30) : g.rect(40, 1110, 1000, 540); g.fill();
+    const X0 = (LW - 1000) / 2, Y0 = LH - 810, dx = X0 - 40;
+    g.fillStyle = 'rgba(244,239,227,.96)'; g.beginPath(); g.roundRect ? g.roundRect(X0, Y0, 1000, 540, 30) : g.rect(X0, Y0, 1000, 540); g.fill();
     g.fillStyle = '#1E2B2A'; g.font = '700 64px "Barlow Semi Condensed", "Arial Narrow", sans-serif'; g.textBaseline = 'alphabetic';
-    g.fillText(v3Lines(g, title, 920, 1)[0], 80, 1200);
-    g.fillStyle = '#5C6B69'; g.font = '500 32px Barlow, sans-serif'; g.fillText(A.isTrip ? `${A.stages.length} etapas` : fmtDate(A.start), 80, 1250);
+    g.fillText(v3Lines(g, title, 920, 1)[0], 80 + dx, Y0 + 90);
+    const C = A.isTrip ? caminoInfo(A) : null;
+    g.fillStyle = '#5C6B69'; g.font = '500 32px Barlow, sans-serif';
+    g.fillText(A.isTrip ? `${A.stages.length} etapas` + (C ? (C.arrived ? ' · ¡Llegada a Santiago!' : C.remaining != null ? ` · quedan ${fmtKm(C.remaining * 1000)} km a Santiago` : '') : '') : `${kindIcon(A.kind)} ${kindName(A.kind)}, ${fmtDate(A.start)}`, 80 + dx, Y0 + 140);
     const h = Math.floor(A.elapsed / 3600), m = Math.round(A.elapsed % 3600 / 60);
     const time = A.isTrip || A.elapsed >= 3600 ? [`${h}:${String(m).padStart(2, '0')}`, 'h'] : [fmtClock(A.elapsed), 'min'];
-    const pw = 445, gap = 30, py = 1290, ph = 128;
-    plate(g, 80, py, pw, ph, '#C8102E', '#fff', 'Distancia', fmtKm(A.distance), 'km');
-    plate(g, 80 + pw + gap, py, pw, ph, '#F2B705', '#1E2B2A', 'Tiempo', time[0], time[1]);
-    plate(g, 80, py + ph + 24, pw, ph, '#1E2B2A', '#F4EFE3', 'Desnivel', fmtDesnivel(A), 'm');
-    plate(g, 80 + pw + gap, py + ph + 24, pw, ph, '#0B5F6A', '#fff', 'Velocidad', fmtDec(avgSpeed(A)), 'km/h');
+    const pw = 445, gap = 30, py = Y0 + 180, ph = 128;
+    const spd = speedPlate(A);
+    plate(g, 80 + dx, py, pw, ph, '#C8102E', '#fff', 'Distancia', fmtKm(A.distance), 'km');
+    plate(g, 80 + dx + pw + gap, py, pw, ph, '#F2B705', '#1E2B2A', 'Tiempo', time[0], time[1]);
+    plate(g, 80 + dx, py + ph + 24, pw, ph, '#1E2B2A', '#F4EFE3', 'Desnivel', fmtDesnivel(A), 'm');
+    plate(g, 80 + dx + pw + gap, py + ph + 24, pw, ph, '#0B5F6A', '#fff', spd[0], spd[1], spd[2]);
     g.globalAlpha = 1;
   }
   // marca de agua: Senda + DanLab, siempre encima
   g.save(); g.textBaseline = 'middle';
-  const WY = 1730;
+  const WY = LH - 190;
   if (V3.icon) { g.save(); g.beginPath(); g.roundRect ? g.roundRect(48, WY - 32, 64, 64, 15) : g.rect(48, WY - 32, 64, 64); g.clip(); g.drawImage(V3.icon, 48, WY - 32, 64, 64); g.restore(); }
   g.fillStyle = '#fff'; g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 10;
   g.font = '700 40px "Barlow Semi Condensed", sans-serif'; g.textBaseline = 'middle'; g.fillText('Senda', 126, WY + 2);
-  g.textAlign = 'right'; g.font = '600 32px Barlow, sans-serif'; g.fillText('DanLab', 1032, WY + 2);
+  g.textAlign = 'right'; g.font = '600 32px Barlow, sans-serif'; g.fillText('DanLab', LW - 48, WY + 2);
   const dw = g.measureText('DanLab').width; g.textAlign = 'left';
-  drawDanlab(g, 1032 - dw - 56, WY - 22, 44, '#fff');
-  g.font = '500 22px Barlow, sans-serif'; g.globalAlpha = 0.8; g.fillText('Imágenes © Esri · Relieve © Mapzen / AWS', 48, 1890);
+  drawDanlab(g, LW - 48 - dw - 56, WY - 22, 44, '#fff');
+  g.font = '500 22px Barlow, sans-serif'; g.globalAlpha = 0.8; g.fillText('Imágenes © Esri · Relieve © Mapzen / AWS', 48, LH - 30);
   g.shadowBlur = 0; g.globalAlpha = 1;
   g.restore();
   g.restore();
@@ -3298,6 +3813,7 @@ function v3Start() {
   v3Plan();
   V3.outB = null;
   V3.ov = v3Overview(); V3.bearing = V3.ov.bearing; V3.shown = new Set(); V3.photos.forEach(p => p.at = null);
+  if (!V3.rec) v3MusicStart(false);
   V3.playing = true; V3.last = 0; V3.t0 = performance.now();
   $('v3play').textContent = 'Parar';
   V3.raf = requestAnimationFrame(v3Frame);
@@ -3307,9 +3823,9 @@ function v3Stop(finished) {
   $('v3play').textContent = 'Ver el vuelo';
   if (V3.rec) {
     const r = V3.rec;
-    if (finished) { setTimeout(() => { try { r.mr.stop(); } catch {} }, 250); }
-    else { r.cancelled = true; try { r.mr.stop(); } catch {} }
-  }
+    if (finished) { setTimeout(() => { try { r.mr.stop(); } catch {} v3MusicStop(); }, 250); }
+    else { r.cancelled = true; try { r.mr.stop(); } catch {} v3MusicStop(); }
+  } else v3MusicStop();
 }
 async function v3Preload() {
   // recorre la ruta antes de grabar para que el mapa y el relieve estén ya cargados
@@ -3328,8 +3844,11 @@ async function v3Preload() {
   }
   return true;
 }
-function v3Mime() {
-  for (const m of ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']) {
+function v3Mime(audio) {
+  const list = audio
+    ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4;codecs=avc1.42E01E,opus', 'video/mp4;codecs=avc1,opus', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/mp4', 'video/webm']
+    : ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+  for (const m of list) {
     if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) return m;
   }
   return '';
@@ -3342,10 +3861,16 @@ async function v3Record() {
   $('v3status').hidden = false;
   const ok = await v3Preload();
   if (!ok) { V3.busy = false; v3Buttons(true); return; }
-  const c = document.createElement('canvas'); c.width = 720; c.height = 1280;
-  const mime = v3Mime();
-  const stream = c.captureStream(30);
-  const mr = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 5000000 } : { videoBitsPerSecond: 5000000 });
+  const F = V3_FMTS[V3.fmt] || V3_FMTS.v;
+  const c = document.createElement('canvas'); c.width = F.rw; c.height = F.rh;
+  v3Plan();
+  const dest = V3.music ? v3MusicStart(true) : null;
+  const audioTracks = dest ? dest.stream.getAudioTracks() : [];
+  const mime = v3Mime(audioTracks.length > 0);
+  const stream = new MediaStream([...c.captureStream(30).getVideoTracks(), ...audioTracks]);
+  let mr;
+  try { mr = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 5000000 } : { videoBitsPerSecond: 5000000 }); }
+  catch (e) { console.error(e); v3MusicStop(); V3.busy = false; v3Buttons(true); $('v3status').hidden = true; toast('No se ha podido empezar a grabar el vídeo.'); return; }
   const chunks = [];
   V3.rec = { canvas: c, mr, cancelled: false };
   mr.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
@@ -3362,13 +3887,13 @@ async function v3Record() {
   mr.start(1000);
   v3Start();
 }
-function v3Buttons(on) { $('v3play').disabled = !on; $('v3rec').disabled = !on; $('v3dur').disabled = !on; document.querySelectorAll('#v3cams button, #v3zooms button').forEach(b => b.disabled = !on); }
+function v3Buttons(on) { $('v3play').disabled = !on; $('v3rec').disabled = !on; $('v3dur').disabled = !on; $('v3musicPick').disabled = !on; $('v3musicOff').disabled = !on; document.querySelectorAll('#v3cams button, #v3zooms button, #v3fmts button').forEach(b => b.disabled = !on); }
 let v3Blob = null;
 function v3ShowResult(blob) {
   v3Blob = blob;
   const v = $('v3video'); v.src = URL.createObjectURL(blob);
   $('v3result').classList.add('on');
-  $('v3resInfo').textContent = `Vídeo de ${Math.round(V3.len)} segundos (${(blob.size / 1048576).toLocaleString('es-ES', { maximumFractionDigits: 1 })} MB).` + (/webm/.test(blob.type) ? ' Está en formato WebM: algunas apps, como WhatsApp, puede que no lo acepten.' : '');
+  $('v3resInfo').textContent = `Vídeo de ${Math.round(V3.len)} segundos (${(blob.size / 1048576).toLocaleString('es-ES', { maximumFractionDigits: 1 })} MB).` + (/webm/.test(blob.type) ? ' Está en formato WebM: algunas apps, como WhatsApp, puede que no lo acepten.' : '') + (V3.music ? ' Si lo subes a Instagram o YouTube, usa música propia o libre: pueden silenciar canciones con derechos.' : '');
 }
 async function v3ShareVideo() {
   if (!v3Blob) return;
@@ -3399,7 +3924,7 @@ async function v3ShareVideo() {
   }
 }
 function v3CloseResult() { $('v3result').classList.remove('on'); const v = $('v3video'); if (v.src) { URL.revokeObjectURL(v.src); v.removeAttribute('src'); } v3Blob = null; }
-// Antes del vuelo, busca los pueblos de las caminatas que todavía no los tengan
+// Antes del vuelo, busca los pueblos de las actividades que todavía no los tengan
 async function v3EnsureTowns() {
   const cur = A;
   const saveTowns = (id, res) => { const l = loadHistory(); const e = l.find(x => x.id === id); if (e) { e.towns = res; saveHistory(l); } };
@@ -3409,13 +3934,13 @@ async function v3EnsureTowns() {
       if (!$('view3d').classList.contains('on')) return;
       $('v3status').textContent = `Buscando los pueblos del recorrido… ${i + 1} de ${missing.length}`;
       const s = missing[i];
-      const res = await queryTowns(s.points, s.distance);
+      const res = await queryTowns(s.points, s.distance, s.kind);
       if (res) { s.cachedTowns = res; saveTowns(s.id, res); }
     }
     if (missing.length && A === cur) loadTowns();
   } else if (!cur.cachedTowns) {
     $('v3status').textContent = 'Buscando los pueblos del recorrido…';
-    const res = await queryTowns(cur.points, cur.distance);
+    const res = await queryTowns(cur.points, cur.distance, cur.kind);
     if (res) { cur.cachedTowns = res; saveTowns(cur.id, res); if (A === cur) { towns = res.slice(0, 15); renderTowns(); } }
   }
   $('v3status').textContent = 'Cargando el mapa 3D…';
@@ -3434,7 +3959,8 @@ async function open3D() {
   if (!V3.icon) loadImg('icon-senda-192.png').then(i => V3.icon = i).catch(() => {});
   for (const ph of V3.photos) loadImg(ph.url).then(i => ph.img = i).catch(() => {});
   const frame = $('v3frame');
-  const ratio = Math.min(2, window.devicePixelRatio || 1);
+  v3SetFmt(V3.fmt);
+  const ratio = v3PixelRatio();
   if (V3.map) { V3.map.remove(); V3.map = null; }
   const map = new maplibregl.Map({
     container: 'map3d', preserveDrawingBuffer: true, pixelRatio: ratio, maxPitch: 75, attributionControl: { compact: true },
@@ -3454,8 +3980,9 @@ async function open3D() {
     },
     center: [V3.pts[0].lon, V3.pts[0].lat], zoom: 13, pitch: 40
   });
-  V3.map = map;
+  V3.map = map; V3.ready = false;
   map.on('load', () => {
+    V3.ready = true;
     const all = V3.pts.map(q => [q.lon, q.lat]);
     map.addSource('all', { type: 'geojson', data: v3Segments(Infinity, true) });
     map.addSource('done', { type: 'geojson', data: v3Segments(-1, false) });
@@ -3584,6 +4111,7 @@ function v3SizeOverlay() {
 }
 function close3D() {
   if (V3.rec) v3Stop(false);
+  v3MusicStop();
   V3.playing = false; cancelAnimationFrame(V3.raf);
   $('view3d').classList.remove('on'); $('view3d').setAttribute('aria-hidden', 'true');
   if (V3.map) { V3.map.remove(); V3.map = null; }
@@ -3598,6 +4126,11 @@ document.querySelectorAll('#v3zooms button').forEach(b => b.onclick = () => { if
 v3SetZoom(V3.zoom);
 $('v3play').onclick = () => V3.playing ? v3Stop(false) : v3Start();
 $('v3rec').onclick = v3Record;
+document.querySelectorAll('#v3fmts button').forEach(b => b.onclick = () => { if (!V3.busy && !V3.playing) v3SetFmt(b.dataset.fmt); });
+v3SetFmt(V3.fmt);
+$('v3musicPick').onclick = () => { try { v3Audio(); } catch {} $('musicInput').click(); };
+$('musicInput').onchange = e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; v3PickMusic(f); };
+$('v3musicOff').onclick = () => { v3MusicStop(); V3.music = null; v3MusicLabel(); };
 function v3DurLabel() {
   const n = V3.photos ? V3.photos.length : 0;
   $('v3durTxt').textContent = v3FmtSecs(V3.dur) + (n ? ` + ${n * V3_PAUSE} s fotos` : '');
@@ -3683,7 +4216,7 @@ async function buildShareImage(onProgress) {
   g.fillStyle = grad; g.fillRect(0, MH - 120, W, 120);
   g.fillStyle = '#F4EFE3'; g.fillRect(0, MH, W, H - MH);
   // título y fecha
-  const title = A.isTrip ? A.name : titleFor(A.name, A.start, A.sport, A.title);
+  const title = A.isTrip ? A.name : titleFor(A.name, A.start, A.kind || A.sport, A.title);
   g.fillStyle = '#1E2B2A'; g.font = '700 64px "Barlow Semi Condensed", "Arial Narrow", sans-serif';
   let tt = title; while (g.measureText(tt).width > W - 120 && tt.length > 4) tt = tt.slice(0, -2);
   if (tt !== title) tt = tt.trim() + '…';
@@ -3767,7 +4300,7 @@ async function doShare() {
       const data = await blobToB64(shareBlob);
       await NativeFS.writeFile({ path: name, data, directory: 'CACHE' });
       const { uri } = await NativeFS.getUri({ path: name, directory: 'CACHE' });
-      await NativeShare.share({ files: [uri], dialogTitle: 'Compartir la caminata' });
+      await NativeShare.share({ files: [uri], dialogTitle: 'Compartir la actividad' });
       return;
     }
     const file = new File([shareBlob], name, { type: 'image/png' });
@@ -3788,7 +4321,7 @@ function closeShare() {
 async function showMapsInfo() {
   const s = await tileStats();
   const mb = (s.bytes / 1048576).toLocaleString('es-ES', { maximumFractionDigits: 0 });
-  if (!s.n) { toast('Todavía no hay mapas guardados. Se guardan solos al ver tus caminatas con conexión.', 6000); return; }
+  if (!s.n) { toast('Todavía no hay mapas guardados. Se guardan solos al ver tus actividades con conexión.', 6000); return; }
   if (confirm(`Senda guarda los trozos de mapa que ves para poder enseñártelos sin conexión. Ahora ocupan ${mb} MB.\n\n¿Quieres borrarlos para liberar espacio? Se volverán a descargar cuando los veas con conexión.`)) {
     await tileClear(); toast('Mapas guardados borrados.');
   }
@@ -3823,12 +4356,13 @@ $('drawer').addEventListener('click', e => {
   closeMenu();
   const act = b.dataset.act;
   if (act === 'home') { fromHist = false; if ($('histView').classList.contains('on')) renderHome(); else showHome(); }
+  if (act === 'stats') { if ($('actView').classList.contains('on') && history.state && history.state.v === 'act') { fromStats = true; history.back(); } else showStats(); }
   if (act === 'hist') { if ($('actView').classList.contains('on') && history.state && history.state.v === 'act') { fromHist = true; history.back(); } else showHist(); }
   if (act === 'add') { pendingTripId = null; $('fileInput').click(); }
   if (act === 'trip') openTripModal();
   if (act === 'drive') openDriveModal();
   if (act === 'coffee') $('coffeeModal').classList.add('on');
-  if (act === 'backup' || act === 'backupPhotos') { if (loadHistory().length) exportBackup(act === 'backupPhotos'); else toast('Todavía no hay caminatas que copiar.'); }
+  if (act === 'backup' || act === 'backupPhotos') { if (loadHistory().length) exportBackup(act === 'backupPhotos'); else toast('Todavía no hay actividades que copiar.'); }
   if (act === 'restore') $('backupInput').click();
   if (act === 'about') $('aboutModal').classList.add('on');
   if (act === 'maps') showMapsInfo();
@@ -3923,9 +4457,19 @@ $('tripModalName').onkeydown = e => { if (e.key === 'Enter') confirmTripModal();
 $('tripModal').addEventListener('click', e => { if (e.target.id === 'tripModal') closeTripModal(); });
 $('btnFirst').onclick = () => { pendingTripId = null; $('fileInput').click(); };
 $('btnTownsAgain').onclick = refreshTowns;
-$('btnBrand').onclick = () => { fromHist = false; if ($('histView').classList.contains('on')) renderHome(); else showHome(); };
-$('btnBack').onclick = () => { fromHist = false; if ($('histView').classList.contains('on')) renderHome(); else showHome(); };
-$('btnHist').onclick = () => { if ($('actView').classList.contains('on') && history.state && history.state.v === 'act') { fromHist = true; history.back(); } else showHist(); };
+$('btnBrand').onclick = () => { fromHist = false; fromStats = false; if ($('histView').classList.contains('on') || $('statsView').classList.contains('on')) renderHome(); else showHome(); };
+$('btnBack').onclick = () => { fromHist = false; fromStats = false; if ($('histView').classList.contains('on') || $('statsView').classList.contains('on')) renderHome(); else showHome(); };
+$('btnHist').onclick = () => { if ($('actView').classList.contains('on') && history.state && history.state.v === 'act') { fromHist = true; fromStats = false; history.back(); } else showHist(); };
+$('btnStatsHome').onclick = showStats;
+$('kindChip').onclick = () => openKindPicker(false);
+$('kindModal').addEventListener('click', e => { if (e.target.id === 'kindModal') $('kindModal').classList.remove('on'); });
+document.querySelectorAll('#statsMetric button').forEach(b => b.onclick = () => { ST.metric = b.dataset.m; renderStatsView(); });
+$('btnCamino').onclick = () => openCaminoModal();
+$('caminoEdit').onclick = () => openCaminoModal();
+$('caminoCancel').onclick = () => $('caminoModal').classList.remove('on');
+$('caminoOff').onclick = () => saveCamino(false);
+$('caminoOk').onclick = () => saveCamino(true);
+$('caminoPreset').onchange = () => { const p = CAMINOS.find(x => x.id === $('caminoPreset').value); if (p && p.km) $('caminoKm').value = p.km; };
 $('btnHistHome').onclick = showHist;
 document.querySelectorAll('#histSort button').forEach(b => b.onclick = () => setHistSort(b.dataset.sort));
 setHistSort(histSort);
@@ -3934,13 +4478,13 @@ $('tripSelect').onchange = changeTrip;
 $('tripNewOk').onclick = confirmNewTrip;
 $('tripNewName').onkeydown = e => { if (e.key === 'Enter') confirmNewTrip(); if (e.key === 'Escape') renderTripBar(); };
 $('btnAddStage').onclick = () => { pendingTripId = A.trip.id; $('fileInput').click(); };
-// Añadir a un viaje caminatas que ya estaban guardadas
+// Añadir a un viaje actividades que ya estaban guardadas
 function openStagePick() {
   const tripId = A.trip.id;
   const trips = loadTrips();
   const tripIds = new Set(trips.map(x => x.id));
   const list = loadHistory().filter(e => e.tripId !== tripId).sort((x, y) => (y.pts[0][3] || 0) - (x.pts[0][3] || 0));
-  if (!list.length) { toast('No tienes otras caminatas guardadas. Usa «Añadir etapa» para abrir un archivo.', 5000); return; }
+  if (!list.length) { toast('No tienes otras actividades guardadas. Usa «Añadir etapa» para abrir un archivo.', 5000); return; }
   const box = $('stagePickList'); box.innerHTML = '';
   const loose = list.filter(e => !e.tripId || !tripIds.has(e.tripId));
   const other = list.filter(e => e.tripId && tripIds.has(e.tripId));
@@ -3948,7 +4492,7 @@ function openStagePick() {
     const lab = document.createElement('label');
     const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = e.id;
     cb.onchange = () => { const n = box.querySelectorAll('input:checked').length; $('stagePickOk').disabled = !n; $('stagePickOk').textContent = n ? `Añadir ${n}` : 'Añadir'; };
-    const st = document.createElement('strong'); st.textContent = titleFor(e.name, e.pts[0][3], e.sport, e.title);
+    const st = document.createElement('strong'); st.textContent = titleFor(e.name, e.pts[0][3], kindOf(e), e.title);
     const km = document.createElement('span'); km.className = 'sp-km'; km.textContent = fmtKm(e.session.distance) + ' km';
     const sub = document.createElement('span'); sub.className = 'sp-sub';
     const tr = e.tripId && trips.find(x => x.id === e.tripId);
@@ -3957,9 +4501,9 @@ function openStagePick() {
     return lab;
   };
   const group = txt => { const d = document.createElement('div'); d.className = 'sp-group'; d.textContent = txt; return d; };
-  if (loose.length) { if (other.length) box.appendChild(group('Caminatas sueltas')); loose.forEach(e => box.appendChild(row(e))); }
+  if (loose.length) { if (other.length) box.appendChild(group('Actividades sueltas')); loose.forEach(e => box.appendChild(row(e))); }
   if (other.length) { box.appendChild(group('En otros viajes (se moverán a este)')); other.forEach(e => box.appendChild(row(e))); }
-  $('stagePickInfo').textContent = `Marca las caminatas que quieres añadir a «${A.trip.name}». Se ordenarán solas por fecha.`;
+  $('stagePickInfo').textContent = `Marca las actividades que quieres añadir a «${A.trip.name}». Se ordenarán solas por fecha.`;
   $('stagePickOk').disabled = true; $('stagePickOk').textContent = 'Añadir';
   $('stagePickModal').classList.add('on');
 }
@@ -3980,25 +4524,25 @@ $('stagePickCancel').onclick = () => $('stagePickModal').classList.remove('on');
 $('stagePickModal').addEventListener('click', e => { if (e.target.id === 'stagePickModal') $('stagePickModal').classList.remove('on'); });
 $('hcModal').addEventListener('click', e => { if (e.target.id === 'hcModal') closeHealth(); });
 $('btnDelTrip').onclick = () => {
-  if (!confirm(`¿Borrar el viaje "${A.name}"? Sus etapas no se borran: pasan a caminatas sueltas.`)) return;
+  if (!confirm(`¿Borrar el viaje "${A.name}"? Sus etapas no se borran: pasan a actividades sueltas.`)) return;
   const id = A.trip.id;
   saveTrips(loadTrips().filter(x => x.id !== id));
   const list = loadHistory(); list.forEach(e => { if (e.tripId === id) e.tripId = null; }); saveHistory(list);
   showHome(); toast('Viaje borrado. Sus etapas siguen en tu historial.');
 };
 $('btnDelAct').onclick = () => {
-  if (!confirm('¿Borrar esta caminata del historial?')) return;
+  if (!confirm('¿Borrar esta actividad del historial?')) return;
   const tripId = A.tripId;
   photosDeleteActivity(A.id).catch(() => {});
   saveHistory(loadHistory().filter(x => x.id !== A.id));
   if (tripId && tripStages(tripId).length) showTrip(tripId); else showHome();
-  toast('Caminata borrada.');
+  toast('Actividad borrada.');
 };
 $('btnPhotos').onclick = () => NATIVE ? findNativePhotos() : $('photoInput').click();
 $('btnPhotosManual').onclick = () => $('photoInput').click();
 if (NATIVE) {
   $('btnPhotosManual').hidden = false;
-  $('photoNote').textContent = 'Pulsa «Buscar fotos» y Senda mirará en tu galería las fotos que hiciste durante la caminata para que elijas cuáles publicar.';
+  $('photoNote').textContent = 'Pulsa «Buscar fotos» y Senda mirará en tu galería las fotos que hiciste durante la actividad para que elijas cuáles publicar.';
 }
 $('photoInput').onchange = e => { if (e.target.files.length) addPhotos([...e.target.files]); e.target.value = ''; };
 $('btnPlay').onclick = () => anim.on ? stopAnim(false) : startAnim();
@@ -4048,11 +4592,11 @@ document.addEventListener('dragover', e => e.preventDefault());
 document.addEventListener('drop', e => { e.preventDefault(); const fs = [...e.dataTransfer.files].filter(f => !/^image\//.test(f.type)); if (fs.length) openFiles(fs); });
 bindProfile();
 initStore().then(async () => {
-  // Arreglo de la 2.2.2: algunos pueblos quedaron guardados en la caminata equivocada. Se vuelven a buscar.
+  // Arreglo de la 2.2.2: algunos pueblos quedaron guardados en la actividad equivocada. Se vuelven a buscar.
   if (!localStorage.getItem('senda.climbfix.v1')) {
     const l = loadHistory(); let n = 0;
     l.forEach(e => { if (checkClimb(e)) n++; });
-    if (n) { saveHistory(l); setTimeout(() => toast(`He corregido el desnivel de ${n} ${n === 1 ? 'caminata que tenía' : 'caminatas que tenían'} datos imposibles.`, 6000), 1500); }
+    if (n) { saveHistory(l); setTimeout(() => toast(`He corregido el desnivel de ${n} ${n === 1 ? 'actividad que tenía' : 'actividades que tenían'} datos imposibles.`, 6000), 1500); }
     localStorage.setItem('senda.climbfix.v1', '1');
   }
   if (!localStorage.getItem('senda.townsfix.v1')) {
