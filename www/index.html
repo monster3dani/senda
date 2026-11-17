@@ -98,6 +98,24 @@ button { cursor: pointer; }
 .welcome p { color: var(--muted); margin: 0 0 22px; max-width: 46ch; }
 .welcome .steps { margin: 0 0 26px; padding-left: 1.3em; color: var(--ink); max-width: 46ch; }
 .welcome .steps li { margin-bottom: 6px; }
+.start-card { position: relative; border: 2px solid var(--line); border-radius: 14px; padding: 18px 16px 16px; margin: 0 0 14px; background: var(--panel); max-width: 560px; }
+.start-card.rec { border-color: var(--gr); }
+.start-card h2 { margin: 0 0 4px; font-size: 22px; }
+.start-card > p { margin: 0 0 12px; }
+.start-card .steps { margin: 0 0 14px; }
+.start-card .steps li { margin-bottom: 8px; }
+.start-card .btn-main, .start-card .btn-line { width: 100%; }
+.start-tag { position: absolute; top: -11px; left: 14px; background: var(--gr); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-radius: 6px; padding: 3px 8px; }
+.start-or { text-align: center; color: var(--muted); font-weight: 600; margin: 4px 0 14px; max-width: 560px; }
+.welcome .note { margin-top: 14px; }
+.news-box { max-height: 86vh; overflow: auto; }
+.news-kicker { margin: 0; color: var(--gr); font-weight: 700; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
+.news-box h2 { margin: 4px 0 14px; }
+.news-ver { margin: 16px 0 6px; color: var(--muted); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.news-item { display: grid; grid-template-columns: 38px 1fr; gap: 2px 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.news-item span { grid-row: 1 / span 2; font-size: 26px; line-height: 1.1; }
+.news-item b { font-size: 16px; }
+.news-item p { margin: 0; color: var(--muted); font-size: 15px; }
 .list-title { font-size: 24px; font-weight: 600; margin: 30px 0 4px; }
 .walk-row {
   width: 100%; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 14px;
@@ -489,14 +507,32 @@ select.pill { appearance: none; padding-right: 14px; }
           <div class="plate"><b>Fotos y pueblos</b></div>
         </div>
         <h1>Tus actividades, sobre el mapa</h1>
-        <p>Guarda cada ruta que haces con el reloj y revívela con su mapa, su perfil, tus fotos y los pueblos por los que pasaste.</p>
-        <ol class="steps">
-          <li>En Zepp, abre la actividad y expórtala, mejor en formato FIT.</li>
-          <li>Añádela aquí desde el menú, o conecta Health Connect y Senda te avisará sola de cada actividad nueva.</li>
-          <li>Si haces varias etapas, como el Camino de Santiago, agrúpalas en un viaje.</li>
-        </ol>
-        <button class="btn-main" id="btnFirst" type="button">Añadir mi primera actividad</button>
+        <p>Senda no graba las rutas: usa las que guarda tu reloj. Para empezar, elige cómo traerlas. Solo hay que hacerlo una vez.</p>
+        <div class="start-card rec">
+          <span class="start-tag">Recomendado</span>
+          <h2>Automático, con Health Connect</h2>
+          <p>Senda te avisa sola de cada actividad nueva, sin exportar nada.</p>
+          <ol class="steps">
+            <li>Comprueba que tienes <b>Health Connect</b>. En Android 14 o más nuevo ya viene en los Ajustes del móvil; si no, Senda te lleva a instalarlo.</li>
+            <li>En la app de tu reloj (Zepp, por ejemplo), ve a <b>Perfil</b>, busca <b>Health Connect</b> en las cuentas o servicios de terceros y activa la sincronización.</li>
+            <li>Pulsa el botón de abajo y da permiso a Senda para leer tus ejercicios y sus rutas. Elige <b>Permitir todo</b>.</li>
+          </ol>
+          <button class="btn-main" id="btnWelcomeHC" type="button">Conectar Health Connect</button>
+          <p class="note" id="welcomeHCweb" hidden>Esto solo funciona en la app de Android.</p>
+        </div>
+        <p class="start-or">o</p>
+        <div class="start-card">
+          <h2>Con un archivo GPX, TCX o FIT</h2>
+          <p>Para rutas sueltas, o si tu reloj no usa Health Connect.</p>
+          <ol class="steps">
+            <li>En la app de tu reloj, abre la actividad y busca <b>Exportar</b> o <b>Compartir</b>. Mejor en formato <b>FIT</b>; GPX también vale.</li>
+            <li>Guarda el archivo en el móvil, por ejemplo en Descargas.</li>
+            <li>Pulsa el botón de abajo y elige el archivo. Puedes elegir varios a la vez.</li>
+          </ol>
+          <button class="btn-line" id="btnFirst" type="button">Abrir un archivo</button>
+        </div>
         <button class="btn-line" id="btnDriveRestore" type="button" hidden>¿Ya usabas Senda? Recuperar desde Google Drive</button>
+        <p class="note">Esta guía la tienes siempre en el menú, en «Cómo empezar». Si haces varias etapas, como el Camino de Santiago, luego las puedes juntar en un viaje.</p>
       </div>
       <div id="homeList"></div>
       <div class="home-foot danlab-sign"><span class="dl-box"><svg class="dl-sym" viewBox="-20 -20 280 280" aria-hidden="true" focusable="false"><defs><clipPath id="dlc3"><rect x="168" y="-100" width="200" height="240"/><rect x="-100" y="140" width="400" height="200"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="20"><path d="M72 50 H30 V230 H220"/><path d="M155.7 56.9 A90 90 0 0 1 120 230" clip-path="url(#dlc3)"/></g><g fill="currentColor"><rect x="78" y="0" width="84" height="20"/><path d="M92 20 H148 V86.93 A60 60 0 0 1 120 200 H60 V140 A60 60 0 0 1 92 86.93 Z"/></g></svg></span><span>Senda, por <b>DanLab</b></span></div>
@@ -676,6 +712,8 @@ select.pill { appearance: none; padding-right: 14px; }
   <button class="item" data-act="install" type="button" id="menuInstall" hidden>Instalar en el móvil</button>
   <h3>Senda</h3>
   <button class="item" data-act="maps" type="button">Mapas guardados</button>
+  <button class="item" data-act="guide" type="button">Cómo empezar</button>
+  <button class="item" data-act="news" type="button">Novedades</button>
   <button class="item" data-act="about" type="button">Acerca de Senda</button>
   <button class="item" data-act="coffee" type="button">☕ Invítame a un café</button>
   <p class="drawer-note">Tus actividades se guardan en este navegador. Guarda una copia de vez en cuando por si borras los datos o cambias de móvil. La copia con fotos ocupa más, pero lo guarda todo.</p>
@@ -819,6 +857,14 @@ select.pill { appearance: none; padding-right: 14px; }
       <button class="btn-line" id="tripModalCancel" type="button">Cancelar</button>
       <button class="btn-main" id="tripModalOk" type="button">Crear y elegir etapas</button>
     </div>
+  </div>
+</div>
+<div class="modal" id="newsModal" role="dialog" aria-modal="true" aria-labelledby="newsTitle">
+  <div class="modal-box news-box">
+    <p class="news-kicker" id="newsKicker">Senda se ha actualizado</p>
+    <h2 id="newsTitle">Novedades</h2>
+    <div id="newsList"></div>
+    <div class="modal-actions"><button class="btn-main" id="newsOk" type="button">¡A probarlo!</button></div>
   </div>
 </div>
 <div class="modal" id="kindModal" role="dialog" aria-modal="true" aria-labelledby="kindTitle">
@@ -1177,7 +1223,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '3.0.0';
+const APP_VERSION = '3.1.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -1221,6 +1267,54 @@ function kindOf(e) {
 }
 const kindName = k => (KINDS[k] || KINDS.walk).name;
 const kindIcon = k => (KINDS[k] || KINDS.walk).icon;
+// ---------- Novedades de cada versión (la más nueva primero) ----------
+const CHANGELOG = [
+  { v: '3.1.0', items: [
+    ['🧭', 'Guía para empezar', 'La pantalla de inicio explica paso a paso cómo traer tus actividades: con Health Connect o con un archivo. La tienes siempre en el menú, en «Cómo empezar».'],
+    ['🎉', 'Novedades al actualizar', 'Después de cada actualización, Senda te cuenta qué ha cambiado. Las puedes volver a ver en el menú, en «Novedades».']
+  ] },
+  { v: '3.0.0', items: [
+    ['🚴', 'Andar, correr o bici', 'Al añadir una actividad eliges qué era. Si corres ves el ritmo; si vas en bici, la velocidad media y la máxima. Puedes cambiarlo con el botón que hay bajo el título.'],
+    ['🐚', 'Modo Camino de Santiago', 'En un viaje, elige tu Camino y Senda te dice cuántos kilómetros te quedan para Santiago y qué porcentaje llevas.'],
+    ['📈', 'Estadísticas y récords', 'Kilómetros, horas y desnivel por meses y años, y tus récords. Está en el inicio y en el menú.'],
+    ['🎬', 'Vídeo en tres formatos y con música', 'El vuelo 3D se graba en vertical, horizontal o cuadrado, con una canción de tu móvil.']
+  ] }
+];
+function verCmp(a, b) {
+  const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
+  for (let i = 0; i < 3; i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; }
+  return 0;
+}
+function showNews(entries, updated) {
+  $('newsKicker').hidden = !updated;
+  $('newsTitle').textContent = updated ? `Novedades de la versión ${APP_VERSION.replace(/\.0$/, '')}` : 'Novedades de Senda';
+  const box = $('newsList'); box.innerHTML = '';
+  entries.forEach(c => {
+    if (entries.length > 1) { const h = document.createElement('p'); h.className = 'news-ver'; h.textContent = 'Versión ' + c.v.replace(/\.0$/, ''); box.appendChild(h); }
+    for (const [ic, ti, tx] of c.items) {
+      const d = document.createElement('div'); d.className = 'news-item';
+      const s = document.createElement('span'); s.setAttribute('aria-hidden', 'true'); s.textContent = ic;
+      const b = document.createElement('b'); b.textContent = ti;
+      const p = document.createElement('p'); p.textContent = tx;
+      d.append(s, b, p); box.appendChild(d);
+    }
+  });
+  $('newsOk').textContent = updated ? '¡A probarlo!' : 'Cerrar';
+  $('newsModal').classList.add('on');
+}
+function checkNews() {
+  let last = null;
+  try { last = localStorage.getItem('senda.lastver'); localStorage.setItem('senda.lastver', APP_VERSION); } catch { return; }
+  if (last === APP_VERSION) return;
+  if (!last && !loadHistory().length) return; // instalación nueva: ya está la guía de inicio
+  const newer = last ? CHANGELOG.filter(c => verCmp(c.v, last) > 0 && verCmp(c.v, APP_VERSION) <= 0) : CHANGELOG.slice(0, 1);
+  if (newer.length) showNews(newer.slice(0, 3), true);
+}
+function showGuide() {
+  showHome();
+  $('welcome').hidden = false;
+  setTimeout(() => $('welcome').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+}
 const STAGE_COLORS = ['#C8102E', '#2F6DB5', '#E8A100', '#2E7D4F', '#7B4FA0', '#E8711A', '#1C8C9C', '#B0306E'];
 let pendingTripId = null;
 let A = null;          // actividad analizada
@@ -3152,7 +3246,7 @@ function openHealthSetup(status) {
   } else if (status === 'no_permission') {
     p('Faltan dos cosas, solo esta vez:');
     const ol = document.createElement('ol');
-    for (const s of ['En Zepp: Perfil, «Enlace de cuenta de terceros», Health Connect, y activa «Sincronizar con Health Connect».', 'Aquí: pulsa «Dar permiso» y deja que Senda lea tus ejercicios y sus rutas. Elige «Permitir todo».']) { const li = document.createElement('li'); li.textContent = s; ol.appendChild(li); }
+    for (const s of ['En la app de tu reloj (Zepp, por ejemplo): ve a Perfil, busca Health Connect en las cuentas o servicios de terceros y activa la sincronización.', 'Aquí: pulsa «Dar permiso» y deja que Senda lea tus ejercicios y sus rutas. Elige «Permitir todo».']) { const li = document.createElement('li'); li.textContent = s; ol.appendChild(li); }
     info.appendChild(ol);
     hcButtons([['Cerrar', 'btn-line', closeHealth], ['Dar permiso', 'btn-main', async () => {
       try {
@@ -4365,6 +4459,8 @@ $('drawer').addEventListener('click', e => {
   if (act === 'backup' || act === 'backupPhotos') { if (loadHistory().length) exportBackup(act === 'backupPhotos'); else toast('Todavía no hay actividades que copiar.'); }
   if (act === 'restore') $('backupInput').click();
   if (act === 'about') $('aboutModal').classList.add('on');
+  if (act === 'news') showNews(CHANGELOG.slice(0, 2), false);
+  if (act === 'guide') showGuide();
   if (act === 'maps') showMapsInfo();
   if (act === 'health') hcStatus().then(st => st.status === 'ready' ? checkHealthNew(true) : openHealthSetup(st.status));
   if (act === 'install' && installEvt) { installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; $('menuInstall').hidden = true; }); }
@@ -4456,6 +4552,10 @@ $('tripModalOk').onclick = confirmTripModal;
 $('tripModalName').onkeydown = e => { if (e.key === 'Enter') confirmTripModal(); };
 $('tripModal').addEventListener('click', e => { if (e.target.id === 'tripModal') closeTripModal(); });
 $('btnFirst').onclick = () => { pendingTripId = null; $('fileInput').click(); };
+$('btnWelcomeHC').hidden = !NativeHealth; $('welcomeHCweb').hidden = !!NativeHealth;
+$('btnWelcomeHC').onclick = () => hcStatus().then(st => st.status === 'ready' ? checkHealthNew(true) : openHealthSetup(st.status));
+$('newsOk').onclick = () => $('newsModal').classList.remove('on');
+$('newsModal').addEventListener('click', e => { if (e.target.id === 'newsModal') $('newsModal').classList.remove('on'); });
 $('btnTownsAgain').onclick = refreshTowns;
 $('btnBrand').onclick = () => { fromHist = false; fromStats = false; if ($('histView').classList.contains('on') || $('statsView').classList.contains('on')) renderHome(); else showHome(); };
 $('btnBack').onclick = () => { fromHist = false; fromStats = false; if ($('histView').classList.contains('on') || $('statsView').classList.contains('on')) renderHome(); else showHome(); };
@@ -4606,6 +4706,7 @@ initStore().then(async () => {
     localStorage.setItem('senda.townsfix.v1', '1');
   }
   renderHistory();
+  checkNews();
   if (NATIVE) {
     $('menuDrive').hidden = false;
     $('btnDriveRestore').hidden = !!driveState().connected;
