@@ -514,7 +514,7 @@ select.pill { appearance: none; padding-right: 14px; }
           <p>Senda te avisa sola de cada actividad nueva, sin exportar nada.</p>
           <ol class="steps">
             <li>Comprueba que tienes <b>Health Connect</b>. En Android 14 o más nuevo ya viene en los Ajustes del móvil; si no, Senda te lleva a instalarlo.</li>
-            <li>En la app de tu reloj (Zepp, por ejemplo), ve a <b>Perfil</b>, busca <b>Health Connect</b> en las cuentas o servicios de terceros y activa la sincronización.</li>
+            <li>En la app de tu reloj activa la sincronización con <b>Health Connect</b>. En Zepp: <b>Perfil</b>, luego <b>Enlace de cuenta de terceros</b> y <b>Health Connect</b>.</li>
             <li>Pulsa el botón de abajo y da permiso a Senda para leer tus ejercicios y sus rutas. Elige <b>Permitir todo</b>.</li>
           </ol>
           <button class="btn-main" id="btnWelcomeHC" type="button">Conectar Health Connect</button>
@@ -526,8 +526,8 @@ select.pill { appearance: none; padding-right: 14px; }
           <p>Para rutas sueltas, o si tu reloj no usa Health Connect.</p>
           <ol class="steps">
             <li>En la app de tu reloj, abre la actividad y busca <b>Exportar</b> o <b>Compartir</b>. Mejor en formato <b>FIT</b>; GPX también vale.</li>
-            <li>Guarda el archivo en el móvil, por ejemplo en Descargas.</li>
-            <li>Pulsa el botón de abajo y elige el archivo. Puedes elegir varios a la vez.</li>
+            <li>En la lista de apps para compartir, elige <b>Senda</b>. Se abre sola con tu ruta.</li>
+            <li>Si Senda no sale en esa lista, guarda el archivo en el móvil y pulsa el botón de abajo para elegirlo.</li>
           </ol>
           <button class="btn-line" id="btnFirst" type="button">Abrir un archivo</button>
         </div>
@@ -1223,7 +1223,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '3.1.0';
+const APP_VERSION = '3.2.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -1235,6 +1235,7 @@ const NativeShare = NATIVE ? CAP.registerPlugin('Share') : null;
 const NativeUpdate = NATIVE ? CAP.registerPlugin('SendaUpdate') : null;
 const NativeHealth = NATIVE ? CAP.registerPlugin('SendaHealth') : null;
 const NativeApp = NATIVE ? CAP.registerPlugin('App') : null;
+const NativeInbox = NATIVE ? CAP.registerPlugin('SendaShare') : null;
 const NativeDrive = NATIVE ? CAP.registerPlugin('SendaDrive') : null;
 document.querySelectorAll('.app-ver').forEach(el => el.textContent = APP_VERSION);
 // ---------- Tipos de actividad ----------
@@ -1269,6 +1270,10 @@ const kindName = k => (KINDS[k] || KINDS.walk).name;
 const kindIcon = k => (KINDS[k] || KINDS.walk).icon;
 // ---------- Novedades de cada versión (la más nueva primero) ----------
 const CHANGELOG = [
+  { v: '3.2.0', items: [
+    ['📤', 'Comparte tus rutas con Senda', 'Desde Zepp u otra app, al exportar una actividad en GPX, TCX o FIT pulsa «Compartir» y elige Senda: se abre sola con tu ruta, sin buscar el archivo.'],
+    ['📂', 'Abrir con Senda', 'En el gestor de archivos del móvil, al tocar un GPX, TCX o FIT puedes abrirlo directamente con Senda.']
+  ] },
   { v: '3.1.0', items: [
     ['🧭', 'Guía para empezar', 'La pantalla de inicio explica paso a paso cómo traer tus actividades: con Health Connect o con un archivo. La tienes siempre en el menú, en «Cómo empezar».'],
     ['🎉', 'Novedades al actualizar', 'Después de cada actualización, Senda te cuenta qué ha cambiado. Las puedes volver a ver en el menú, en «Novedades».']
@@ -1309,6 +1314,27 @@ function checkNews() {
   if (!last && !loadHistory().length) return; // instalación nueva: ya está la guía de inicio
   const newer = last ? CHANGELOG.filter(c => verCmp(c.v, last) > 0 && verCmp(c.v, APP_VERSION) <= 0) : CHANGELOG.slice(0, 1);
   if (newer.length) showNews(newer.slice(0, 3), true);
+}
+// Archivos que otra app (Zepp, por ejemplo) comparte con Senda
+let sharing = false;
+async function takeShared() {
+  if (!NativeInbox || sharing) return;
+  sharing = true;
+  try {
+    const r = await NativeInbox.getPending();
+    const files = (r && r.files || []).map(f => {
+      const bin = atob(f.data), bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      return new File([bytes], f.name || 'actividad');
+    });
+    if (files.length) {
+      document.querySelectorAll('.modal.on').forEach(m => m.classList.remove('on'));
+      if ($('view3d').classList.contains('on')) close3D();
+      pendingTripId = null;
+      await openFiles(files);
+    }
+  } catch (e) { console.error(e); toast('No se ha podido abrir el archivo compartido.'); }
+  sharing = false;
 }
 function showGuide() {
   showHome();
@@ -2055,7 +2081,9 @@ function titleFor(name, t, sport, custom) {
 async function readActivityFile(file) {
   const ext = (file.name.split('.').pop() || '').toLowerCase();
   let act;
-  if (ext === 'fit') act = parseFIT(await file.arrayBuffer());
+  const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const isFit = head.length >= 12 && String.fromCharCode(head[8], head[9], head[10], head[11]) === '.FIT';
+  if (ext === 'fit' || isFit) act = parseFIT(await file.arrayBuffer());
   else {
     const text = await file.text();
     if (ext === 'tcx' || text.includes('<TrainingCenterDatabase')) act = parseTCX(text);
@@ -3246,7 +3274,7 @@ function openHealthSetup(status) {
   } else if (status === 'no_permission') {
     p('Faltan dos cosas, solo esta vez:');
     const ol = document.createElement('ol');
-    for (const s of ['En la app de tu reloj (Zepp, por ejemplo): ve a Perfil, busca Health Connect en las cuentas o servicios de terceros y activa la sincronización.', 'Aquí: pulsa «Dar permiso» y deja que Senda lea tus ejercicios y sus rutas. Elige «Permitir todo».']) { const li = document.createElement('li'); li.textContent = s; ol.appendChild(li); }
+    for (const s of ['En la app de tu reloj activa la sincronización con Health Connect. En Zepp: Perfil, luego «Enlace de cuenta de terceros» y Health Connect.', 'Aquí: pulsa «Dar permiso» y deja que Senda lea tus ejercicios y sus rutas. Elige «Permitir todo».']) { const li = document.createElement('li'); li.textContent = s; ol.appendChild(li); }
     info.appendChild(ol);
     hcButtons([['Cerrar', 'btn-line', closeHealth], ['Dar permiso', 'btn-main', async () => {
       try {
@@ -4707,6 +4735,7 @@ initStore().then(async () => {
   }
   renderHistory();
   checkNews();
+  if (NativeInbox) { NativeInbox.addListener('filesShared', takeShared); takeShared(); }
   if (NATIVE) {
     $('menuDrive').hidden = false;
     $('btnDriveRestore').hidden = !!driveState().connected;

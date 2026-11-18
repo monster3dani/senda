@@ -10,6 +10,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(SendaUpdatePlugin.class);
         registerPlugin(SendaHealthPlugin.class);
         registerPlugin(SendaDrivePlugin.class);
+        registerPlugin(SendaSharePlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

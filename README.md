@@ -38,7 +38,7 @@ Distancia, tiempo, desnivel de subida y bajada, velocidad, ritmo, pulso, calorí
 Cada actividad con su tipo: ritmo si corres, velocidad media y máxima si vas en bici.
 
 **⌚ Detecta tus actividades sola**
-Con Health Connect, Senda te avisa de cada actividad nueva de tu reloj (Zepp y otros) y te pregunta de qué tipo es, sin exportar nada. También abre archivos GPX, TCX y FIT.
+Con Health Connect, Senda te avisa de cada actividad nueva de tu reloj (Zepp y otros) y te pregunta de qué tipo es, sin exportar nada. También abre archivos GPX, TCX y FIT, y los recibe directamente con el botón «Compartir» de Zepp u otras apps.
 
 **📷 Tus fotos en el camino**
 Busca en tu galería las fotos que hiciste durante la actividad y las coloca en su punto de la ruta. Las de WhatsApp, sin hora, las colocas tú tocando el mapa.
