@@ -46,6 +46,9 @@ Busca en tu galería las fotos que hiciste durante la actividad y las coloca en 
 **🥾 Viajes por etapas**
 Agrupa actividades en un viaje y míralo entero: el recorrido completo con cada etapa en su color, los totales y los pueblos del camino.
 
+**🌍 En español y en inglés**
+Senda sale en el idioma de tu móvil, y se puede cambiar en el menú. *Senda is also available in English.*
+
 **🐚 Modo Camino de Santiago**
 Elige tu Camino y desde dónde sales, y Senda te dice cuántos kilómetros te quedan para Santiago, el porcentaje hecho y lo que quedaba al terminar cada etapa.
 

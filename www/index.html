@@ -714,6 +714,7 @@ select.pill { appearance: none; padding-right: 14px; }
   <button class="item" data-act="maps" type="button">Mapas guardados</button>
   <button class="item" data-act="guide" type="button">Cómo empezar</button>
   <button class="item" data-act="news" type="button">Novedades</button>
+  <button class="item" data-act="lang" type="button" id="menuLang">English</button>
   <button class="item" data-act="about" type="button">Acerca de Senda</button>
   <button class="item" data-act="coffee" type="button">☕ Invítame a un café</button>
   <p class="drawer-note">Tus actividades se guardan en este navegador. Guarda una copia de vez en cuando por si borras los datos o cambias de móvil. La copia con fotos ocupa más, pero lo guarda todo.</p>
@@ -925,6 +926,651 @@ select.pill { appearance: none; padding-right: 14px; }
 </div>
 <div class="toast" id="toast" role="status"></div>
 
+<script>
+// ---------- Idiomas: español (original) e inglés ----------
+const LANG = (() => { try { const s = localStorage.getItem('senda.lang'); if (s === 'es' || s === 'en') return s; } catch {} return /^es\b/i.test(navigator.language || 'es') ? 'es' : 'en'; })();
+const LOC = LANG === 'en' ? 'en-GB' : 'es-ES';
+const EN = {
+"El archivo no parece un FIT válido.": "The file doesn't look like a valid FIT file.",
+"FIT dañado: falta una definición.": "Damaged FIT file: a definition is missing.",
+"El archivo XML está dañado.": "The XML file is damaged.",
+"El archivo no tiene puntos de ruta suficientes.": "The file doesn't have enough track points.",
+"Caminata": "Walk",
+"Senderismo": "Hiking",
+"Carrera": "Run",
+"Bici": "Bike",
+"Bici de montaña": "Mountain bike",
+"Otra": "Other",
+"Ciclismo": "Cycling",
+"Bici estática": "Indoor bike",
+"Escalada": "Climbing",
+"Montañismo": "Mountaineering",
+"Comparte tus rutas con Senda": "Share your routes with Senda",
+"Desde Zepp u otra app, al exportar una actividad en GPX, TCX o FIT pulsa «Compartir» y elige Senda: se abre sola con tu ruta, sin buscar el archivo.": "In Zepp or another app, when you export an activity as GPX, TCX or FIT, tap “Share” and pick Senda: it opens with your route, no need to look for the file.",
+"Abrir con Senda": "Open with Senda",
+"En el gestor de archivos del móvil, al tocar un GPX, TCX o FIT puedes abrirlo directamente con Senda.": "In your phone's file manager, when you tap a GPX, TCX or FIT file you can open it straight in Senda.",
+"Guía para empezar": "Getting started guide",
+"La pantalla de inicio explica paso a paso cómo traer tus actividades: con Health Connect o con un archivo. La tienes siempre en el menú, en «Cómo empezar».": "The home screen explains step by step how to bring in your activities: with Health Connect or with a file. It's always in the menu, under “Getting started”.",
+"Novedades al actualizar": "What's new after updating",
+"Después de cada actualización, Senda te cuenta qué ha cambiado. Las puedes volver a ver en el menú, en «Novedades».": "After each update, Senda tells you what has changed. You can see it again in the menu, under “What's new”.",
+"Andar, correr o bici": "Walk, run or bike",
+"Al añadir una actividad eliges qué era. Si corres ves el ritmo; si vas en bici, la velocidad media y la máxima. Puedes cambiarlo con el botón que hay bajo el título.": "When you add an activity you choose what it was. If you run you see your pace; on a bike, your average and top speed. You can change it with the button under the title.",
+"Modo Camino de Santiago": "Camino de Santiago mode",
+"En un viaje, elige tu Camino y Senda te dice cuántos kilómetros te quedan para Santiago y qué porcentaje llevas.": "In a trip, choose your Camino and Senda tells you how many kilometres you have left to Santiago and what percentage you've done.",
+"Estadísticas y récords": "Stats and records",
+"Kilómetros, horas y desnivel por meses y años, y tus récords. Está en el inicio y en el menú.": "Kilometres, hours and elevation by month and year, plus your records. It's on the home screen and in the menu.",
+"Vídeo en tres formatos y con música": "Video in three formats, with music",
+"El vuelo 3D se graba en vertical, horizontal o cuadrado, con una canción de tu móvil.": "The 3D flight is recorded in portrait, landscape or square, with a song from your phone.",
+"Novedades de la versión {}": "What's new in version {}",
+"Novedades de Senda": "What's new in Senda",
+"Versión ": "Version ",
+"¡A probarlo!": "Let's try it!",
+"Cerrar": "Close",
+"actividad": "activity",
+"actividades": "activities",
+"foto": "photo",
+"fotos": "photos",
+"viaje": "trip",
+"viajes": "trips",
+"etapa": "stage",
+"etapas": "stages",
+"salida": "outing",
+"salidas": "outings",
+"No se ha podido abrir el archivo compartido.": "The shared file couldn't be opened.",
+"No se ha podido guardar. Puede que el móvil esté sin espacio.": "Couldn't save. Your phone may be out of space.",
+" y {} {}": " and {} {}",
+"Distancia total": "Total distance",
+"Tiempo total": "Total time",
+"Desnivel total": "Total elevation gain",
+"Ver el historial ({} {}{})": "See history ({} {}{})",
+", {} {}": ", {} {}",
+"Camino de Santiago": "Camino de Santiago",
+"Viaje": "Trip",
+"Viajes": "Trips",
+"{} {}, del {} al {}, +{} m": "{} {}, {} to {}, +{} m",
+"Sin etapas todavía": "No stages yet",
+"Actividades sueltas": "Single activities",
+"Actividades": "Activities",
+"Sin fecha": "No date",
+"Desnivel corregido (el dato original era +{} m)": "Elevation corrected (the original figure was +{} m)",
+"Todavía no hay actividades guardadas.": "No activities saved yet.",
+"Todos los años": "All years",
+"Todo": "All",
+"en total": "in total",
+"en {}": "in {}",
+" de {}": " ({})",
+"No hay actividades {}.": "No activities {}.",
+"Distancia": "Distance",
+"Tiempo": "Time",
+"Desnivel": "Elevation",
+"Por años": "By year",
+"Por meses": "By month",
+"Sin récords todavía.": "No records yet.",
+"La más larga": "Longest",
+"Más desnivel": "Most climbing",
+"Más tiempo": "Longest time",
+"La más rápida": "Fastest",
+"Más alto": "Highest",
+"El mejor año": "Best year",
+"El mejor mes": "Best month",
+"Camino Francés": "French Way",
+"Camino Portugués": "Portuguese Way",
+"Lisboa": "Lisbon",
+"Oporto": "Porto",
+"Camino Portugués por la Costa": "Portuguese Coastal Way",
+"Camino del Norte": "Northern Way",
+"Camino Primitivo": "Primitive Way",
+"Camino Inglés": "English Way",
+"Vía de la Plata": "Vía de la Plata",
+"Sevilla": "Seville",
+"Camino Sanabrés": "Sanabrés Way",
+"Otro Camino": "Another Camino",
+"Tu Camino": "Your Camino",
+"Elige tu Camino para ver lo que te queda": "Choose your Camino to see how much is left",
+"¡Llegaste a Santiago!": "You made it to Santiago!",
+" de Camino": " of Camino",
+" para Santiago": " to Santiago",
+"Te quedan ": "You have ",
+"Estás a ": "You're ",
+" de Santiago en línea recta": " from Santiago as the crow flies",
+"{} % del Camino hecho": "{} % of the Camino done",
+"Salida": "Start",
+"Hecho": "Done",
+"Completado": "Completed",
+"Etapas": "Stages",
+"Media por etapa": "Average per stage",
+"Etapas que faltan": "Stages left",
+"A la catedral": "To the cathedral",
+" km en línea recta": " km as the crow flies",
+"unas {}": "about {}",
+"Has hecho más de los {} km {} que piden para la Compostela. ¡Buen Camino! Recuerda llevar la credencial sellada.": "You've done more than the {} km {} required for the Compostela. Buen Camino! Remember to bring your stamped credential.",
+"en bici": "by bike",
+"a pie": "on foot",
+"Para la Compostela piden al menos los últimos {} km {} y la credencial sellada.": "For the Compostela you need at least the last {} km {} and a stamped credential.",
+"Para la Compostela piden al menos los últimos 100 km a pie (200 en bici) y la credencial con sus sellos. ¡Buen Camino!": "For the Compostela you need at least the last 100 km on foot (200 by bike) and a credential with its stamps. Buen Camino!",
+"¡Modo Camino de Santiago activado!": "Camino de Santiago mode on!",
+"Este viaje ya no se muestra como Camino.": "This trip is no longer shown as a Camino.",
+"Preparando la copia con {} fotos…": "Preparing the backup with {} photos…",
+"No hay fotos guardadas; la copia irá sin fotos.": "No photos saved; the backup will have no photos.",
+"Copia de Senda": "Senda backup",
+"Copia de seguridad de Senda": "Senda backup",
+"Guardar la copia de Senda": "Save the Senda backup",
+"Elige dónde guardar la copia: Drive, Archivos, correo…": "Choose where to save the backup: Drive, Files, email…",
+"Copia guardada en Descargas.": "Backup saved to Downloads.",
+"No se pudo guardar la copia.": "The backup couldn't be saved.",
+"Las actividades ya estaban en el historial": "The activities were already in your history",
+" y {} foto(s).": " and {} photo(s).",
+"Ese archivo no es una copia de Senda.": "That file isn't a Senda backup.",
+"Título de la actividad": "Activity title",
+"Guardar": "Save",
+"Cambiar nombre": "Rename",
+"Cambiar título": "Change title",
+"Actividad": "Activity",
+"Ruta": "Route",
+"Senda en inglés": "Senda in English",
+"Si tu móvil está en inglés, Senda también. Puedes cambiar el idioma cuando quieras en el menú.": "Senda now speaks English: if your phone is in English, so is Senda. You can switch the language any time from the menu.",
+"Relieve: Mapzen / AWS": "Terrain: Mapzen / AWS",
+"actividad guardada": "activity saved",
+"actividades guardadas": "activities saved",
+"{} del {}": "{} on {}",
+"{}: formato no reconocido. Usa un archivo GPX, TCX o FIT.": "{}: format not recognised. Use a GPX, TCX or FIT file.",
+"No se pudo leer el archivo.": "The file couldn't be read.",
+"{} {} al viaje.": "{} {} to the trip.",
+"etapa añadida": "stage added",
+"etapas añadidas": "stages added",
+" {} archivo(s) no se pudieron leer.": " {} file(s) couldn't be read.",
+" Senda ha supuesto el tipo de cada una; puedes cambiarlo al abrirla.": " Senda has guessed the type of each one; you can change it when you open it.",
+"{} actividades guardadas.": "{} activities saved.",
+"Ese viaje ya no existe.": "That trip no longer exists.",
+"Este viaje aún no tiene etapas. Elige sus archivos.": "This trip has no stages yet. Choose its files.",
+", ¡en Santiago!": ", in Santiago!",
+", quedaban {} km": ", {} km left",
+"Actividad suelta": "Single activity",
+"Nuevo viaje…": "New trip…",
+"Etapa {} de {}, {}. Ver el viaje completo": "Stage {} of {}, {}. See the whole trip",
+"Actividad añadida al viaje.": "Activity added to the trip.",
+"La actividad ya no forma parte de ningún viaje.": "The activity is no longer part of any trip.",
+"Viaje creado con esta actividad como primera etapa.": "Trip created with this activity as the first stage.",
+"Imágenes © Esri": "Imagery © Esri",
+"Satélite": "Satellite",
+"Topográfico": "Topographic",
+"Callejero": "Streets",
+"Bajada": "Descent",
+"Subida": "Ascent",
+"Salida de la etapa {}": "Start of stage {}",
+"Llegada": "Finish",
+"Kilómetro {}": "Kilometre {}",
+"{} {}, del {} al {}": "{} {}, {} to {}",
+"Etapa más larga": "Longest stage",
+"En movimiento": "Moving time",
+"Altitud máxima": "Highest point",
+"Altitud mínima": "Lowest point",
+"Pulso medio": "Average heart rate",
+"Calorías": "Calories",
+"Ritmo": "Pace",
+"Velocidad": "Speed",
+"cambiar (supuesto por Senda)": "change (guessed by Senda)",
+"cambiar": "change",
+"¿Qué actividad era?": "What kind of activity was it?",
+"Tipo de actividad": "Activity type",
+"Dejar «{}»": "Keep “{}”",
+"Guardada como {}.": "Saved as {}.",
+"Pueblos del camino": "Towns along the way",
+"Poblaciones cercanas": "Nearby towns",
+"de {} a {}": "from {} to {}",
+"Ritmo medio": "Average pace",
+"Velocidad en movimiento": "Moving speed",
+"Velocidad media": "Average speed",
+"Velocidad máxima": "Top speed",
+"Pulso máximo": "Max heart rate",
+"Reloj": "Watch",
+"Sin datos de altitud": "No altitude data",
+"Seguir": "Follow",
+"Reproducir": "Play",
+"Pausa": "Pause",
+"Repetir": "Replay",
+"Sin hora": "No time",
+"Revisando fotos: {} de {}…": "Checking photos: {} of {}…",
+"Esas fotos ya están publicadas en esta actividad.": "Those photos are already published in this activity.",
+"No se ha podido leer ninguna foto.": "None of the photos could be read.",
+"1 foto se hizo durante la actividad y se coloca sola. ": "1 photo was taken during the activity and places itself. ",
+"{} fotos se hicieron durante la actividad y se colocan solas. ": "{} photos were taken during the activity and place themselves. ",
+"{} {} la hora de la actividad (pasa con las de WhatsApp): al publicar, te pediré que toques en el mapa o en el perfil dónde {}. ": "{} {} the activity's time (it happens with WhatsApp photos): when publishing, I'll ask you to tap on the map or the profile where to {}. ",
+"foto no tiene": "photo doesn't have",
+"fotos no tienen": "photos don't have",
+"ponerla": "put it",
+"ponerlas": "put them",
+"Desmarca las que no quieras publicar.": "Untick the ones you don't want to publish.",
+"Esta actividad no tiene horas, así que no se pueden buscar sus fotos.": "This activity has no times, so its photos can't be searched for.",
+"Buscando fotos en tu galería…": "Looking for photos in your gallery…",
+"Senda necesita permiso para ver tus fotos. Puedes dárselo en Ajustes, Aplicaciones, Senda, Permisos.": "Senda needs permission to see your photos. You can grant it in Settings, Apps, Senda, Permissions.",
+"No se pudieron buscar las fotos.": "Couldn't search for photos.",
+"Las fotos de esta actividad ya están publicadas.": "The photos from this activity are already published.",
+"No hay fotos en tu galería hechas durante esta actividad.": "There are no photos in your gallery taken during this activity.",
+"Hay {} {} durante la actividad.": "{} {} during the activity.",
+"foto hecha": "photo taken",
+"fotos hechas": "photos taken",
+" He desmarcado {} {}.": " I've unticked {} {}.",
+"captura de pantalla": "screenshot",
+"capturas de pantalla": "screenshots",
+" Toca las que no quieras publicar.": " Tap the ones you don't want to publish.",
+"Publicar": "Publish",
+"Guardando {} de {}…": "Saving {} of {}…",
+"No se pudieron guardar {} foto(s). Puede que el móvil se haya quedado sin espacio.": "{} photo(s) couldn't be saved. Your phone may be out of space.",
+"{} {} en la actividad.": "{} {} in the activity.",
+"foto publicada": "photo published",
+"fotos publicadas": "photos published",
+"Foto {} de {}": "Photo {} of {}",
+"Foto colocada en el km {}.": "Photo placed at km {}.",
+"No se pudo guardar la foto.": "The photo couldn't be saved.",
+"¿Quitar esta foto de la actividad?": "Remove this photo from the activity?",
+"Ciudad": "City",
+"Población": "Town",
+"Pueblo": "Village",
+"Aldea": "Hamlet",
+"Barrio": "Neighbourhood",
+"Paraje": "Place",
+"Casa aislada": "Isolated house",
+"Lugar": "Place",
+"Buscando poblaciones… etapa {} de {}": "Looking for towns… stage {} of {}",
+"Buscando poblaciones cerca de la ruta…": "Looking for towns near the route…",
+"El servicio de mapas no ha respondido. Prueba otra vez en un rato.": "The map service didn't respond. Try again in a while.",
+"Poblaciones actualizadas ({} {} sin respuesta).": "Towns updated ({} {} without a response).",
+"Poblaciones actualizadas.": "Towns updated.",
+"Faltan los pueblos de {} {}. Se buscan al abrir cada etapa con conexión.": "Towns are missing for {} {}. They're looked up when you open each stage with a connection.",
+"No se han podido consultar las poblaciones. Pulsa «Buscar de nuevo» en un rato.": "Couldn't look up the towns. Tap “Search again” in a while.",
+"No hay poblaciones con nombre cerca de esta ruta.": "There are no named towns near this route.",
+", cerca de {}": ", near {}",
+"{}, a {} de la ruta": "{}, {} from the route",
+"Actividad guardada en tu historial.": "Activity saved to your history.",
+"{}, {} de {}": "{}, {}, {}",
+"No se han podido leer las actividades de Health Connect.": "Couldn't read the activities from Health Connect.",
+"Ya tienes en Senda todas las actividades de Health Connect.": "You already have all your Health Connect activities in Senda.",
+"No hay actividades con recorrido en Health Connect de los últimos dos meses.": "There are no activities with a route in Health Connect from the last two months.",
+"Nueva actividad detectada": "New activity found",
+"{} Nueva actividad detectada": "{} New activity found",
+". ¿La añades a Senda?": ". Add it to Senda?",
+"Añadir": "Add",
+"Están en Health Connect y aún no las tienes en Senda.": "They're in Health Connect and not in Senda yet.",
+"{} actividades nuevas": "{} new activities",
+"Ver": "View",
+"Vale. Puedes añadirlas cuando quieras desde el menú, en «Detectar actividades».": "OK. You can add them whenever you like from the menu, under “Find activities”.",
+"Detectar actividades": "Find activities",
+"Senda puede encontrar sola tus actividades nuevas, sin exportarlas desde Zepp. Para eso usa Health Connect, la app de Android que comparte datos de salud entre aplicaciones.": "Senda can find your new activities by itself, without exporting them from Zepp. For that it uses Health Connect, the Android app that shares health data between apps.",
+"Tienes Health Connect, pero hay que actualizarlo.": "You have Health Connect, but it needs updating.",
+"No tienes Health Connect instalado en este móvil.": "Health Connect isn't installed on this phone.",
+"Actualizar Health Connect": "Update Health Connect",
+"Instalar Health Connect": "Install Health Connect",
+"Cuando lo tengas, vuelve a Senda y entra otra vez en «Detectar actividades».": "Once you have it, come back to Senda and open “Find activities” again.",
+"En la app de tu reloj activa la sincronización con Health Connect. En Zepp: Perfil, luego «Enlace de cuenta de terceros» y Health Connect.": "In your watch app, turn on syncing with Health Connect. In Zepp: Profile, then the third-party accounts section (“Add accounts”) and Health Connect.",
+"Aquí: pulsa «Dar permiso» y deja que Senda lea tus ejercicios y sus rutas. Elige «Permitir todo».": "Here: tap “Give permission” and let Senda read your workouts and their routes. Choose “Allow all”.",
+"Dar permiso": "Give permission",
+"¡Conectado! Buscando actividades…": "Connected! Looking for activities…",
+"Sin ese permiso Senda no puede ver tus actividades.": "Without that permission Senda can't see your activities.",
+"No se pudo pedir el permiso.": "Couldn't ask for permission.",
+"Senda está conectada a Health Connect. Cada vez que la abras, te avisará si hay actividades nuevas para añadir.": "Senda is connected to Health Connect. Every time you open it, it'll tell you if there are new activities to add.",
+"Buscar ahora": "Search now",
+"Ahora mismo no se puede usar Health Connect. Vuelve a intentarlo en un rato.": "Health Connect can't be used right now. Try again in a while.",
+"Actividad nueva": "New activity",
+"Actividades nuevas": "New activities",
+"Estas actividades están en Health Connect y todavía no las tienes en Senda. Marca las que quieras añadir y elige de qué tipo es cada una.": "These activities are in Health Connect but not in Senda yet. Tick the ones you want to add and choose the type of each one.",
+", de {}": ", from {}",
+"Cancelar": "Cancel",
+"Añadiendo la actividad…": "Adding the activity…",
+"Añadiendo {} actividades…": "Adding {} activities…",
+"Esa actividad no tiene recorrido GPS en Health Connect.": "That activity has no GPS route in Health Connect.",
+"No se ha podido añadir. Vuelve a intentarlo.": "Couldn't add it. Try again.",
+"{} actividades añadidas.": "{} activities added.",
+"{} no se pudieron añadir (sin recorrido GPS o con error).": "{} couldn't be added (no GPS route or an error).",
+"Que Senda encuentre tus actividades sola": "Let Senda find your activities by itself",
+"Ya tienes Health Connect. Falta conectarlo para que Senda te avise de cada actividad nueva, sin exportar nada desde Zepp.": "You already have Health Connect. It just needs connecting so Senda tells you about each new activity, without exporting anything from Zepp.",
+"Con Health Connect, Senda te avisará de cada actividad nueva sin exportarla desde Zepp. Necesitas instalarlo una vez.": "With Health Connect, Senda will tell you about each new activity without exporting it from Zepp. You need to install it once.",
+"Configurar": "Set up",
+"No, gracias": "No, thanks",
+"Si cambias de idea, está en el menú: «Detectar actividades».": "If you change your mind, it's in the menu: “Find activities”.",
+"Hace falta entrar con Google": "You need to sign in with Google",
+"Google Drive respondió ": "Google Drive replied ",
+"Comprobando la copia en Google Drive…": "Checking the backup in Google Drive…",
+"Subiendo fotos a Google Drive: {} de {}…": "Uploading photos to Google Drive: {} of {}…",
+"Guardando tus actividades en Google Drive…": "Saving your activities to Google Drive…",
+"Copia guardada en Google Drive.": "Backup saved to Google Drive.",
+"Vuelve a conectar tu cuenta de Google.": "Reconnect your Google account.",
+"No se ha podido hacer la copia en Google Drive. Revisa la conexión.": "Couldn't back up to Google Drive. Check your connection.",
+"No hay ninguna copia de Senda en esta cuenta de Google.": "There's no Senda backup in this Google account.",
+"Descargando tus actividades…": "Downloading your activities…",
+"Descargando fotos: {} de {}…": "Downloading photos: {} of {}…",
+" y {} {}.": " and {} {}.",
+"No se ha podido recuperar la copia. Revisa la conexión y vuelve a intentarlo.": "Couldn't restore the backup. Check your connection and try again.",
+"Hay una copia de Senda en tu Google Drive del {} a las {}, con {} {}": "There's a Senda backup in your Google Drive from {} at {}, with {} {}",
+"Conectando con Google…": "Connecting to Google…",
+"Buscando una copia en tu Drive…": "Looking for a backup in your Drive…",
+"No se ha dado permiso a Senda para usar Google Drive.": "Senda wasn't given permission to use Google Drive.",
+"No se ha podido conectar con Google. Inténtalo de nuevo.": "Couldn't connect to Google. Try again.",
+"¿Desconectar Google Drive? Tu copia se queda en Drive, pero Senda dejará de actualizarla.": "Disconnect Google Drive? Your backup stays in Drive, but Senda will stop updating it.",
+"Guarda una copia automática de tus actividades, viajes y fotos en tu cuenta de Google. Si cambias de móvil o lo formateas, al instalar Senda de nuevo la recuperas.": "Keep an automatic backup of your activities, trips and photos in your Google account. If you change or reset your phone, you get it back when you install Senda again.",
+"La copia va a una carpeta privada de Senda en tu Drive: no la verás entre tus archivos, pero ocupa algo de espacio de tu cuenta.": "The backup goes to a private Senda folder in your Drive: you won't see it among your files, but it uses some of your account's storage.",
+"Conectar con Google": "Connect to Google",
+"Conectado con tu cuenta de Google.": "Connected to your Google account.",
+"Última copia: {} a las {}.": "Last backup: {} at {}.",
+"Todavía no se ha hecho ninguna copia.": "No backup has been made yet.",
+"Senda hace la copia sola cuando añades o cambias algo. También puedes hacerla ahora.": "Senda backs up by itself when you add or change something. You can also do it now.",
+"Desconectar": "Disconnect",
+"Recuperar": "Restore",
+"Hacer copia ahora": "Back up now",
+"Sin música": "No music",
+"Cambiar": "Change",
+"Elegir canción": "Choose a song",
+"Cargando la canción…": "Loading the song…",
+"No se ha podido leer esa canción. Prueba con un MP3.": "That song couldn't be read. Try an MP3.",
+"No se pudo cargar el mapa 3D": "The 3D map couldn't be loaded",
+"Órbita": "Orbit",
+"Fija": "Fixed",
+" · ¡Llegada a Santiago!": " · Arrived in Santiago!",
+" · quedan {} km a Santiago": " · {} km left to Santiago",
+"Imágenes © Esri · Relieve © Mapzen / AWS": "Imagery © Esri · Terrain © Mapzen / AWS",
+"Grabando el vídeo… {} %": "Recording the video… {} %",
+"Parar": "Stop",
+"Ver el vuelo": "Watch the flight",
+"Preparando el vuelo… {} %": "Preparing the flight… {} %",
+"Este móvil no permite grabar vídeo desde Senda.": "This phone doesn't allow recording video from Senda.",
+"No se ha podido empezar a grabar el vídeo.": "The video recording couldn't start.",
+"Grabación cancelada.": "Recording cancelled.",
+"Vídeo de {} segundos ({} MB).": "{}-second video ({} MB).",
+" Está en formato WebM: algunas apps, como WhatsApp, puede que no lo acepten.": " It's in WebM format: some apps, like WhatsApp, may not accept it.",
+" Si lo subes a Instagram o YouTube, usa música propia o libre: pueden silenciar canciones con derechos.": " If you upload it to Instagram or YouTube, use your own or royalty-free music: they may mute copyrighted songs.",
+"Preparando el vídeo para compartir…": "Preparing the video to share…",
+"Listo.": "Done.",
+"Compartir el vídeo": "Share the video",
+"Vídeo guardado en Descargas.": "Video saved to Downloads.",
+"No se ha podido compartir el vídeo.": "The video couldn't be shared.",
+"Buscando los pueblos del recorrido… {} de {}": "Looking for towns along the route… {} of {}",
+"Buscando los pueblos del recorrido…": "Looking for towns along the route…",
+"Cargando el mapa 3D…": "Loading the 3D map…",
+"Preparando el mapa…": "Preparing the map…",
+"Terminando la imagen…": "Finishing the image…",
+"Preparando la imagen…": "Preparing the image…",
+"Así quedará. Pulsa Compartir para mandarla por WhatsApp, subirla a redes o guardarla.": "This is how it'll look. Tap Share to send it on WhatsApp, post it or save it.",
+"No se ha podido preparar la imagen.": "The image couldn't be prepared.",
+"Compartir la actividad": "Share the activity",
+"Imagen guardada en Descargas.": "Image saved to Downloads.",
+"No se ha podido compartir la imagen.": "The image couldn't be shared.",
+"Todavía no hay mapas guardados. Se guardan solos al ver tus actividades con conexión.": "No maps saved yet. They save themselves when you view your activities with a connection.",
+"Senda guarda los trozos de mapa que ves para poder enseñártelos sin conexión. Ahora ocupan {} MB.\n\n¿Quieres borrarlos para liberar espacio? Se volverán a descargar cuando los veas con conexión.": "Senda keeps the map pieces you view so it can show them offline. They now take up {} MB.\n\nDelete them to free up space? They'll download again when you view them with a connection.",
+"Mapas guardados borrados.": "Saved maps deleted.",
+"Viaje creado. Elige los archivos de sus etapas.": "Trip created. Choose the files for its stages.",
+"Todavía no hay actividades que copiar.": "There are no activities to back up yet.",
+"Un permiso, solo esta vez": "One permission, just this once",
+"Android te pedirá dejar que Senda instale sus actualizaciones. Activa «Permitir de esta fuente» y vuelve a Senda: la actualización seguirá sola.": "Android will ask you to let Senda install its updates. Turn on “Allow from this source” and come back to Senda: the update will carry on by itself.",
+"Al terminar se abrirá el instalador: solo tendrás que pulsar «Instalar» o «Actualizar».": "When it finishes the installer will open: you'll just need to tap “Install” or “Update”.",
+"No se pudo actualizar": "Couldn't update",
+"Revisa la conexión y vuelve a intentarlo.": "Check your connection and try again.",
+"Reintentar": "Try again",
+"Hay una versión nueva de Senda": "A new version of Senda is out",
+"Tienes la {} y ya está la {}. Se instala encima, sin perder nada.": "You have {} and {} is out. It installs on top, without losing anything.",
+"Tienes la última versión de Senda.": "You have the latest version of Senda.",
+"No se ha podido comprobar. Revisa la conexión.": "Couldn't check. Check your connection.",
+"No tienes otras actividades guardadas. Usa «Añadir etapa» para abrir un archivo.": "You have no other saved activities. Use “Add stage” to open a file.",
+"Añadir {}": "Add {}",
+", ahora en «{}»": ", now in “{}”",
+"En otros viajes (se moverán a este)": "In other trips (they'll move to this one)",
+"Marca las actividades que quieres añadir a «{}». Se ordenarán solas por fecha.": "Tick the activities you want to add to “{}”. They'll sort themselves by date.",
+"¿Borrar el viaje \"{}\"? Sus etapas no se borran: pasan a actividades sueltas.": "Delete the trip \"{}\"? Its stages aren't deleted: they become single activities.",
+"Viaje borrado. Sus etapas siguen en tu historial.": "Trip deleted. Its stages are still in your history.",
+"¿Borrar esta actividad del historial?": "Delete this activity from your history?",
+"Actividad borrada.": "Activity deleted.",
+"Pulsa «Buscar fotos» y Senda mirará en tu galería las fotos que hiciste durante la actividad para que elijas cuáles publicar.": "Tap “Find photos” and Senda will look in your gallery for the photos you took during the activity so you can choose which to publish.",
+"Senda instalada. Ya la tienes en la pantalla de inicio.": "Senda installed. It's now on your home screen.",
+"Senda se ha actualizado a la versión ": "Senda has been updated to version ",
+"He corregido el desnivel de {} {} datos imposibles.": "I've corrected the elevation of {} {} impossible data.",
+"actividad que tenía": "activity that had",
+"actividades que tenían": "activities that had",
+"Ver foto ": "View photo ",
+"Senda se ha actualizado": "Senda has been updated",
+"Cerca": "Close",
+"Media": "Medium",
+"Lejos": "Far",
+"{}, desde {}": "{}, from {}",
+"{}, desde {} (unos {} km)": "{}, from {} (about {} km)",
+"{} actividad(s) recuperadas": "{} activit(ies) restored",
+"Publicar {} {}": "Publish {} {}",
+"Etapa {}, {}": "Stage {}, {}",
+"{} actividades nuevas detectadas": "{} new activities found",
+"Copia recuperada: {} {}": "Backup restored: {} {}",
+"Conectado como {}.": "Connected as {}.",
+"{} etapas": "{} stages",
+"Etapa {}": "Stage {}",
+" + {} s fotos": " + {} s photos",
+"Descargando Senda {}": "Downloading Senda {}",
+"o": "or"
+};
+const ENH = {
+", luego": ", then",
+". En Android 14 o más nuevo ya viene en los Ajustes del móvil; si no, Senda te lleva a instalarlo.": ". On Android 14 or newer it's already in your phone's Settings; if not, Senda takes you to install it.",
+". En Zepp:": ". In Zepp:",
+". Mejor en formato": ". Preferably in",
+". Se abre sola con tu ruta.": ". It opens with your route.",
+"; GPX también vale.": " format; GPX works too.",
+"Abrir un archivo": "Open a file",
+"Acerca de Senda": "About Senda",
+"Actualizar": "Update",
+"Ahora no": "Not now",
+"Así Senda muestra los datos que tocan: ritmo si corres, velocidad si vas en bici.": "That way Senda shows the right data: pace if you run, speed if you ride a bike.",
+"Automático, con Health Connect": "Automatic, with Health Connect",
+"Añadir": "Add",
+"Añadir actividad": "Add activity",
+"Añadir de mis actividades": "Add from my activities",
+"Añadir etapa": "Add stage",
+"Añadir etapas": "Add stages",
+"Borrar actividad": "Delete activity",
+"Borrar viaje": "Delete trip",
+"Buscando…": "Searching…",
+"Buscar actualizaciones": "Check for updates",
+"Buscar de nuevo": "Search again",
+"Buscar fotos": "Find photos",
+"Cada ruta en su mapa": "Every route on its map",
+"Cambiar el Camino o los kilómetros": "Change the Camino or the kilometres",
+"Cambiar título": "Change title",
+"Camino": "Camino",
+"Camino de Santiago": "Camino de Santiago",
+"Cancelar": "Cancel",
+"Cerca": "Close",
+"Cerrar": "Close",
+"Color: altitud": "Colour: altitude",
+"Color: etapas": "Colour: stages",
+"Color: pendiente": "Colour: gradient",
+"Color: pulso": "Colour: heart rate",
+"Color: sendero": "Colour: trail",
+"Color: velocidad": "Colour: speed",
+"Colorear la ruta por": "Colour the route by",
+"Compartir": "Share",
+"Compartir como imagen": "Share as image",
+"Comprueba que tienes": "Check that you have",
+"Con un archivo GPX, TCX o FIT": "With a GPX, TCX or FIT file",
+"Conectar Health Connect": "Connect Health Connect",
+"Copia en Google Drive": "Google Drive backup",
+"Copia encontrada": "Backup found",
+"Copias de seguridad": "Backups",
+"Crear": "Create",
+"Crear vídeo": "Create video",
+"Crear y elegir etapas": "Create and choose stages",
+"Cuadrado": "Square",
+"Cámara": "Camera",
+"Código QR de PayPal para invitar a un café": "PayPal QR code to buy me a coffee",
+"Cómo empezar": "Getting started",
+"Dato del gráfico": "Chart data",
+"Desmarcar todas": "Untick all",
+"Desnivel": "Elevation",
+"Detectar actividades (Health Connect)": "Find activities (Health Connect)",
+"Distancia": "Distance",
+"Distancia de la cámara": "Camera distance",
+"Duración": "Length",
+"Duración del vídeo": "Video length",
+"Elegir canción": "Choose a song",
+"Elegir fotos a mano": "Choose photos by hand",
+"Elige qué Camino haces y desde dónde. Los kilómetros son aproximados: cámbialos si tu guía dice otra cosa.": "Choose which Camino you're doing and where from. The kilometres are approximate: change them if your guide says otherwise.",
+"En el mapa": "On the map",
+"En la app de tu reloj activa la sincronización con": "In your watch app, turn on syncing with",
+"En la app de tu reloj, abre la actividad y busca": "In your watch app, open the activity and look for",
+"En la lista de apps para compartir, elige": "In the list of apps to share with, choose",
+"Encuadrar": "Fit",
+"Enlace de cuenta de terceros": "third-party accounts (“Add accounts”)",
+"Es un Camino de Santiago": "It's a Camino de Santiago",
+"Esta guía la tienes siempre en el menú, en «Cómo empezar». Si haces varias etapas, como el Camino de Santiago, luego las puedes juntar en un viaje.": "This guide is always in the menu, under “Getting started”. If you do several stages, like the Camino de Santiago, you can later group them into a trip.",
+"Estadísticas": "Stats",
+"Estadísticas y récords": "Stats and records",
+"Esto solo funciona en la app de Android.": "This only works in the Android app.",
+"Etapas": "Stages",
+"Exportar": "Export",
+"Fecha": "Date",
+"Fija": "Fixed",
+"Formato": "Format",
+"Formato del vídeo": "Video format",
+"Foto": "Photo",
+"Fotos": "Photos",
+"Fotos de esta actividad": "Photos from this activity",
+"Fotos y pueblos": "Photos and towns",
+"Guardar": "Save",
+"Guardar copia": "Save backup",
+"Guardar copia con fotos": "Save backup with photos",
+"Hay una versión nueva de Senda": "A new version of Senda is out",
+"Historial": "History",
+"Horas": "Hours",
+"Horizontal": "Landscape",
+"Imagen para compartir": "Image to share",
+"Inicio": "Home",
+"Instalar en el móvil": "Install on your phone",
+"Invitar con PayPal": "Treat me with PayPal",
+"Invítame a un café ☕": "Buy me a coffee ☕",
+"Ir al inicio": "Go to home",
+"Kilómetros hasta Santiago desde la salida": "Kilometres to Santiago from the start",
+"Lejos": "Far",
+"Mapas de OpenStreetMap y OpenTopoMap. Poblaciones de OpenStreetMap.": "Maps from OpenStreetMap and OpenTopoMap. Towns from OpenStreetMap.",
+"Mapas guardados": "Saved maps",
+"Marca las actividades que quieres añadir a este viaje.": "Tick the activities you want to add to this trip.",
+"Marcar todas": "Tick all",
+"Media": "Medium",
+"Menú": "Menu",
+"Mis actividades": "My activities",
+"Modo de cámara": "Camera mode",
+"Más datos": "More data",
+"Música": "Music",
+"No es un Camino": "Not a Camino",
+"Nombre del nuevo viaje": "Name of the new trip",
+"Nombre del viaje": "Trip name",
+"Nombre del viaje, p. ej. Camino Francés 2027": "Trip name, e.g. French Way 2027",
+"Camino Francés 2027": "French Way 2027",
+"Novedades": "What's new",
+"Nueva actividad detectada": "New activity found",
+"Nuevo viaje": "New trip",
+"O pásale este código a quien quiera invitar desde otro móvil:": "Or give this code to anyone who wants to treat you from another phone:",
+"Ordenar": "Sort",
+"Ordenar el historial": "Sort history",
+"Para rutas sueltas, o si tu reloj no usa Health Connect.": "For one-off routes, or if your watch doesn't use Health Connect.",
+"Perfil": "Profile",
+"Permitir todo": "Allow all",
+"Poblaciones cercanas": "Nearby towns",
+"Por meses": "By month",
+"Preparando la imagen…": "Preparing the image…",
+"Publicar": "Publish",
+"Pulsa el botón de abajo y da permiso a Senda para leer tus ejercicios y sus rutas. Elige": "Tap the button below and give Senda permission to read your workouts and their routes. Choose",
+"Pulsa «Buscar fotos» y elige en la galería todas las fotos de ese día, sin preocuparte de cuáles: Senda se queda con las que hiciste durante la actividad y te deja marcar las que quieres publicar.": "Tap “Find photos” and pick all of that day's photos in your gallery, without worrying which: Senda keeps the ones you took during the activity and lets you tick the ones you want to publish.",
+"Quitar": "Remove",
+"Quitar foto": "Remove photo",
+"Recomendado": "Recommended",
+"Recuperar": "Restore",
+"Recuperar copia": "Restore backup",
+"Reproducir": "Play",
+"Récords": "Records",
+"Salir": "Exit",
+"Saltar": "Skip",
+"Seguir": "Follow",
+"Seguir aquí": "Stay",
+"Senda es gratis y la hago en mi tiempo libre. Si te gusta y quieres apoyar que siga mejorando, puedes invitarme a un café.": "Senda is free and I make it in my spare time. If you like it and want to help it keep improving, you can buy me a coffee.",
+"Senda no graba las rutas: usa las que guarda tu reloj. Para empezar, elige cómo traerlas. Solo hay que hacerlo una vez.": "Senda doesn't record routes: it uses the ones your watch saves. To start, choose how to bring them in. You only need to do it once.",
+"Senda se ha actualizado": "Senda has been updated",
+"Senda te avisa sola de cada actividad nueva, sin exportar nada.": "Senda tells you about each new activity by itself, without exporting anything.",
+"Senda · mis actividades": "Senda · my activities",
+"Senda, por": "Senda, by",
+"Si Senda no sale en esa lista, guarda el archivo en el móvil y pulsa el botón de abajo para elegirlo.": "If Senda isn't in that list, save the file on your phone and tap the button below to pick it.",
+"Sin música": "No music",
+"Terminar": "Finish",
+"Tipo de actividad": "Activity type",
+"Toca el punto en el mapa o en el perfil.": "Tap the spot on the map or on the profile.",
+"Tu Camino de Santiago": "Your Camino de Santiago",
+"Tu vídeo": "Your video",
+"Tus actividades quedan guardadas.": "Your activities stay saved.",
+"Tus actividades se guardan en este navegador. Guarda una copia de vez en cuando por si borras los datos o cambias de móvil. La copia con fotos ocupa más, pero lo guarda todo.": "Your activities are saved in this browser. Save a backup now and then in case you clear your data or change phones. The backup with photos is bigger, but it keeps everything.",
+"Tus actividades y viajes por etapas sobre el mapa, con su perfil, su animación, tus fotos y los pueblos por los que pasaste. Lee los archivos GPX, TCX y FIT que exporta Zepp.": "Your activities and multi-stage trips on the map, with their profile, animation, your photos and the towns you passed through. Reads the GPX, TCX and FIT files Zepp exports.",
+"Tus actividades, sobre el mapa": "Your activities, on the map",
+"Un viaje agrupa varias actividades como etapas, por ejemplo el Camino de Santiago.": "A trip groups several activities as stages, for example the Camino de Santiago.",
+"Una app de DanLab": "An app by DanLab",
+"Velocidad de la animación": "Animation speed",
+"Ver el historial": "See history",
+"Ver el vuelo": "Watch the flight",
+"Ver pulso": "Show heart rate",
+"Versión": "Version",
+"Vertical": "Portrait",
+"Viaje": "Trip",
+"Viajes por etapas": "Multi-stage trips",
+"Vuelo 3D": "3D flight",
+"Vuelo 3D y vídeo": "3D flight and video",
+"o abre un archivo nuevo con «Añadir etapa».": "or open a new file with “Add stage”.",
+"¡A probarlo!": "Let's try it!",
+"¡Gracias por usar Senda! DanLab": "Thanks for using Senda! DanLab",
+"¿Dónde hiciste esta foto?": "Where did you take this photo?",
+"¿Qué actividad era?": "What kind of activity was it?",
+"¿Salir de Senda?": "Exit Senda?",
+"¿Ya usabas Senda? Recuperar desde Google Drive": "Already used Senda? Restore from Google Drive",
+"Órbita": "Orbit",
+"☕ Invítame a un café": "☕ Buy me a coffee",
+"Santiago": "Santiago",
+"Salida": "Start",
+"Kilómetros": "Kilometres",
+"Copia": "Backup",
+"o": "or",
+"y": "and"
+};
+function Tx(s, ...v) {
+  if (s && s.raw) {
+    const plain = () => s.reduce((a, x, i) => a + x + (i < v.length ? v[i] : ''), '');
+    if (LANG !== 'en') return plain();
+    const e = EN[s.join('{}')];
+    if (e == null) return plain();
+    let i = 0;
+    return e.replace(/\{\}/g, () => { const x = v[i++]; return x == null ? '' : String(x); });
+  }
+  if (LANG !== 'en' || s == null) return s;
+  const e = EN[s];
+  return e == null ? s : e;
+}
+function translateStatic(root) {
+  if (LANG !== 'en') return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (w.nextNode()) nodes.push(w.currentNode);
+  for (const n of nodes) {
+    const p = n.parentNode;
+    if (!p || /^(SCRIPT|STYLE)$/.test(p.nodeName)) continue;
+    const raw = n.data, k = raw.replace(/\s+/g, ' ').trim();
+    if (!k) continue;
+    const e = ENH[k] != null ? ENH[k] : EN[k];
+    if (e != null) n.data = (/^\s/.test(raw) ? ' ' : '') + e + (/\s$/.test(raw) ? ' ' : '');
+  }
+  root.querySelectorAll('[aria-label],[placeholder],[title],[alt]').forEach(el => {
+    for (const a of ['aria-label', 'placeholder', 'title', 'alt']) {
+      const v = el.getAttribute(a); if (!v) continue;
+      const k = v.replace(/\s+/g, ' ').trim(), e = ENH[k] != null ? ENH[k] : EN[k];
+      if (e != null) el.setAttribute(a, e);
+    }
+  });
+}
+document.documentElement.lang = LANG;
+if (LANG === 'en') {
+  translateStatic(document.body);
+  document.title = document.title.replace('mis actividades', 'my activities');
+  const ml = document.getElementById('menuLang'); if (ml) ml.textContent = 'Español';
+}
+</script>
 <script src="capacitor.js"></script>
 <script src="lib/leaflet/leaflet.js"></script>
 <script src="lib/exifr/lite.umd.js"></script>
@@ -937,7 +1583,7 @@ function parseFIT(buffer) {
   const headerSize = dv.getUint8(0);
   const dataSize = dv.getUint32(4, true);
   const sig = String.fromCharCode(dv.getUint8(8), dv.getUint8(9), dv.getUint8(10), dv.getUint8(11));
-  if (sig !== '.FIT') throw new Error('El archivo no parece un FIT válido.');
+  if (sig !== '.FIT') throw new Error(Tx('El archivo no parece un FIT válido.'));
   let p = headerSize;
   const end = Math.min(headerSize + dataSize, buffer.byteLength - 2);
   const defs = {};
@@ -1001,7 +1647,7 @@ function parseFIT(buffer) {
 
   function readData(local, p, compTs) {
     const d = defs[local];
-    if (!d) throw new Error('FIT dañado: falta una definición.');
+    if (!d) throw new Error(Tx('FIT dañado: falta una definición.'));
     const v = {};
     for (const [num, size, base] of d.fields) {
       v[num] = readVal(p, base, size, d.le);
@@ -1053,7 +1699,7 @@ function parseFIT(buffer) {
 
 function parseXML(text) {
   const doc = new DOMParser().parseFromString(text, 'application/xml');
-  if (doc.getElementsByTagName('parsererror').length) throw new Error('El archivo XML está dañado.');
+  if (doc.getElementsByTagName('parsererror').length) throw new Error(Tx('El archivo XML está dañado.'));
   return doc;
 }
 function firstNum(el, local) {
@@ -1144,7 +1790,7 @@ function smooth(arr, win) {
 
 function analyze(act) {
   const P = act.points;
-  if (P.length < 2) throw new Error('El archivo no tiene puntos de ruta suficientes.');
+  if (P.length < 2) throw new Error(Tx('El archivo no tiene puntos de ruta suficientes.'));
   // Distancia acumulada: la del reloj si existe, si no, calculada
   const hasDevDist = P.filter(q => q.dist != null).length > P.length * 0.8;
   let acc = 0;
@@ -1223,7 +1869,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '3.2.0';
+const APP_VERSION = '3.3.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -1240,12 +1886,12 @@ const NativeDrive = NATIVE ? CAP.registerPlugin('SendaDrive') : null;
 document.querySelectorAll('.app-ver').forEach(el => el.textContent = APP_VERSION);
 // ---------- Tipos de actividad ----------
 const KINDS = {
-  walk: { name: 'Caminata', icon: '🚶', foot: true },
-  hike: { name: 'Senderismo', icon: '🥾', foot: true },
-  run: { name: 'Carrera', icon: '🏃', foot: true, pace: true },
-  bike: { name: 'Bici', icon: '🚴', bike: true },
-  mtb: { name: 'Bici de montaña', icon: '🚵', bike: true },
-  other: { name: 'Otra', icon: '📍' }
+  walk: { name: Tx('Caminata'), icon: '🚶', foot: true },
+  hike: { name: Tx('Senderismo'), icon: '🥾', foot: true },
+  run: { name: Tx('Carrera'), icon: '🏃', foot: true, pace: true },
+  bike: { name: Tx('Bici'), icon: '🚴', bike: true },
+  mtb: { name: Tx('Bici de montaña'), icon: '🚵', bike: true },
+  other: { name: Tx('Otra'), icon: '📍' }
 };
 const KIND_ORDER = ['walk', 'hike', 'run', 'bike', 'mtb', 'other'];
 function guessKind(sport, distance, elapsed) {
@@ -1270,19 +1916,22 @@ const kindName = k => (KINDS[k] || KINDS.walk).name;
 const kindIcon = k => (KINDS[k] || KINDS.walk).icon;
 // ---------- Novedades de cada versión (la más nueva primero) ----------
 const CHANGELOG = [
+  { v: '3.3.0', items: [
+    [Tx('🌍'), Tx('Senda en inglés'), Tx('Si tu móvil está en inglés, Senda también. Puedes cambiar el idioma cuando quieras en el menú.')]
+  ] },
   { v: '3.2.0', items: [
-    ['📤', 'Comparte tus rutas con Senda', 'Desde Zepp u otra app, al exportar una actividad en GPX, TCX o FIT pulsa «Compartir» y elige Senda: se abre sola con tu ruta, sin buscar el archivo.'],
-    ['📂', 'Abrir con Senda', 'En el gestor de archivos del móvil, al tocar un GPX, TCX o FIT puedes abrirlo directamente con Senda.']
+    ['📤', Tx('Comparte tus rutas con Senda'), Tx('Desde Zepp u otra app, al exportar una actividad en GPX, TCX o FIT pulsa «Compartir» y elige Senda: se abre sola con tu ruta, sin buscar el archivo.')],
+    ['📂', Tx('Abrir con Senda'), Tx('En el gestor de archivos del móvil, al tocar un GPX, TCX o FIT puedes abrirlo directamente con Senda.')]
   ] },
   { v: '3.1.0', items: [
-    ['🧭', 'Guía para empezar', 'La pantalla de inicio explica paso a paso cómo traer tus actividades: con Health Connect o con un archivo. La tienes siempre en el menú, en «Cómo empezar».'],
-    ['🎉', 'Novedades al actualizar', 'Después de cada actualización, Senda te cuenta qué ha cambiado. Las puedes volver a ver en el menú, en «Novedades».']
+    ['🧭', Tx('Guía para empezar'), Tx('La pantalla de inicio explica paso a paso cómo traer tus actividades: con Health Connect o con un archivo. La tienes siempre en el menú, en «Cómo empezar».')],
+    ['🎉', Tx('Novedades al actualizar'), Tx('Después de cada actualización, Senda te cuenta qué ha cambiado. Las puedes volver a ver en el menú, en «Novedades».')]
   ] },
   { v: '3.0.0', items: [
-    ['🚴', 'Andar, correr o bici', 'Al añadir una actividad eliges qué era. Si corres ves el ritmo; si vas en bici, la velocidad media y la máxima. Puedes cambiarlo con el botón que hay bajo el título.'],
-    ['🐚', 'Modo Camino de Santiago', 'En un viaje, elige tu Camino y Senda te dice cuántos kilómetros te quedan para Santiago y qué porcentaje llevas.'],
-    ['📈', 'Estadísticas y récords', 'Kilómetros, horas y desnivel por meses y años, y tus récords. Está en el inicio y en el menú.'],
-    ['🎬', 'Vídeo en tres formatos y con música', 'El vuelo 3D se graba en vertical, horizontal o cuadrado, con una canción de tu móvil.']
+    ['🚴', Tx('Andar, correr o bici'), Tx('Al añadir una actividad eliges qué era. Si corres ves el ritmo; si vas en bici, la velocidad media y la máxima. Puedes cambiarlo con el botón que hay bajo el título.')],
+    ['🐚', Tx('Modo Camino de Santiago'), Tx('En un viaje, elige tu Camino y Senda te dice cuántos kilómetros te quedan para Santiago y qué porcentaje llevas.')],
+    ['📈', Tx('Estadísticas y récords'), Tx('Kilómetros, horas y desnivel por meses y años, y tus récords. Está en el inicio y en el menú.')],
+    ['🎬', Tx('Vídeo en tres formatos y con música'), Tx('El vuelo 3D se graba en vertical, horizontal o cuadrado, con una canción de tu móvil.')]
   ] }
 ];
 function verCmp(a, b) {
@@ -1292,10 +1941,10 @@ function verCmp(a, b) {
 }
 function showNews(entries, updated) {
   $('newsKicker').hidden = !updated;
-  $('newsTitle').textContent = updated ? `Novedades de la versión ${APP_VERSION.replace(/\.0$/, '')}` : 'Novedades de Senda';
+  $('newsTitle').textContent = updated ? Tx`Novedades de la versión ${APP_VERSION.replace(/\.0$/, '')}` : Tx('Novedades de Senda');
   const box = $('newsList'); box.innerHTML = '';
   entries.forEach(c => {
-    if (entries.length > 1) { const h = document.createElement('p'); h.className = 'news-ver'; h.textContent = 'Versión ' + c.v.replace(/\.0$/, ''); box.appendChild(h); }
+    if (entries.length > 1) { const h = document.createElement('p'); h.className = 'news-ver'; h.textContent = Tx('Versión ') + c.v.replace(/\.0$/, ''); box.appendChild(h); }
     for (const [ic, ti, tx] of c.items) {
       const d = document.createElement('div'); d.className = 'news-item';
       const s = document.createElement('span'); s.setAttribute('aria-hidden', 'true'); s.textContent = ic;
@@ -1304,7 +1953,7 @@ function showNews(entries, updated) {
       d.append(s, b, p); box.appendChild(d);
     }
   });
-  $('newsOk').textContent = updated ? '¡A probarlo!' : 'Cerrar';
+  $('newsOk').textContent = updated ? Tx('¡A probarlo!') : Tx('Cerrar');
   $('newsModal').classList.add('on');
 }
 function checkNews() {
@@ -1325,7 +1974,7 @@ async function takeShared() {
     const files = (r && r.files || []).map(f => {
       const bin = atob(f.data), bytes = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      return new File([bytes], f.name || 'actividad');
+      return new File([bytes], f.name || Tx('actividad'));
     });
     if (files.length) {
       document.querySelectorAll('.modal.on').forEach(m => m.classList.remove('on'));
@@ -1333,7 +1982,7 @@ async function takeShared() {
       pendingTripId = null;
       await openFiles(files);
     }
-  } catch (e) { console.error(e); toast('No se ha podido abrir el archivo compartido.'); }
+  } catch (e) { console.error(e); toast(Tx('No se ha podido abrir el archivo compartido.')); }
   sharing = false;
 }
 function showGuide() {
@@ -1352,7 +2001,7 @@ const SPEEDS = [0.5, 1, 2, 4];
 const baseSeconds = () => !A ? 40 : A.isTrip ? Math.min(180, 60 + A.stages.length * 3) : Math.min(180, Math.max(40, 20 + A.distance / 1000 * 8));
 
 // ---------- Fotos guardadas (IndexedDB) ----------
-const PHOTO_DB = 'senda-fotos', PHOTO_STORE = 'fotos';
+const PHOTO_DB = 'senda-fotos', PHOTO_STORE = Tx('fotos');
 let dbPromise = null;
 function photoDb() {
   if (!dbPromise) dbPromise = new Promise((res, rej) => {
@@ -1374,7 +2023,7 @@ async function photoTx(mode, fn) {
   });
 }
 const photoPut = rec => { driveMark(); return photoTx('readwrite', s => s.put(rec)); };
-const photoDelete = id => { driveMark('foto', [id]); return photoTx('readwrite', s => s.delete(id)); };
+const photoDelete = id => { driveMark(Tx('foto'), [id]); return photoTx('readwrite', s => s.delete(id)); };
 async function photosForActivity(actId) {
   try { return await photoTx('readonly', s => s.index('act').getAll(actId)) || []; }
   catch (e) { console.error(e); return []; }
@@ -1397,9 +2046,9 @@ async function resizeImage(file, max, quality) {
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 
 // ---------- Formato ----------
-const fmtKm = m => (m / 1000).toLocaleString('es-ES', { minimumFractionDigits: m >= 10000 ? 1 : 2, maximumFractionDigits: m >= 10000 ? 1 : 2 });
-const fmtNum = n => n == null ? '–' : Math.round(n).toLocaleString('es-ES');
-const fmtDec = (n, d = 1) => n == null || !isFinite(n) ? '–' : n.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmtKm = m => (m / 1000).toLocaleString(LOC, { minimumFractionDigits: m >= 10000 ? 1 : 2, maximumFractionDigits: m >= 10000 ? 1 : 2 });
+const fmtNum = n => n == null ? '–' : Math.round(n).toLocaleString(LOC);
+const fmtDec = (n, d = 1) => n == null || !isFinite(n) ? '–' : n.toLocaleString(LOC, { minimumFractionDigits: d, maximumFractionDigits: d });
 // Desnivel: lo que se sube y lo que se baja, para que una ruta de bajada no parezca llana
 const fmtDesnivel = a => '+' + fmtNum(a.ascent) + ' / −' + fmtNum(a.descent);
 // Velocidad media sobre el tiempo en movimiento (o el total si no lo hay)
@@ -1420,8 +2069,8 @@ function fmtPace(secPerKm) {
   const m = Math.floor(secPerKm / 60), s = Math.round(secPerKm % 60);
   return `${m}:${String(s).padStart(2, '0')} /km`;
 }
-const fmtDate = t => t ? new Date(t).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '';
-const fmtHour = t => t ? new Date(t).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
+const fmtDate = t => t ? new Date(t).toLocaleDateString(LOC, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : '';
+const fmtHour = t => t ? new Date(t).toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' }) : '';
 
 function toast(msg, ms = 3500) {
   const t = $('toast'); t.textContent = msg; t.classList.add('on');
@@ -1451,12 +2100,12 @@ function kvPut(key, value) {
   kvQueue = kvQueue.then(async () => {
     const db = await kvDb();
     await new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(value, key); tx.oncomplete = res; tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error); });
-  }).catch(e => { console.error(e); toast('No se ha podido guardar. Puede que el móvil esté sin espacio.', 6000); });
+  }).catch(e => { console.error(e); toast(Tx('No se ha podido guardar. Puede que el móvil esté sin espacio.'), 6000); });
   return kvQueue;
 }
 async function initStore() {
   try {
-    let h = await kvGet('historial'), v = await kvGet('viajes');
+    let h = await kvGet('historial'), v = await kvGet(Tx('viajes'));
     // Pasar lo que hubiera en el almacenamiento antiguo, sin perder nada
     const merge = (cur, oldKey) => {
       const old = localStorage.getItem(oldKey);
@@ -1469,9 +2118,9 @@ async function initStore() {
     };
     const h2 = merge(h, STORE_KEY), v2 = merge(v, TRIP_KEY);
     if (h2 !== h || h == null) { h = h2 || '[]'; await kvPut('historial', h); }
-    if (v2 !== v || v == null) { v = v2 || '[]'; await kvPut('viajes', v); }
+    if (v2 !== v || v == null) { v = v2 || '[]'; await kvPut(Tx('viajes'), v); }
     mem.hist = h; mem.trips = v;
-    const okH = await kvGet('historial'), okV = await kvGet('viajes');
+    const okH = await kvGet('historial'), okV = await kvGet(Tx('viajes'));
     if (okH === h) localStorage.removeItem(STORE_KEY);
     if (okV === v) localStorage.removeItem(TRIP_KEY);
   } catch (e) {
@@ -1566,7 +2215,7 @@ function saveTrips(list) {
     driveMark('trip', before.filter(id => !now.has(id)));
   } catch {}
   mem.trips = JSON.stringify(list);
-  kvPut('viajes', mem.trips);
+  kvPut(Tx('viajes'), mem.trips);
   return true;
 }
 function createTrip(name) {
@@ -1596,11 +2245,11 @@ function renderHistory() {
   const km = list.reduce((s, e) => s + (e.session.distance || 0), 0);
   const up = list.reduce((s, e) => s + (e.session.ascent || 0), 0);
   const secs = list.reduce((s, e) => s + (e.session.elapsed || 0), 0);
-  $('homeSub').textContent = `${list.length} ${list.length === 1 ? 'actividad guardada' : 'actividades guardadas'}` +
-    (trips.length ? ` y ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : '');
+  $('homeSub').textContent = `${list.length} ${list.length === 1 ? Tx('actividad guardada') : Tx('actividades guardadas')}` +
+    (trips.length ? Tx` y ${trips.length} ${trips.length === 1 ? Tx('viaje') : Tx('viajes')}` : '');
   const tot = $('homeTotals'); tot.innerHTML = '';
   const hh = Math.floor(secs / 3600), mm = Math.round(secs % 3600 / 60);
-  for (const [l, v, u] of [['Distancia total', fmtKm(km), 'km'], ['Tiempo total', `${hh}:${String(mm).padStart(2, '0')}`, 'h'], ['Desnivel total', '+' + fmtNum(up), 'm']]) {
+  for (const [l, v, u] of [[Tx('Distancia total'), fmtKm(km), 'km'], [Tx('Tiempo total'), `${hh}:${String(mm).padStart(2, '0')}`, 'h'], [Tx('Desnivel total'), '+' + fmtNum(up), 'm']]) {
     const d = document.createElement('div'); d.className = 'plate';
     const s = document.createElement('span'); s.textContent = l;
     const b = document.createElement('b'); b.textContent = v;
@@ -1616,7 +2265,7 @@ function renderHistory() {
     for (const k of ks) { const s = document.createElement('span'); s.textContent = kindIcon(k) + ' ' + kindName(k) + ' '; const b = document.createElement('b'); b.textContent = fmtKm(by[k]) + ' km'; s.appendChild(b); hk.appendChild(s); }
   }
   const tripIds = new Set(trips.map(x => x.id));
-  $('btnHistHome').textContent = `Ver el historial (${list.length} ${list.length === 1 ? 'actividad' : 'actividades'}${trips.length ? `, ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : ''})`;
+  $('btnHistHome').textContent = Tx`Ver el historial (${list.length} ${list.length === 1 ? Tx('actividad') : Tx('actividades')}${trips.length ? Tx`, ${trips.length} ${trips.length === 1 ? Tx('viaje') : Tx('viajes')}` : ''})`;
   drawHomeMap(list, tripIds);
   renderHealthCard();
 }
@@ -1634,7 +2283,7 @@ function renderHistList() {
   const list = loadHistory(), trips = loadTrips();
   const box = $('histList'); box.innerHTML = '';
   const tripIds = new Set(trips.map(x => x.id));
-  const shortDate = t => t ? new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  const shortDate = t => t ? new Date(t).toLocaleDateString(LOC, { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const tripItems = trips.map(trip => { const st = tripStages(trip.id, list); return { trip, st, date: st.length ? walkDate(st[0]) : (trip.created || 0) }; })
     .sort((a, b) => (b.st.length ? 1 : 0) - (a.st.length ? 1 : 0) || b.date - a.date);
   const sortKey = histSort;
@@ -1644,12 +2293,12 @@ function renderHistList() {
     const tm = it => it.st.reduce((s, e) => s + (sortKey === 'dist' ? (e.session.distance || 0) : sortKey === 'climb' ? (e.session.ascent || 0) : (e.session.elapsed || 0)), 0);
     tripItems.sort((a, b) => tm(b) - tm(a));
   }
-  $('histSub').textContent = `${list.length} ${list.length === 1 ? 'actividad' : 'actividades'}` + (trips.length ? ` y ${trips.length} ${trips.length === 1 ? 'viaje' : 'viajes'}` : '');
+  $('histSub').textContent = `${list.length} ${list.length === 1 ? Tx('actividad') : Tx('actividades')}` + (trips.length ? Tx` y ${trips.length} ${trips.length === 1 ? Tx('viaje') : Tx('viajes')}` : '');
   const row = (strong, sub, km, onclick, isTrip, icon) => {
     const r = document.createElement('button'); r.type = 'button'; r.className = 'walk-row' + (isTrip ? ' is-trip' : '');
     const st = document.createElement('strong'); st.textContent = strong;
     if (icon) { const ic = document.createElement('span'); ic.className = 'w-ic'; ic.setAttribute('aria-hidden', 'true'); ic.textContent = icon; st.prepend(ic); }
-    if (isTrip) { const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = isTrip === 'camino' ? 'Camino de Santiago' : 'Viaje'; st.appendChild(tag); }
+    if (isTrip) { const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = isTrip === 'camino' ? Tx('Camino de Santiago') : Tx('Viaje'); st.appendChild(tag); }
     const kmEl = document.createElement('span'); kmEl.className = 'w-km'; kmEl.textContent = km;
     if (km) { const sm = document.createElement('small'); sm.textContent = 'km'; kmEl.appendChild(sm); }
     const s = document.createElement('span'); s.className = 'w-sub'; s.textContent = sub;
@@ -1658,28 +2307,28 @@ function renderHistList() {
   };
   const sec = txt => { const h = document.createElement('h2'); h.className = 'hist-sec'; h.textContent = txt; box.appendChild(h); };
   if (tripItems.length) {
-    sec('Viajes');
+    sec(Tx('Viajes'));
     for (const it of tripItems) {
       const n = it.st.length;
       const tkm = it.st.reduce((s, e) => s + (e.session.distance || 0), 0), tup = it.st.reduce((s, e) => s + (e.session.ascent || 0), 0);
-      box.appendChild(row(it.trip.name, n ? `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${shortDate(walkDate(it.st[0]))} al ${shortDate(walkDate(it.st[n - 1]))}, +${fmtNum(tup)} m` : 'Sin etapas todavía', n ? fmtKm(tkm) : '', () => showTrip(it.trip.id), caminoOn(it.trip, it.st) ? 'camino' : true));
+      box.appendChild(row(it.trip.name, n ? Tx`${n} ${n === 1 ? Tx('etapa') : Tx('etapas')}, del ${shortDate(walkDate(it.st[0]))} al ${shortDate(walkDate(it.st[n - 1]))}, +${fmtNum(tup)} m` : Tx('Sin etapas todavía'), n ? fmtKm(tkm) : '', () => showTrip(it.trip.id), caminoOn(it.trip, it.st) ? 'camino' : true));
     }
   }
   if (loose.length) {
-    sec(tripItems.length ? 'Actividades sueltas' : 'Actividades');
+    sec(tripItems.length ? Tx('Actividades sueltas') : Tx('Actividades'));
     let lastMonth = '';
     for (const e of loose) {
       const d = walkDate(e);
       if (sortKey === 'date') {
-        const m = d ? new Date(d).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'Sin fecha';
+        const m = d ? new Date(d).toLocaleDateString(LOC, { month: 'long', year: 'numeric' }) : Tx('Sin fecha');
         if (m !== lastMonth) { lastMonth = m; const h = document.createElement('h3'); h.className = 'hist-month'; h.textContent = m.charAt(0).toUpperCase() + m.slice(1); box.appendChild(h); }
       }
       const r = row(titleFor(e.name, d, kindOf(e), e.title), `${shortDate(d)}, ${fmtDur(e.session.elapsed)}, +${fmtNum(e.session.ascent)} m`, fmtKm(e.session.distance), () => showActivity(unpackActivity(e), false), false, kindIcon(kindOf(e)));
-      if (e.climbFixed) { const fx = document.createElement('span'); fx.className = 'w-sub fixed-note'; fx.textContent = `Desnivel corregido (el dato original era +${fmtNum(e.session.ascentOrig)} m)`; r.appendChild(fx); }
+      if (e.climbFixed) { const fx = document.createElement('span'); fx.className = 'w-sub fixed-note'; fx.textContent = Tx`Desnivel corregido (el dato original era +${fmtNum(e.session.ascentOrig)} m)`; r.appendChild(fx); }
       box.appendChild(r);
     }
   }
-  if (!tripItems.length && !loose.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Todavía no hay actividades guardadas.'; box.appendChild(p); }
+  if (!tripItems.length && !loose.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = Tx('Todavía no hay actividades guardadas.'); box.appendChild(p); }
 }
 function showHist() {
   if (placing) endPlacing();
@@ -1693,7 +2342,7 @@ function showHist() {
 // ---------- Estadísticas ----------
 let fromStats = false;
 const ST = { year: null, kind: 'all', metric: 'km' };
-const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const MONTHS = LANG === 'en' ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] : ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 function showStats() {
   if (placing) endPlacing();
   stopAnim();
@@ -1725,19 +2374,19 @@ function renderStatsView() {
   if (ST.year == null || (ST.year !== 'all' && !years.includes(ST.year))) ST.year = years[0] || 'all';
   const kindsHere = KIND_ORDER.filter(k => all.some(e => kindOf(e) === k));
   if (ST.kind !== 'all' && !kindsHere.includes(ST.kind)) ST.kind = 'all';
-  chips($('statsYears'), [...years.map(y => [y, String(y)]), ...(years.length > 1 ? [['all', 'Todos los años']] : [])], ST.year, v => { ST.year = v; renderStatsView(); });
+  chips($('statsYears'), [...years.map(y => [y, String(y)]), ...(years.length > 1 ? [['all', Tx('Todos los años')]] : [])], ST.year, v => { ST.year = v; renderStatsView(); });
   $('statsKinds').hidden = kindsHere.length < 2;
-  chips($('statsKinds'), [['all', 'Todo'], ...kindsHere.map(k => [k, `${kindIcon(k)} ${kindName(k)}`])], ST.kind, v => { ST.kind = v; renderStatsView(); });
+  chips($('statsKinds'), [['all', Tx('Todo')], ...kindsHere.map(k => [k, `${kindIcon(k)} ${kindName(k)}`])], ST.kind, v => { ST.kind = v; renderStatsView(); });
   document.querySelectorAll('#statsMetric button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === ST.metric)));
   const byKind = all.filter(e => ST.kind === 'all' || kindOf(e) === ST.kind);
   const list = byKind.filter(e => ST.year === 'all' || (walkDate(e) && new Date(walkDate(e)).getFullYear() === ST.year));
   const km = list.reduce((s, e) => s + (e.session.distance || 0), 0);
   const secs = list.reduce((s, e) => s + (e.session.elapsed || 0), 0);
   const up = list.reduce((s, e) => s + (e.session.ascent || 0), 0);
-  const per = ST.year === 'all' ? 'en total' : `en ${ST.year}`;
-  $('statsSub').textContent = list.length ? `${list.length} ${list.length === 1 ? 'actividad' : 'actividades'} ${per}` + (ST.kind !== 'all' ? ` de ${kindName(ST.kind).toLowerCase()}` : '') : `No hay actividades ${per}.`;
+  const per = ST.year === 'all' ? Tx('en total') : Tx`en ${ST.year}`;
+  $('statsSub').textContent = list.length ? `${list.length} ${list.length === 1 ? Tx('actividad') : Tx('actividades')} ${per}` + (ST.kind !== 'all' ? Tx` de ${kindName(ST.kind).toLowerCase()}` : '') : Tx`No hay actividades ${per}.`;
   const hh = Math.floor(secs / 3600), mm = Math.round(secs % 3600 / 60);
-  fillPlates([['Distancia', fmtKm(km), 'km'], ['Tiempo', `${hh}:${String(mm).padStart(2, '0')}`, 'h'], ['Desnivel', '+' + fmtNum(up), 'm'], ['Actividades', String(list.length), list.length === 1 ? 'salida' : 'salidas']], $('statsTotals'));
+  fillPlates([[Tx('Distancia'), fmtKm(km), 'km'], [Tx('Tiempo'), `${hh}:${String(mm).padStart(2, '0')}`, 'h'], [Tx('Desnivel'), '+' + fmtNum(up), 'm'], [Tx('Actividades'), String(list.length), list.length === 1 ? Tx('salida') : Tx('salidas')]], $('statsTotals'));
   // grupos: meses del año elegido, o años
   const groups = [];
   if (ST.year === 'all') {
@@ -1746,7 +2395,7 @@ function renderStatsView() {
     for (let m = 0; m < 12; m++) groups.push({ key: m, label: MONTHS[m].charAt(0).toUpperCase() + MONTHS[m].slice(1) + ' ' + ST.year, short: MONTHS[m].slice(0, 3), items: list.filter(e => new Date(walkDate(e)).getMonth() === m) });
   }
   const val = (g, m) => g.items.reduce((s, e) => s + (m === 'km' ? (e.session.distance || 0) / 1000 : m === 'h' ? (e.session.elapsed || 0) / 3600 : (e.session.ascent || 0)), 0);
-  $('statsChartTitle').textContent = ST.year === 'all' ? 'Por años' : 'Por meses';
+  $('statsChartTitle').textContent = ST.year === 'all' ? Tx('Por años') : Tx('Por meses');
   drawStatsChart(groups.map(g => ({ label: g.short, v: val(g, ST.metric) })), ST.metric);
   const tb = $('statsTable'); tb.innerHTML = '';
   for (const g of groups.slice().reverse()) {
@@ -1757,12 +2406,12 @@ function renderStatsView() {
     const sm = document.createElement('small'); sm.textContent = 'km'; kmEl.appendChild(sm);
     const s = document.createElement('span'); s.className = 'w-sub';
     const gh = val(g, 'h');
-    s.textContent = `${g.items.length} ${g.items.length === 1 ? 'actividad' : 'actividades'}, ${Math.floor(gh)}:${String(Math.round(gh % 1 * 60)).padStart(2, '0')} h, +${fmtNum(val(g, 'up'))} m`;
+    s.textContent = `${g.items.length} ${g.items.length === 1 ? Tx('actividad') : Tx('actividades')}, ${Math.floor(gh)}:${String(Math.round(gh % 1 * 60)).padStart(2, '0')} h, +${fmtNum(val(g, 'up'))} m`;
     r.append(st, kmEl, s); tb.appendChild(r);
   }
   // récords
   const rb = $('statsRecords'); rb.innerHTML = '';
-  const shortDate = d => d ? new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  const shortDate = d => d ? new Date(d).toLocaleDateString(LOC, { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const rec = (label, e, value, unit) => {
     const r = document.createElement('button'); r.type = 'button'; r.className = 'walk-row';
     const l = document.createElement('span'); l.className = 'w-lbl'; l.textContent = label;
@@ -1776,26 +2425,26 @@ function renderStatsView() {
     rb.appendChild(r);
   };
   const best = (arr, f) => arr.reduce((b, e) => { const v = f(e); return v != null && (b == null || v > b.v) ? { e, v } : b; }, null);
-  if (!list.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Sin récords todavía.'; rb.appendChild(p); return; }
+  if (!list.length) { const p = document.createElement('p'); p.className = 'note'; p.textContent = Tx('Sin récords todavía.'); rb.appendChild(p); return; }
   let b;
-  if ((b = best(list, e => e.session.distance))) rec('La más larga', b.e, fmtKm(b.v), 'km');
-  if ((b = best(list, e => e.session.ascent))) rec('Más desnivel', b.e, '+' + fmtNum(b.v), 'm');
-  if ((b = best(list, e => e.session.elapsed))) rec('Más tiempo', b.e, fmtClock(b.v), b.v >= 3600 ? 'h' : 'min');
+  if ((b = best(list, e => e.session.distance))) rec(Tx('La más larga'), b.e, fmtKm(b.v), 'km');
+  if ((b = best(list, e => e.session.ascent))) rec(Tx('Más desnivel'), b.e, '+' + fmtNum(b.v), 'm');
+  if ((b = best(list, e => e.session.elapsed))) rec(Tx('Más tiempo'), b.e, fmtClock(b.v), b.v >= 3600 ? 'h' : 'min');
   for (const k of KIND_ORDER) {
     const lk = list.filter(e => kindOf(e) === k);
     if (!lk.length || (b = best(lk, entrySpeed)) == null) continue;
-    const lbl = 'La más rápida' + (ST.kind === 'all' && kindsHere.length > 1 ? ` (${kindName(k).toLowerCase()})` : '');
+    const lbl = Tx('La más rápida') + (ST.kind === 'all' && kindsHere.length > 1 ? ` (${kindName(k).toLowerCase()})` : '');
     if (KINDS[k].pace) rec(lbl, b.e, fmtPace(3600 / b.v).replace(' /km', ''), 'min/km'); else rec(lbl, b.e, fmtDec(b.v), 'km/h');
   }
-  if ((b = best(list, entryMaxEle))) rec('Más alto', b.e, fmtNum(b.v), 'm');
+  if ((b = best(list, entryMaxEle))) rec(Tx('Más alto'), b.e, fmtNum(b.v), 'm');
   const gBest = groups.filter(g => g.items.length).sort((x, y) => val(y, 'km') - val(x, 'km'))[0];
   if (gBest) {
     const r = document.createElement('div'); r.className = 'walk-row';
-    const l = document.createElement('span'); l.className = 'w-lbl'; l.textContent = ST.year === 'all' ? 'El mejor año' : 'El mejor mes';
+    const l = document.createElement('span'); l.className = 'w-lbl'; l.textContent = ST.year === 'all' ? Tx('El mejor año') : Tx('El mejor mes');
     const st = document.createElement('strong'); st.textContent = gBest.label;
     const kmEl = document.createElement('span'); kmEl.className = 'w-km'; kmEl.textContent = fmtKm(val(gBest, 'km') * 1000); kmEl.style.gridRow = '1 / span 3';
     const sm = document.createElement('small'); sm.textContent = 'km'; kmEl.appendChild(sm);
-    const s = document.createElement('span'); s.className = 'w-sub'; s.textContent = `${gBest.items.length} ${gBest.items.length === 1 ? 'actividad' : 'actividades'}`;
+    const s = document.createElement('span'); s.className = 'w-sub'; s.textContent = `${gBest.items.length} ${gBest.items.length === 1 ? Tx('actividad') : Tx('actividades')}`;
     r.append(l, kmEl, st, s); rb.appendChild(r);
   }
 }
@@ -1810,7 +2459,7 @@ function drawStatsChart(data, metric) {
   const max = Math.max(1e-9, ...data.map(d => d.v));
   const n = data.length, slot = (w - pad.l - pad.r) / n, bw = Math.min(46, slot * 0.66);
   g.strokeStyle = line; g.lineWidth = 1; g.beginPath(); g.moveTo(pad.l, h - pad.b + .5); g.lineTo(w - pad.r, h - pad.b + .5); g.stroke();
-  const fmt = v => metric === 'up' ? fmtNum(Math.round(v)) : metric === 'h' ? (v < 10 ? v.toLocaleString('es-ES', { maximumFractionDigits: 1 }) : Math.round(v)) : (v < 10 ? v.toLocaleString('es-ES', { maximumFractionDigits: 1 }) : fmtNum(Math.round(v)));
+  const fmt = v => metric === 'up' ? fmtNum(Math.round(v)) : metric === 'h' ? (v < 10 ? v.toLocaleString(LOC, { maximumFractionDigits: 1 }) : Math.round(v)) : (v < 10 ? v.toLocaleString(LOC, { maximumFractionDigits: 1 }) : fmtNum(Math.round(v)));
   g.textAlign = 'center'; g.textBaseline = 'alphabetic';
   data.forEach((d, i) => {
     const x = pad.l + slot * i + slot / 2;
@@ -1829,26 +2478,26 @@ function drawStatsChart(data, metric) {
 // ---------- Camino de Santiago ----------
 const SANTIAGO = { lat: 42.8806, lon: -8.5446 };
 const CAMINOS = [
-  { id: 'fr-sjpp', name: 'Camino Francés', from: 'Saint-Jean-Pied-de-Port', lat: 43.163, lon: -1.238, km: 770 },
-  { id: 'fr-ronc', name: 'Camino Francés', from: 'Roncesvalles', lat: 43.009, lon: -1.320, km: 745 },
-  { id: 'fr-pamp', name: 'Camino Francés', from: 'Pamplona', lat: 42.818, lon: -1.644, km: 705 },
-  { id: 'fr-burg', name: 'Camino Francés', from: 'Burgos', lat: 42.341, lon: -3.704, km: 490 },
-  { id: 'fr-leon', name: 'Camino Francés', from: 'León', lat: 42.599, lon: -5.567, km: 310 },
-  { id: 'fr-astg', name: 'Camino Francés', from: 'Astorga', lat: 42.457, lon: -6.056, km: 260 },
-  { id: 'fr-ponf', name: 'Camino Francés', from: 'Ponferrada', lat: 42.546, lon: -6.598, km: 205 },
-  { id: 'fr-cebr', name: 'Camino Francés', from: 'O Cebreiro', lat: 42.708, lon: -7.043, km: 160 },
-  { id: 'fr-sarr', name: 'Camino Francés', from: 'Sarria', lat: 42.777, lon: -7.414, km: 115 },
-  { id: 'pt-lisb', name: 'Camino Portugués', from: 'Lisboa', lat: 38.711, lon: -9.137, km: 620 },
-  { id: 'pt-port', name: 'Camino Portugués', from: 'Oporto', lat: 41.142, lon: -8.611, km: 240 },
-  { id: 'pt-cost', name: 'Camino Portugués por la Costa', from: 'Oporto', lat: 41.150, lon: -8.674, km: 280 },
-  { id: 'pt-tui', name: 'Camino Portugués', from: 'Tui', lat: 42.047, lon: -8.645, km: 119 },
-  { id: 'no-irun', name: 'Camino del Norte', from: 'Irún', lat: 43.339, lon: -1.789, km: 815 },
-  { id: 'no-bilb', name: 'Camino del Norte', from: 'Bilbao', lat: 43.257, lon: -2.923, km: 650 },
-  { id: 'pr-ovie', name: 'Camino Primitivo', from: 'Oviedo', lat: 43.362, lon: -5.844, km: 320 },
-  { id: 'in-ferr', name: 'Camino Inglés', from: 'Ferrol', lat: 43.483, lon: -8.233, km: 119 },
-  { id: 'pl-sevi', name: 'Vía de la Plata', from: 'Sevilla', lat: 37.389, lon: -5.984, km: 1000 },
-  { id: 'sa-ourn', name: 'Camino Sanabrés', from: 'Ourense', lat: 42.336, lon: -7.864, km: 105 },
-  { id: 'otro', name: 'Otro Camino', from: '', km: null }
+  { id: 'fr-sjpp', name: Tx('Camino Francés'), from: 'Saint-Jean-Pied-de-Port', lat: 43.163, lon: -1.238, km: 770 },
+  { id: 'fr-ronc', name: Tx('Camino Francés'), from: 'Roncesvalles', lat: 43.009, lon: -1.320, km: 745 },
+  { id: 'fr-pamp', name: Tx('Camino Francés'), from: 'Pamplona', lat: 42.818, lon: -1.644, km: 705 },
+  { id: 'fr-burg', name: Tx('Camino Francés'), from: 'Burgos', lat: 42.341, lon: -3.704, km: 490 },
+  { id: 'fr-leon', name: Tx('Camino Francés'), from: 'León', lat: 42.599, lon: -5.567, km: 310 },
+  { id: 'fr-astg', name: Tx('Camino Francés'), from: 'Astorga', lat: 42.457, lon: -6.056, km: 260 },
+  { id: 'fr-ponf', name: Tx('Camino Francés'), from: 'Ponferrada', lat: 42.546, lon: -6.598, km: 205 },
+  { id: 'fr-cebr', name: Tx('Camino Francés'), from: 'O Cebreiro', lat: 42.708, lon: -7.043, km: 160 },
+  { id: 'fr-sarr', name: Tx('Camino Francés'), from: 'Sarria', lat: 42.777, lon: -7.414, km: 115 },
+  { id: 'pt-lisb', name: Tx('Camino Portugués'), from: Tx('Lisboa'), lat: 38.711, lon: -9.137, km: 620 },
+  { id: 'pt-port', name: Tx('Camino Portugués'), from: Tx('Oporto'), lat: 41.142, lon: -8.611, km: 240 },
+  { id: 'pt-cost', name: Tx('Camino Portugués por la Costa'), from: Tx('Oporto'), lat: 41.150, lon: -8.674, km: 280 },
+  { id: 'pt-tui', name: Tx('Camino Portugués'), from: 'Tui', lat: 42.047, lon: -8.645, km: 119 },
+  { id: 'no-irun', name: Tx('Camino del Norte'), from: 'Irún', lat: 43.339, lon: -1.789, km: 815 },
+  { id: 'no-bilb', name: Tx('Camino del Norte'), from: 'Bilbao', lat: 43.257, lon: -2.923, km: 650 },
+  { id: 'pr-ovie', name: Tx('Camino Primitivo'), from: 'Oviedo', lat: 43.362, lon: -5.844, km: 320 },
+  { id: 'in-ferr', name: Tx('Camino Inglés'), from: 'Ferrol', lat: 43.483, lon: -8.233, km: 119 },
+  { id: 'pl-sevi', name: Tx('Vía de la Plata'), from: Tx('Sevilla'), lat: 37.389, lon: -5.984, km: 1000 },
+  { id: 'sa-ourn', name: Tx('Camino Sanabrés'), from: 'Ourense', lat: 42.336, lon: -7.864, km: 105 },
+  { id: 'otro', name: Tx('Otro Camino'), from: '', km: null }
 ];
 function caminoOn(trip, stages) {
   if (!trip) return false;
@@ -1887,32 +2536,32 @@ function renderCamino() {
   sec.hidden = !C; $('btnCamino').hidden = !A || !A.isTrip || !!C;
   if (!C) return;
   const P = C.preset;
-  $('caminoRoute').textContent = P && P.id !== 'otro' ? `${P.name}, desde ${P.from}` : (P ? 'Tu Camino' : 'Elige tu Camino para ver lo que te queda');
+  $('caminoRoute').textContent = P && P.id !== 'otro' ? Tx`${P.name}, desde ${P.from}` : (P ? Tx('Tu Camino') : Tx('Elige tu Camino para ver lo que te queda'));
   const big = $('caminoBig'); big.innerHTML = '';
   const b = document.createElement('b');
-  if (C.arrived) { big.append('¡Llegaste a Santiago!', document.createElement('br')); b.textContent = fmtKm(C.done * 1000) + ' km'; big.append(b, ' de Camino'); }
-  else if (C.remaining != null) { big.append('Te quedan '); b.textContent = fmtKm(C.remaining * 1000) + ' km'; big.append(b, ' para Santiago'); }
-  else { big.append('Estás a '); b.textContent = fmtKm(C.air * 1000) + ' km'; big.append(b, ' de Santiago en línea recta'); }
+  if (C.arrived) { big.append(Tx('¡Llegaste a Santiago!'), document.createElement('br')); b.textContent = fmtKm(C.done * 1000) + ' km'; big.append(b, Tx(' de Camino')); }
+  else if (C.remaining != null) { big.append(Tx('Te quedan ')); b.textContent = fmtKm(C.remaining * 1000) + ' km'; big.append(b, Tx(' para Santiago')); }
+  else { big.append(Tx('Estás a ')); b.textContent = fmtKm(C.air * 1000) + ' km'; big.append(b, Tx(' de Santiago en línea recta')); }
   const pct = C.pct == null ? 0 : C.pct;
   $('caminoFill').style.width = pct + '%'; $('caminoArrow').style.left = pct + '%';
-  $('caminoArrow').parentElement.setAttribute('aria-label', `${Math.round(pct)} % del Camino hecho`);
-  $('caminoFrom').textContent = P && P.from ? P.from : 'Salida';
-  const facts = [['Hecho', fmtKm(C.done * 1000) + ' km']];
-  if (C.pct != null) facts.push(['Completado', Math.round(pct) + ' %']);
-  facts.push(['Etapas', String(C.n)], ['Media por etapa', fmtKm(C.avg * 1000) + ' km']);
-  if (!C.arrived && C.left) facts.push(['Etapas que faltan', `unas ${C.left}`]);
-  if (!C.arrived) facts.push(['A la catedral', fmtKm(C.air * 1000) + ' km en línea recta']);
+  $('caminoArrow').parentElement.setAttribute('aria-label', Tx`${Math.round(pct)} % del Camino hecho`);
+  $('caminoFrom').textContent = P && P.from ? P.from : Tx('Salida');
+  const facts = [[Tx('Hecho'), fmtKm(C.done * 1000) + ' km']];
+  if (C.pct != null) facts.push([Tx('Completado'), Math.round(pct) + ' %']);
+  facts.push([Tx('Etapas'), String(C.n)], [Tx('Media por etapa'), fmtKm(C.avg * 1000) + ' km']);
+  if (!C.arrived && C.left) facts.push([Tx('Etapas que faltan'), Tx`unas ${C.left}`]);
+  if (!C.arrived) facts.push([Tx('A la catedral'), fmtKm(C.air * 1000) + Tx(' km en línea recta')]);
   const f = $('caminoFacts'); f.innerHTML = '';
   for (const [l, v] of facts) { const d = document.createElement('div'); d.className = 'fact'; const s = document.createElement('span'); s.textContent = l; const bb = document.createElement('b'); bb.textContent = v; d.append(s, bb); f.appendChild(d); }
   const need = C.bike ? 200 : 100;
   $('caminoNote').textContent = C.arrived
-    ? (C.done >= need ? `Has hecho más de los ${need} km ${C.bike ? 'en bici' : 'a pie'} que piden para la Compostela. ¡Buen Camino! Recuerda llevar la credencial sellada.` : `Para la Compostela piden al menos los últimos ${need} km ${C.bike ? 'en bici' : 'a pie'} y la credencial sellada.`)
-    : `Para la Compostela piden al menos los últimos 100 km a pie (200 en bici) y la credencial con sus sellos. ¡Buen Camino!`;
+    ? (C.done >= need ? Tx`Has hecho más de los ${need} km ${C.bike ? Tx('en bici') : Tx('a pie')} que piden para la Compostela. ¡Buen Camino! Recuerda llevar la credencial sellada.` : Tx`Para la Compostela piden al menos los últimos ${need} km ${C.bike ? Tx('en bici') : Tx('a pie')} y la credencial sellada.`)
+    : Tx`Para la Compostela piden al menos los últimos 100 km a pie (200 en bici) y la credencial con sus sellos. ¡Buen Camino!`;
 }
 function openCaminoModal() {
   if (!A || !A.isTrip) return;
   const sel = $('caminoPreset'); sel.innerHTML = '';
-  for (const c of CAMINOS) { const o = document.createElement('option'); o.value = c.id; o.textContent = c.id === 'otro' ? 'Otro Camino' : `${c.name}, desde ${c.from} (unos ${c.km} km)`; sel.appendChild(o); }
+  for (const c of CAMINOS) { const o = document.createElement('option'); o.value = c.id; o.textContent = c.id === 'otro' ? Tx('Otro Camino') : Tx`${c.name}, desde ${c.from} (unos ${c.km} km)`; sel.appendChild(o); }
   const P = caminoPresetFor(A) || CAMINOS[CAMINOS.length - 1];
   sel.value = P.id;
   const cfg = A.trip.camino || {};
@@ -1931,7 +2580,7 @@ function saveCamino(on) {
   saveTrips(tl); A.trip.camino = tr.camino;
   $('caminoModal').classList.remove('on');
   renderCamino(); renderStages();
-  toast(on ? '¡Modo Camino de Santiago activado!' : 'Este viaje ya no se muestra como Camino.');
+  toast(on ? Tx('¡Modo Camino de Santiago activado!') : Tx('Este viaje ya no se muestra como Camino.'));
 }
 function drawHomeMap(list, tripIds) {
   if (!list.length) return;
@@ -1973,7 +2622,7 @@ async function exportBackup(withPhotos) {
   const name = 'senda-copia-' + (withPhotos ? 'con-fotos-' : '') + new Date().toISOString().slice(0, 10) + '.json';
   const head = '{"app":"senda","version":3,"caminatas":' + JSON.stringify(loadHistory()) + ',"viajes":' + JSON.stringify(loadTrips()) + ',"fotos":[';
   const recs = withPhotos ? await allPhotoRecords() : [];
-  if (withPhotos) toast(recs.length ? `Preparando la copia con ${recs.length} fotos…` : 'No hay fotos guardadas; la copia irá sin fotos.', 8000);
+  if (withPhotos) toast(recs.length ? Tx`Preparando la copia con ${recs.length} fotos…` : Tx('No hay fotos guardadas; la copia irá sin fotos.'), 8000);
   try {
     if (NATIVE) {
       await NativeFS.writeFile({ path: name, data: head, directory: 'CACHE', encoding: 'utf8' });
@@ -1984,8 +2633,8 @@ async function exportBackup(withPhotos) {
       }
       await NativeFS.appendFile({ path: name, data: ']}', directory: 'CACHE', encoding: 'utf8' });
       const { uri } = await NativeFS.getUri({ path: name, directory: 'CACHE' });
-      await NativeShare.share({ title: 'Copia de Senda', text: 'Copia de seguridad de Senda', files: [uri], dialogTitle: 'Guardar la copia de Senda' });
-      toast('Elige dónde guardar la copia: Drive, Archivos, correo…', 5000);
+      await NativeShare.share({ title: Tx('Copia de Senda'), text: Tx('Copia de seguridad de Senda'), files: [uri], dialogTitle: Tx('Guardar la copia de Senda') });
+      toast(Tx('Elige dónde guardar la copia: Drive, Archivos, correo…'), 5000);
       return;
     }
     const parts = [head];
@@ -1999,11 +2648,11 @@ async function exportBackup(withPhotos) {
     a.href = URL.createObjectURL(blob); a.download = name;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-    toast('Copia guardada en Descargas.');
+    toast(Tx('Copia guardada en Descargas.'));
   } catch (e) {
     console.error(e);
     if (e && /cancel/i.test(String(e.message || e))) return;
-    toast('No se pudo guardar la copia.');
+    toast(Tx('No se pudo guardar la copia.'));
   }
 }
 async function importBackup(file) {
@@ -2031,10 +2680,10 @@ async function importBackup(file) {
         try { await photoPut({ id: f.id, act: f.act, time: f.time, lat: f.lat, lon: f.lon, src: f.src || null, blob: b64ToBlob(f.data) }); photosAdded++; } catch (e) { console.error(e); }
       }
     }
-    if (saveHistory(list)) toast((added ? `${added} actividad(s) recuperadas` : 'Las actividades ya estaban en el historial') + (photosAdded ? ` y ${photosAdded} foto(s).` : '.'), 5000);
+    if (saveHistory(list)) toast((added ? Tx`${added} actividad(s) recuperadas` : Tx('Las actividades ya estaban en el historial')) + (photosAdded ? Tx` y ${photosAdded} foto(s).` : '.'), 5000);
     renderHistory();
   } catch {
-    toast('Ese archivo no es una copia de Senda.');
+    toast(Tx('Ese archivo no es una copia de Senda.'));
   }
 }
 function startRename() {
@@ -2043,8 +2692,8 @@ function startRename() {
   const h = $('actTitle');
   const input = document.createElement('input');
   input.className = 'title-input'; input.type = 'text'; input.maxLength = 80;
-  input.value = h.textContent; input.setAttribute('aria-label', 'Título de la actividad');
-  h.style.display = 'none'; $('btnRename').textContent = 'Guardar';
+  input.value = h.textContent; input.setAttribute('aria-label', Tx('Título de la actividad'));
+  h.style.display = 'none'; $('btnRename').textContent = Tx('Guardar');
   row.insertBefore(input, h);
   input.focus(); input.select();
   let done = false;
@@ -2063,7 +2712,7 @@ function startRename() {
         if (e) { e.title = A.title; saveHistory(list); }
       }
     }
-    input.remove(); h.style.display = ''; $('btnRename').textContent = A.isTrip ? 'Cambiar nombre' : 'Cambiar título';
+    input.remove(); h.style.display = ''; $('btnRename').textContent = A.isTrip ? Tx('Cambiar nombre') : Tx('Cambiar título');
     h.textContent = A.isTrip ? A.name : titleFor(A.name, A.start, A.kind || A.sport, A.title);
   };
   input.addEventListener('keydown', ev => { if (ev.key === 'Enter') finish(true); if (ev.key === 'Escape') finish(false); });
@@ -2072,9 +2721,9 @@ function startRename() {
 function titleFor(name, t, sport, custom) {
   if (custom) return custom;
   if (name && !/^\d{8}\s/.test(name)) return name;
-  const d = t ? new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }) : '';
-  const word = KINDS[sport] ? KINDS[sport].name : name ? name.replace(/^\d{8}\s*/, '') : (sport && sport !== 'Ejercicio' ? sport : (sport ? 'Ruta' : 'Actividad'));
-  return `${word || 'Actividad'} del ${d}`;
+  const d = t ? new Date(t).toLocaleDateString(LOC, { day: 'numeric', month: 'long' }) : '';
+  const word = KINDS[sport] ? KINDS[sport].name : name ? name.replace(/^\d{8}\s*/, '') : (sport && sport !== 'Ejercicio' ? Tx(sport) : (sport ? Tx('Ruta') : Tx('Actividad')));
+  return Tx`${word || Tx('Actividad')} del ${d}`;
 }
 
 // ---------- Carga de archivos ----------
@@ -2088,7 +2737,7 @@ async function readActivityFile(file) {
     const text = await file.text();
     if (ext === 'tcx' || text.includes('<TrainingCenterDatabase')) act = parseTCX(text);
     else if (ext === 'gpx' || text.includes('<gpx')) act = parseGPX(text);
-    else throw new Error(`${file.name}: formato no reconocido. Usa un archivo GPX, TCX o FIT.`);
+    else throw new Error(Tx`${file.name}: formato no reconocido. Usa un archivo GPX, TCX o FIT.`);
   }
   return analyze(act);
 }
@@ -2101,16 +2750,16 @@ async function openFiles(files) {
     catch (err) { console.error(err); failed++; lastErr = err.message || ''; }
   }
   pendingTripId = null;
-  if (!done.length) { toast(lastErr || 'No se pudo leer el archivo.'); if (tripId) renderHistory(); return; }
+  if (!done.length) { toast(lastErr || Tx('No se pudo leer el archivo.')); if (tripId) renderHistory(); return; }
   if (tripId) {
     showTrip(tripId);
-    toast(`${done.length} ${done.length === 1 ? 'etapa añadida' : 'etapas añadidas'} al viaje.` + (failed ? ` ${failed} archivo(s) no se pudieron leer.` : ''), 4500);
+    toast(Tx`${done.length} ${done.length === 1 ? Tx('etapa añadida') : Tx('etapas añadidas')} al viaje.` + (failed ? Tx` ${failed} archivo(s) no se pudieron leer.` : ''), 4500);
     fetchTownsInBackground(done);
   } else if (done.length === 1) {
     showActivity(done[0], true);
   } else {
     showHome();
-    toast(`${done.length} actividades guardadas.` + (failed ? ` ${failed} archivo(s) no se pudieron leer.` : '') + ' Senda ha supuesto el tipo de cada una; puedes cambiarlo al abrirla.', 6000);
+    toast(Tx`${done.length} actividades guardadas.` + (failed ? Tx` ${failed} archivo(s) no se pudieron leer.` : '') + Tx(' Senda ha supuesto el tipo de cada una; puedes cambiarlo al abrirla.'), 6000);
     fetchTownsInBackground(done);
   }
 }
@@ -2157,11 +2806,11 @@ function buildTrip(tripId) {
 }
 function showTrip(tripId) {
   const T = buildTrip(tripId);
-  if (!T) { toast('Ese viaje ya no existe.'); showHome(); return; }
+  if (!T) { toast(Tx('Ese viaje ya no existe.')); showHome(); return; }
   if (T.empty) {
     showHome();
     pendingTripId = tripId;
-    toast('Este viaje aún no tiene etapas. Elige sus archivos.');
+    toast(Tx('Este viaje aún no tiene etapas. Elige sus archivos.'));
     $('fileInput').click();
     return;
   }
@@ -2180,9 +2829,9 @@ function renderStages() {
     const num = document.createElement('span'); num.className = 'st-num'; num.textContent = fmtKm(s.distance) + ' km';
     const sm = document.createElement('small'); sm.textContent = '+' + fmtNum(s.ascent) + ' m'; num.appendChild(sm);
     const dt = document.createElement('span'); dt.className = 'st-date';
-    dt.textContent = s.start ? new Date(s.start).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }) + ', ' + fmtDur(s.elapsed) : fmtDur(s.elapsed);
-    if (C && C.total && !(C.arrived && k === A.stages.length - 1)) { const q = Math.max(0, C.total - acc); dt.textContent += q > 0.5 ? `, quedaban ${fmtKm(q * 1000)} km` : ', ¡en Santiago!'; }
-    else if (C && C.arrived && k === A.stages.length - 1) dt.textContent += ', ¡en Santiago!';
+    dt.textContent = s.start ? new Date(s.start).toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short' }) + ', ' + fmtDur(s.elapsed) : fmtDur(s.elapsed);
+    if (C && C.total && !(C.arrived && k === A.stages.length - 1)) { const q = Math.max(0, C.total - acc); dt.textContent += q > 0.5 ? Tx`, quedaban ${fmtKm(q * 1000)} km` : Tx(', ¡en Santiago!'); }
+    else if (C && C.arrived && k === A.stages.length - 1) dt.textContent += Tx(', ¡en Santiago!');
     b.append(n, st, num, dt);
     b.onclick = () => showActivity(s, false);
     li.appendChild(b); ol.appendChild(li);
@@ -2191,9 +2840,9 @@ function renderStages() {
 function renderTripBar() {
   const sel = $('tripSelect'); sel.innerHTML = '';
   const add = (v, txt) => { const o = document.createElement('option'); o.value = v; o.textContent = txt; sel.appendChild(o); };
-  add('', 'Actividad suelta');
+  add('', Tx('Actividad suelta'));
   for (const tr of loadTrips()) add(tr.id, tr.name);
-  add('__new', 'Nuevo viaje…');
+  add('__new', Tx('Nuevo viaje…'));
   sel.value = A.tripId && loadTrips().some(x => x.id === A.tripId) ? A.tripId : '';
   $('tripNew').hidden = true;
   const link = $('tripLink');
@@ -2201,7 +2850,7 @@ function renderTripBar() {
     const st = tripStages(sel.value);
     const k = st.findIndex(e => e.id === A.id);
     const tr = loadTrips().find(x => x.id === sel.value);
-    link.textContent = `Etapa ${k + 1} de ${st.length}, ${tr.name}. Ver el viaje completo`;
+    link.textContent = Tx`Etapa ${k + 1} de ${st.length}, ${tr.name}. Ver el viaje completo`;
     link.onclick = () => showTrip(sel.value);
     link.hidden = false;
   } else link.hidden = true;
@@ -2211,7 +2860,7 @@ function changeTrip() {
   if (v === '__new') { $('tripNew').hidden = false; $('tripNewName').value = ''; $('tripNewName').focus(); return; }
   setActivityTrip(A.id, v || null); A.tripId = v || null;
   renderTripBar();
-  toast(v ? 'Actividad añadida al viaje.' : 'La actividad ya no forma parte de ningún viaje.');
+  toast(v ? Tx('Actividad añadida al viaje.') : Tx('La actividad ya no forma parte de ningún viaje.'));
 }
 function confirmNewTrip() {
   const name = $('tripNewName').value.trim();
@@ -2219,7 +2868,7 @@ function confirmNewTrip() {
   const tr = createTrip(name);
   setActivityTrip(A.id, tr.id); A.tripId = tr.id;
   renderTripBar();
-  toast('Viaje creado con esta actividad como primera etapa.');
+  toast(Tx('Viaje creado con esta actividad como primera etapa.'));
 }
 
 // ---------- Mapa ----------
@@ -2307,7 +2956,7 @@ const cachedTiles = (url, opts) => new CachedTileLayer(url, opts);
 function satelliteLayer() {
   // Foto de satélite con calles y nombres de pueblos encima
   const img = cachedTiles('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    maxZoom: 19, maxNativeZoom: 19, attribution: 'Imágenes © Esri'
+    maxZoom: 19, maxNativeZoom: 19, attribution: Tx('Imágenes © Esri')
   });
   const roads = cachedTiles('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19, maxNativeZoom: 19, opacity: 0.85
@@ -2329,7 +2978,7 @@ function initMap() {
   });
   const sat = satelliteLayer();
   sat.addTo(map);
-  L.control.layers({ 'Satélite': sat, 'Topográfico': topo, 'Callejero': osm }, null, { position: 'topright' }).addTo(map);
+  L.control.layers({ [Tx('Satélite')]: sat, [Tx('Topográfico')]: topo, [Tx('Callejero')]: osm }, null, { position: 'topright' }).addTo(map);
   L.control.scale({ imperial: false }).addTo(map);
   map.on('click', e => { if (placing) placeAt(nearestIdx(e.latlng.lat, e.latlng.lng)); });
   routeLayer = L.layerGroup().addTo(map);
@@ -2402,7 +3051,7 @@ function drawRoute() {
     const ends = document.createElement('div'); ends.className = 'ends';
     const a = document.createElement('span'), b = document.createElement('span');
     a.textContent = fmt(lo) + unit; b.textContent = fmt(hi) + unit;
-    if (mode === 'slope') { a.textContent = 'Bajada'; b.textContent = 'Subida'; }
+    if (mode === 'slope') { a.textContent = Tx('Bajada'); b.textContent = Tx('Subida'); }
     ends.append(a, b); legend.append(bar, ends); legend.classList.add('on');
   }
   if (progressLine) progressLine.bringToFront();
@@ -2414,19 +3063,19 @@ function drawMarkers() {
   if (A.isTrip) {
     A.stages.forEach((s, k) => {
       const q = s.points[0];
-      mk(q, `<div class="stagemk" style="background:${STAGE_COLORS[k % STAGE_COLORS.length]}">${k + 1}</div>`, 24, `Salida de la etapa ${k + 1}`);
+      mk(q, `<div class="stagemk" style="background:${STAGE_COLORS[k % STAGE_COLORS.length]}">${k + 1}</div>`, 24, Tx`Salida de la etapa ${k + 1}`);
     });
-    mk(P[P.length - 1], '<div class="mk end"></div>', 18, 'Llegada');
+    mk(P[P.length - 1], '<div class="mk end"></div>', 18, Tx('Llegada'));
     return;
   }
-  mk(P[0], '<div class="mk start"></div>', 18, 'Salida');
-  mk(P[P.length - 1], '<div class="mk end"></div>', 18, 'Llegada');
+  mk(P[0], '<div class="mk start"></div>', 18, Tx('Salida'));
+  mk(P[P.length - 1], '<div class="mk end"></div>', 18, Tx('Llegada'));
   const step = A.distance > 40000 ? 5000 : 1000;
   let nextKm = step;
   const startD = P[0].d;
   for (const q of P) {
     if (q.d - startD >= nextKm) {
-      mk(q, `<div class="km">${nextKm / 1000}</div>`, 22, `Kilómetro ${nextKm / 1000}`);
+      mk(q, `<div class="km">${nextKm / 1000}</div>`, 22, Tx`Kilómetro ${nextKm / 1000}`);
       nextKm += step;
     }
   }
@@ -2439,28 +3088,28 @@ function fitRoute() {
 function renderTripStats() {
   $('actTitle').textContent = A.name;
   const n = A.stages.length;
-  const f1 = new Date(A.start).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-  const f2 = new Date(A.end).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-  $('actSub').textContent = `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${f1} al ${f2}`;
+  const f1 = new Date(A.start).toLocaleDateString(LOC, { day: 'numeric', month: 'long' });
+  const f2 = new Date(A.end).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' });
+  $('actSub').textContent = Tx`${n} ${n === 1 ? Tx('etapa') : Tx('etapas')}, del ${f1} al ${f2}`;
   const h = Math.floor(A.elapsed / 3600), m = Math.round(A.elapsed % 3600 / 60);
   fillPlates([
-    ['Distancia', fmtKm(A.distance), 'km'],
-    ['Tiempo', `${h}:${String(m).padStart(2, '0')}`, 'h'],
-    ['Desnivel', fmtDesnivel(A), 'm'],
+    [Tx('Distancia'), fmtKm(A.distance), 'km'],
+    [Tx('Tiempo'), `${h}:${String(m).padStart(2, '0')}`, 'h'],
+    [Tx('Desnivel'), fmtDesnivel(A), 'm'],
     speedPlate(A)
   ]);
   const longest = A.stages.reduce((a, s) => s.distance > a.distance ? s : a, A.stages[0]);
   const facts = [
-    ['Etapas', String(n)],
-    ['Media por etapa', fmtKm(A.distance / n) + ' km'],
-    ['Etapa más larga', fmtKm(longest.distance) + ' km'],
-    ['Bajada', '−' + fmtNum(A.descent) + ' m']
+    [Tx('Etapas'), String(n)],
+    [Tx('Media por etapa'), fmtKm(A.distance / n) + ' km'],
+    [Tx('Etapa más larga'), fmtKm(longest.distance) + ' km'],
+    [Tx('Bajada'), '−' + fmtNum(A.descent) + ' m']
   ];
-  if (A.moving) facts.push(['En movimiento', fmtDur(A.moving)]);
-  if (A.eleMax != null) facts.push(['Altitud máxima', fmtNum(A.eleMax) + ' m']);
-  if (A.eleMin != null) facts.push(['Altitud mínima', fmtNum(A.eleMin) + ' m']);
-  if (A.hrAvg) facts.push(['Pulso medio', A.hrAvg + ' ppm']);
-  if (A.calories) facts.push(['Calorías', fmtNum(A.calories) + ' kcal']);
+  if (A.moving) facts.push([Tx('En movimiento'), fmtDur(A.moving)]);
+  if (A.eleMax != null) facts.push([Tx('Altitud máxima'), fmtNum(A.eleMax) + ' m']);
+  if (A.eleMin != null) facts.push([Tx('Altitud mínima'), fmtNum(A.eleMin) + ' m']);
+  if (A.hrAvg) facts.push([Tx('Pulso medio'), A.hrAvg + ' ppm']);
+  if (A.calories) facts.push([Tx('Calorías'), fmtNum(A.calories) + ' kcal']);
   fillFacts(facts);
 }
 function fillPlates(plates, sp = $('signpost')) {
@@ -2488,18 +3137,18 @@ function maxSpeed(a) {
 }
 function speedPlate(a) {
   const K = KINDS[a.kind] || KINDS.walk;
-  if (K.pace) { const secs = a.moving || a.elapsed; return ['Ritmo', secs && a.distance ? fmtPace(secs / (a.distance / 1000)).replace(' /km', '') : '–', 'min/km']; }
-  return ['Velocidad', fmtDec(avgSpeed(a)), 'km/h'];
+  if (K.pace) { const secs = a.moving || a.elapsed; return [Tx('Ritmo'), secs && a.distance ? fmtPace(secs / (a.distance / 1000)).replace(' /km', '') : '–', 'min/km']; }
+  return [Tx('Velocidad'), fmtDec(avgSpeed(a)), 'km/h'];
 }
 function renderKindChip() {
   const c = $('kindChip');
   c.hidden = !!A.isTrip;
   if (A.isTrip) return;
   c.textContent = `${kindIcon(A.kind)} ${kindName(A.kind)} `;
-  const sm = document.createElement('small'); sm.textContent = A.kindSet ? 'cambiar' : 'cambiar (supuesto por Senda)'; c.appendChild(sm);
+  const sm = document.createElement('small'); sm.textContent = A.kindSet ? Tx('cambiar') : Tx('cambiar (supuesto por Senda)'); c.appendChild(sm);
 }
 function openKindPicker(isNew) {
-  $('kindTitle').textContent = isNew ? '¿Qué actividad era?' : 'Tipo de actividad';
+  $('kindTitle').textContent = isNew ? Tx('¿Qué actividad era?') : Tx('Tipo de actividad');
   const grid = $('kindGrid'); grid.innerHTML = '';
   for (const k of KIND_ORDER) {
     const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', String(k === A.kind));
@@ -2508,7 +3157,7 @@ function openKindPicker(isNew) {
     b.onclick = () => { $('kindModal').classList.remove('on'); setKind(k); };
     grid.appendChild(b);
   }
-  $('kindClose').textContent = isNew ? `Dejar «${kindName(A.kind)}»` : 'Cerrar';
+  $('kindClose').textContent = isNew ? Tx`Dejar «${kindName(A.kind)}»` : Tx('Cerrar');
   $('kindClose').onclick = () => { $('kindModal').classList.remove('on'); if (isNew) setKind(A.kind, true); };
   $('kindModal').classList.add('on');
 }
@@ -2518,15 +3167,15 @@ function setKind(k, quiet) {
   const list = loadHistory(); const e = list.find(x => x.id === A.id);
   if (e) { e.kind = k; saveHistory(list); }
   renderStats();
-  if (!quiet) toast(`Guardada como ${kindName(k).toLowerCase()}.`);
+  if (!quiet) toast(Tx`Guardada como ${kindName(k).toLowerCase()}.`);
 }
 function renderStats() {
   const isTrip = !!A.isTrip;
   renderKindChip();
   $('tripBar').hidden = isTrip; $('stagesSection').hidden = !isTrip; $('tripActions').hidden = !isTrip;
   $('photosSection').hidden = false; $('btnPhotos').hidden = isTrip; $('btnPhotosManual').hidden = isTrip || !NATIVE; $('tripLink').hidden = true;
-  $('btnRename').textContent = isTrip ? 'Cambiar nombre' : 'Cambiar título';
-  $('townsTitle').textContent = isTrip ? 'Pueblos del camino' : 'Poblaciones cercanas';
+  $('btnRename').textContent = isTrip ? Tx('Cambiar nombre') : Tx('Cambiar título');
+  $('townsTitle').textContent = isTrip ? Tx('Pueblos del camino') : Tx('Poblaciones cercanas');
   const stageOpt = $('colorMode').querySelector('option[value="stage"]');
   stageOpt.hidden = !isTrip; stageOpt.disabled = !isTrip;
   $('hrToggleWrap').style.display = A.hasHr ? '' : 'none';
@@ -2537,29 +3186,29 @@ function renderStats() {
   renderTripBar();
   $('actTitle').textContent = titleFor(A.name, A.start, A.kind || A.sport, A.title);
   const sub = [fmtDate(A.start)];
-  if (A.start) sub.push(`de ${fmtHour(A.start)} a ${fmtHour(A.end)}`);
+  if (A.start) sub.push(Tx`de ${fmtHour(A.start)} a ${fmtHour(A.end)}`);
   $('actSub').textContent = sub.join(', ');
   fillPlates([
-    ['Distancia', fmtKm(A.distance), 'km'],
-    ['Tiempo', A.elapsed != null ? fmtClock(A.elapsed) : '–', A.elapsed >= 3600 ? 'h' : 'min'],
-    ['Desnivel', fmtDesnivel(A), 'm'],
+    [Tx('Distancia'), fmtKm(A.distance), 'km'],
+    [Tx('Tiempo'), A.elapsed != null ? fmtClock(A.elapsed) : '–', A.elapsed >= 3600 ? 'h' : 'min'],
+    [Tx('Desnivel'), fmtDesnivel(A), 'm'],
     speedPlate(A)
   ]);
   const K = KINDS[A.kind] || KINDS.walk;
   const facts = [];
-  if (A.moving) facts.push(['En movimiento', fmtDur(A.moving)]);
-  facts.push(['Bajada', '−' + fmtNum(A.descent) + ' m']);
-  if (A.eleMax != null) facts.push(['Altitud máxima', fmtNum(A.eleMax) + ' m']);
-  if (A.eleMin != null) facts.push(['Altitud mínima', fmtNum(A.eleMin) + ' m']);
-  if (A.moving && K.foot) facts.push(['Ritmo medio', fmtPace(A.moving / (A.distance / 1000))]);
-  if (A.moving) facts.push(['Velocidad en movimiento', fmtDec(A.distance / A.moving * 3.6) + ' km/h']);
-  if (K.pace) facts.push(['Velocidad media', fmtDec(avgSpeed(A)) + ' km/h']);
-  if (!K.foot || K.pace) { const vm = maxSpeed(A); if (vm) facts.push(['Velocidad máxima', fmtDec(vm) + ' km/h']); }
-  if (A.hrAvg) facts.push(['Pulso medio', A.hrAvg + ' ppm']);
-  if (A.hrMax) facts.push(['Pulso máximo', A.hrMax + ' ppm']);
-  if (A.calories) facts.push(['Calorías', fmtNum(A.calories) + ' kcal']);
-  facts.push(['Actividad', `${kindIcon(A.kind)} ${kindName(A.kind)}`]);
-  if (A.device) facts.push(['Reloj', A.device]);
+  if (A.moving) facts.push([Tx('En movimiento'), fmtDur(A.moving)]);
+  facts.push([Tx('Bajada'), '−' + fmtNum(A.descent) + ' m']);
+  if (A.eleMax != null) facts.push([Tx('Altitud máxima'), fmtNum(A.eleMax) + ' m']);
+  if (A.eleMin != null) facts.push([Tx('Altitud mínima'), fmtNum(A.eleMin) + ' m']);
+  if (A.moving && K.foot) facts.push([Tx('Ritmo medio'), fmtPace(A.moving / (A.distance / 1000))]);
+  if (A.moving) facts.push([Tx('Velocidad en movimiento'), fmtDec(A.distance / A.moving * 3.6) + ' km/h']);
+  if (K.pace) facts.push([Tx('Velocidad media'), fmtDec(avgSpeed(A)) + ' km/h']);
+  if (!K.foot || K.pace) { const vm = maxSpeed(A); if (vm) facts.push([Tx('Velocidad máxima'), fmtDec(vm) + ' km/h']); }
+  if (A.hrAvg) facts.push([Tx('Pulso medio'), A.hrAvg + ' ppm']);
+  if (A.hrMax) facts.push([Tx('Pulso máximo'), A.hrMax + ' ppm']);
+  if (A.calories) facts.push([Tx('Calorías'), fmtNum(A.calories) + ' kcal']);
+  facts.push([Tx('Actividad'), `${kindIcon(A.kind)} ${kindName(A.kind)}`]);
+  if (A.device) facts.push([Tx('Reloj'), A.device]);
   fillFacts(facts);
 }
 
@@ -2577,7 +3226,7 @@ function drawProfile() {
   const pad = { l: 40, r: $('hrToggle').checked ? 34 : 10, t: 10, b: 22 };
   const d0 = P[0].d, d1 = P[P.length - 1].d;
   const es = P.map(q => q.es).filter(v => v != null);
-  if (!es.length) { g.fillStyle = muted; g.fillText('Sin datos de altitud', 10, 20); return; }
+  if (!es.length) { g.fillStyle = muted; g.fillText(Tx('Sin datos de altitud'), 10, 20); return; }
   let lo = Math.min(...es), hi = Math.max(...es);
   const span = Math.max(20, hi - lo); lo -= span * .1; hi = lo + span * 1.25;
   const X = d => pad.l + (d - d0) / Math.max(1, d1 - d0) * (w - pad.l - pad.r);
@@ -2592,7 +3241,7 @@ function drawProfile() {
   }
   const stepD = niceStep((d1 - d0) / 5 / 1000) * 1000;
   g.textAlign = 'center';
-  for (let d = 0; d <= d1 - d0 + 1; d += stepD) if (X(d0 + d) < w - 24 || d === 0) g.fillText((d / 1000).toLocaleString('es-ES', { maximumFractionDigits: 1 }) + ' km', X(d0 + d), h - 6);
+  for (let d = 0; d <= d1 - d0 + 1; d += stepD) if (X(d0 + d) < w - 24 || d === 0) g.fillText((d / 1000).toLocaleString(LOC, { maximumFractionDigits: 1 }) + ' km', X(d0 + d), h - 6);
   // área
   g.beginPath(); g.moveTo(X(d0), Y(lo));
   for (const q of P) if (q.es != null) g.lineTo(X(q.d), Y(q.es));
@@ -2679,7 +3328,7 @@ function bindProfile() {
 // ---------- Animación ----------
 function stopAnim(resetUi = true) {
   anim.on = false;
-  $('btnPlay').textContent = anim.f > 0 && anim.f < 1 ? 'Seguir' : 'Reproducir';
+  $('btnPlay').textContent = anim.f > 0 && anim.f < 1 ? Tx('Seguir') : Tx('Reproducir');
   if (resetUi && anim.f >= 1) { anim.f = 0; }
 }
 function startAnim() {
@@ -2691,7 +3340,7 @@ function startAnim() {
     map.setView([q.lat, q.lon], A.isTrip ? 14 : 17, { animate: false });
   }
   anim.on = true; anim.last = performance.now();
-  $('btnPlay').textContent = 'Pausa';
+  $('btnPlay').textContent = Tx('Pausa');
   $('live').classList.add('on');
   requestAnimationFrame(tick);
 }
@@ -2722,13 +3371,13 @@ function tick(now) {
       anim.pauseUntil = now + 2600;
     }
   }
-  if (anim.f >= 1) { stopAnim(); $('btnPlay').textContent = 'Repetir'; return; }
+  if (anim.f >= 1) { stopAnim(); $('btnPlay').textContent = Tx('Repetir'); return; }
   requestAnimationFrame(tick);
 }
 function renderLive(q) {
   const box = $('live'); box.innerHTML = '';
   const items = [['km', ((q.d - A.points[0].d) / 1000).toFixed(2)]];
-  if (A.isTrip) items.push(['etapa', q.stage + 1]);
+  if (A.isTrip) items.push([Tx('etapa'), q.stage + 1]);
   else if (A.hasTime) items.push(['tiempo', fmtClock((q.t - A.points[0].t) / 1000)]);
   if (q.ele != null) items.push(['altitud', Math.round(q.ele) + ' m']);
   if (q.hr) items.push(['pulso', q.hr]);
@@ -2778,7 +3427,7 @@ function openPick(items, info) {
     const img = document.createElement('img'); img.alt = ''; img.loading = 'lazy';
     if (p.url) img.src = p.url;
     p.img = img;
-    const tm = document.createElement('span'); tm.className = 'pt'; tm.textContent = p.needsPlace ? 'Sin hora' : (p.time ? fmtHour(p.time) : '');
+    const tm = document.createElement('span'); tm.className = 'pt'; tm.textContent = p.needsPlace ? Tx('Sin hora') : (p.time ? fmtHour(p.time) : '');
     b.append(img, tm);
     b.onclick = () => { p.on = !p.on; b.setAttribute('aria-pressed', String(p.on)); updatePickOk(); };
     grid.appendChild(b);
@@ -2797,7 +3446,7 @@ async function addPhotos(files) {
   let i = 0, repeated = 0;
   for (const file of files) {
     i++;
-    if (i % 5 === 0 || i === files.length) busy.textContent = `Revisando fotos: ${i} de ${files.length}…`;
+    if (i % 5 === 0 || i === files.length) busy.textContent = Tx`Revisando fotos: ${i} de ${files.length}…`;
     let meta = null;
     try { meta = await exifr.parse(file); } catch { meta = null; }
     const m = matchPhoto(meta, A.points, A);
@@ -2808,42 +3457,42 @@ async function addPhotos(files) {
   }
   busy.hidden = true;
   if (!found.length) {
-    toast(repeated ? 'Esas fotos ya están publicadas en esta actividad.' : 'No se ha podido leer ninguna foto.', 5000);
+    toast(repeated ? Tx('Esas fotos ya están publicadas en esta actividad.') : Tx('No se ha podido leer ninguna foto.'), 5000);
     return;
   }
   found.sort((a, b) => (a.idx ?? 1e9) - (b.idx ?? 1e9));
   const ok = found.filter(f => !f.needsPlace).length, loose = found.length - ok;
   let info = '';
-  if (ok) info += ok === 1 ? '1 foto se hizo durante la actividad y se coloca sola. ' : `${ok} fotos se hicieron durante la actividad y se colocan solas. `;
-  if (loose) info += `${loose} ${loose === 1 ? 'foto no tiene' : 'fotos no tienen'} la hora de la actividad (pasa con las de WhatsApp): al publicar, te pediré que toques en el mapa o en el perfil dónde ${loose === 1 ? 'ponerla' : 'ponerlas'}. `;
-  info += 'Desmarca las que no quieras publicar.';
+  if (ok) info += ok === 1 ? Tx('1 foto se hizo durante la actividad y se coloca sola. ') : Tx`${ok} fotos se hicieron durante la actividad y se colocan solas. `;
+  if (loose) info += Tx`${loose} ${loose === 1 ? Tx('foto no tiene') : Tx('fotos no tienen')} la hora de la actividad (pasa con las de WhatsApp): al publicar, te pediré que toques en el mapa o en el perfil dónde ${loose === 1 ? Tx('ponerla') : Tx('ponerlas')}. `;
+  info += Tx('Desmarca las que no quieras publicar.');
   openPick(found.map(f => ({ ...f, url: URL.createObjectURL(f.file), on: true })), info);
 }
 async function findNativePhotos() {
-  if (!A.hasTime) { toast('Esta actividad no tiene horas, así que no se pueden buscar sus fotos.'); return; }
+  if (!A.hasTime) { toast(Tx('Esta actividad no tiene horas, así que no se pueden buscar sus fotos.')); return; }
   const busy = $('photoBusy');
-  busy.hidden = false; busy.textContent = 'Buscando fotos en tu galería…';
+  busy.hidden = false; busy.textContent = Tx('Buscando fotos en tu galería…');
   let res;
   try {
     res = await NativePhotos.findPhotos({ start: Math.round(A.start - 10 * 60000), end: Math.round(A.end + 10 * 60000) });
   } catch (e) {
     busy.hidden = true;
-    if (e && e.code === 'PERMISSION_DENIED') toast('Senda necesita permiso para ver tus fotos. Puedes dárselo en Ajustes, Aplicaciones, Senda, Permisos.', 7000);
-    else toast('No se pudieron buscar las fotos.');
+    if (e && e.code === 'PERMISSION_DENIED') toast(Tx('Senda necesita permiso para ver tus fotos. Puedes dárselo en Ajustes, Aplicaciones, Senda, Permisos.'), 7000);
+    else toast(Tx('No se pudieron buscar las fotos.'));
     return;
   }
   busy.hidden = true;
   const have = await publishedSources(A.id);
   const list = (res.photos || []).filter(p => !have.has('n:' + p.id));
   if (!list.length) {
-    toast((res.photos || []).length ? 'Las fotos de esta actividad ya están publicadas.' : 'No hay fotos en tu galería hechas durante esta actividad.', 5000);
+    toast((res.photos || []).length ? Tx('Las fotos de esta actividad ya están publicadas.') : Tx('No hay fotos en tu galería hechas durante esta actividad.'), 5000);
     return;
   }
   const items = list.map(p => ({ native: true, uri: p.uri, rotation: p.rotation || 0, src: 'n:' + p.id, time: p.time, idx: idxAtTime(p.time), on: !p.screenshot, url: null }));
   items.sort((a, b) => a.idx - b.idx);
   const shots = items.filter(p => !p.on).length;
-  openPick(items, `Hay ${items.length} ${items.length === 1 ? 'foto hecha' : 'fotos hechas'} durante la actividad.` +
-    (shots ? ` He desmarcado ${shots} ${shots === 1 ? 'captura de pantalla' : 'capturas de pantalla'}.` : '') + ' Toca las que no quieras publicar.');
+  openPick(items, Tx`Hay ${items.length} ${items.length === 1 ? Tx('foto hecha') : Tx('fotos hechas')} durante la actividad.` +
+    (shots ? Tx` He desmarcado ${shots} ${shots === 1 ? Tx('captura de pantalla') : Tx('capturas de pantalla')}.` : '') + Tx(' Toca las que no quieras publicar.'));
   // miniaturas, una tras otra
   const mine = pickState;
   for (const p of items) {
@@ -2857,7 +3506,7 @@ async function findNativePhotos() {
 }
 function updatePickOk() {
   const n = pickState.filter(p => p.on).length;
-  $('pickOk').textContent = n ? `Publicar ${n} ${n === 1 ? 'foto' : 'fotos'}` : 'Publicar';
+  $('pickOk').textContent = n ? Tx`Publicar ${n} ${n === 1 ? Tx('foto') : Tx('fotos')}` : Tx('Publicar');
   $('pickOk').disabled = !n;
 }
 function closePick() {
@@ -2874,7 +3523,7 @@ async function confirmPick() {
   $('pickOk').disabled = true;
   let k = 0, failed = 0;
   for (const p of auto) {
-    k++; $('pickOk').textContent = `Guardando ${k} de ${auto.length}…`;
+    k++; $('pickOk').textContent = Tx`Guardando ${k} de ${auto.length}…`;
     try { await savePickedPhoto(p, p.idx, actId); } catch (e) { console.error(e); failed++; }
   }
   // las que no tienen hora se quedan para colocarlas a mano
@@ -2883,8 +3532,8 @@ async function confirmPick() {
   pickState = null;
   $('pickModal').classList.remove('on');
   if (A && A.id === actId) await loadPhotos();
-  if (failed) toast(`No se pudieron guardar ${failed} foto(s). Puede que el móvil se haya quedado sin espacio.`, 5000);
-  else if (auto.length) toast(`${auto.length} ${auto.length === 1 ? 'foto publicada' : 'fotos publicadas'} en la actividad.`);
+  if (failed) toast(Tx`No se pudieron guardar ${failed} foto(s). Puede que el móvil se haya quedado sin espacio.`, 5000);
+  else if (auto.length) toast(Tx`${auto.length} ${auto.length === 1 ? Tx('foto publicada') : Tx('fotos publicadas')} en la actividad.`);
   if (keep.length) startPlacing(keep);
 }
 async function savePickedPhoto(p, idx, actId) {
@@ -2910,7 +3559,7 @@ function showPlacing() {
   if (!placing || placing.i >= placing.list.length) { endPlacing(); return; }
   const p = placing.list[placing.i];
   bar.querySelector('img').src = p.url;
-  bar.querySelector('.pl-count').textContent = placing.list.length > 1 ? `Foto ${placing.i + 1} de ${placing.list.length}` : '';
+  bar.querySelector('.pl-count').textContent = placing.list.length > 1 ? Tx`Foto ${placing.i + 1} de ${placing.list.length}` : '';
   bar.hidden = false;
   $('map').classList.add('placing');
 }
@@ -2925,8 +3574,8 @@ async function placeAt(idx) {
   const p = placing.list[placing.i];
   try {
     await savePickedPhoto(p, idx, placing.actId);
-    toast(`Foto colocada en el km ${((A.points[idx].d - A.points[0].d) / 1000).toLocaleString('es-ES', { maximumFractionDigits: 2 })}.`);
-  } catch (e) { console.error(e); toast('No se pudo guardar la foto.'); }
+    toast(Tx`Foto colocada en el km ${((A.points[idx].d - A.points[0].d) / 1000).toLocaleString(LOC, { maximumFractionDigits: 2 })}.`);
+  } catch (e) { console.error(e); toast(Tx('No se pudo guardar la foto.')); }
   placing.i++;
   await loadPhotos();
   showPlacing();
@@ -2975,7 +3624,7 @@ function renderPhotos() {
     L.marker([q.lat, q.lon], { icon: L.divIcon({ className: '', html, iconSize: [40, 40], iconAnchor: [20, 46] }) })
       .on('click', () => openLightbox(ph)).addTo(photoLayer);
     const b = document.createElement('button'); b.type = 'button';
-    b.setAttribute('aria-label', 'Ver foto ' + (ph.time ? fmtHour(ph.time) : ''));
+    b.setAttribute('aria-label', Tx('Ver foto ') + (ph.time ? fmtHour(ph.time) : ''));
     const img = document.createElement('img'); img.src = ph.url; img.alt = '';
     b.appendChild(img);
     b.onclick = () => { openLightbox(ph); };
@@ -2992,7 +3641,7 @@ function openLightbox(ph) {
   $('lbDelete').hidden = !!A.isTrip;
   $('lbDelete').onclick = async ev => {
     ev.stopPropagation();
-    if (!confirm('¿Quitar esta foto de la actividad?')) return;
+    if (!confirm(Tx('¿Quitar esta foto de la actividad?'))) return;
     await photoDelete(ph.id);
     lb.classList.remove('on');
     URL.revokeObjectURL(ph.url);
@@ -3004,7 +3653,7 @@ function openLightbox(ph) {
 }
 
 // ---------- Poblaciones cercanas ----------
-const PLACE_LABEL = { city: 'Ciudad', town: 'Población', village: 'Pueblo', hamlet: 'Aldea', suburb: 'Barrio', locality: 'Paraje', isolated_dwelling: 'Casa aislada' };
+const PLACE_LABEL = { city: Tx('Ciudad'), town: Tx('Población'), village: Tx('Pueblo'), hamlet: Tx('Aldea'), suburb: Tx('Barrio'), locality: Tx('Paraje'), isolated_dwelling: Tx('Casa aislada') };
 async function queryTowns(P, distance, kind) {
   const n = Math.min(distance > 30000 ? 80 : 40, P.length);
   const sample = [];
@@ -3044,20 +3693,20 @@ async function refreshTowns() {
   let ok = 0, fail = 0;
   const list = cur.isTrip ? cur.stages : [cur];
   for (let i = 0; i < list.length; i++) {
-    $('placesNote').textContent = list.length > 1 ? `Buscando poblaciones… etapa ${i + 1} de ${list.length}` : 'Buscando poblaciones cerca de la ruta…';
+    $('placesNote').textContent = list.length > 1 ? Tx`Buscando poblaciones… etapa ${i + 1} de ${list.length}` : Tx('Buscando poblaciones cerca de la ruta…');
     const s = list[i];
     const res = await queryTowns(s.points, s.distance, s.kind);
     if (res) { s.cachedTowns = res; saveTowns(s.id, res); ok++; } else fail++;
   }
   btn.disabled = false;
   if (A !== cur) return;
-  if (!ok) { $('placesNote').textContent = 'El servicio de mapas no ha respondido. Prueba otra vez en un rato.'; return; }
+  if (!ok) { $('placesNote').textContent = Tx('El servicio de mapas no ha respondido. Prueba otra vez en un rato.'); return; }
   if (cur.isTrip) await loadTowns(); else { towns = cur.cachedTowns.slice(0, 20); renderTowns(); }
-  toast(fail ? `Poblaciones actualizadas (${fail} ${fail === 1 ? 'etapa' : 'etapas'} sin respuesta).` : 'Poblaciones actualizadas.');
+  toast(fail ? Tx`Poblaciones actualizadas (${fail} ${fail === 1 ? Tx('etapa') : Tx('etapas')} sin respuesta).` : Tx('Poblaciones actualizadas.'));
 }
 async function loadTowns() {
   townLayer.clearLayers(); towns = [];
-  $('places').innerHTML = ''; $('placesNote').textContent = 'Buscando poblaciones cerca de la ruta…'; $('placesNote').style.display = '';
+  $('places').innerHTML = ''; $('placesNote').textContent = Tx('Buscando poblaciones cerca de la ruta…'); $('placesNote').style.display = '';
   if (A.isTrip) {
     const seen = new Set(); let missing = 0;
     A.stages.forEach((s, k) => {
@@ -3067,13 +3716,13 @@ async function loadTowns() {
         .forEach(t => { if (!seen.has(t.name)) { seen.add(t.name); towns.push({ ...t, stage: k }); } });
     });
     renderTowns();
-    if (missing) { $('placesNote').style.display = ''; $('placesNote').textContent = `Faltan los pueblos de ${missing} ${missing === 1 ? 'etapa' : 'etapas'}. Se buscan al abrir cada etapa con conexión.`; }
+    if (missing) { $('placesNote').style.display = ''; $('placesNote').textContent = Tx`Faltan los pueblos de ${missing} ${missing === 1 ? Tx('etapa') : Tx('etapas')}. Se buscan al abrir cada etapa con conexión.`; }
     return;
   }
   if (A.cachedTowns) { towns = A.cachedTowns.slice(0, 15); renderTowns(); return; }
   const cur = A, myId = cur.id;
   const res = await queryTowns(cur.points, cur.distance, cur.kind);
-  if (!res) { if (A === cur) $('placesNote').textContent = 'No se han podido consultar las poblaciones. Pulsa «Buscar de nuevo» en un rato.'; return; }
+  if (!res) { if (A === cur) $('placesNote').textContent = Tx('No se han podido consultar las poblaciones. Pulsa «Buscar de nuevo» en un rato.'); return; }
   const list = loadHistory(); const e = list.find(x => x.id === myId);
   if (e) { e.towns = res; saveHistory(list); }
   if (A !== cur) return;
@@ -3088,18 +3737,18 @@ function nearestTown(list) {
 function renderTowns() {
   townLayer.clearLayers();
   const ul = $('places'); ul.innerHTML = '';
-  if (!towns.length) { $('placesNote').textContent = 'No hay poblaciones con nombre cerca de esta ruta.'; return; }
+  if (!towns.length) { $('placesNote').textContent = Tx('No hay poblaciones con nombre cerca de esta ruta.'); return; }
   $('placesNote').style.display = 'none';
   const near = nearestTown(towns);
-  if (!A.isTrip && near) $('actSub').textContent = $('actSub').textContent.replace(/(, cerca de .*)?$/, `, cerca de ${near.name}`);
+  if (!A.isTrip && near) $('actSub').textContent = $('actSub').textContent.replace(/(, cerca de .*)?$/, Tx`, cerca de ${near.name}`);
   for (const t of towns) {
     const li = document.createElement('li');
     const b = document.createElement('button'); b.type = 'button'; b.textContent = t.name;
     b.onclick = () => { map.setView([t.lat, t.lon], 14); window.scrollTo({ top: 0, behavior: 'smooth' }); };
     const s = document.createElement('span');
     s.textContent = A.isTrip
-      ? `Etapa ${t.stage + 1}, ${(PLACE_LABEL[t.type] || 'lugar').toLowerCase()}`
-      : `${PLACE_LABEL[t.type] || 'Lugar'}, a ${t.dist < 1000 ? Math.round(t.dist / 10) * 10 + ' m' : fmtDec(t.dist / 1000) + ' km'} de la ruta`;
+      ? Tx`Etapa ${t.stage + 1}, ${(PLACE_LABEL[t.type] || 'lugar').toLowerCase()}`
+      : Tx`${PLACE_LABEL[t.type] || Tx('Lugar')}, a ${t.dist < 1000 ? Math.round(t.dist / 10) * 10 + ' m' : fmtDec(t.dist / 1000) + ' km'} de la ruta`;
     li.append(b, s); ul.appendChild(li);
     const onMap = A.isTrip ? (t.type === 'city' || t.type === 'town') : (t.type !== 'hamlet' && t.type !== 'locality');
     if (onMap) {
@@ -3130,12 +3779,12 @@ function showActivity(a, isNew) {
     $('live').classList.remove('on');
     $('colorMode').value = A.isTrip ? 'stage' : 'slope';
     $('panel').scrollTop = 0; window.scrollTo(0, 0);
-    $('btnPlay').textContent = 'Reproducir';
+    $('btnPlay').textContent = Tx('Reproducir');
     prof.cursor = null; $('tip').style.display = 'none';
     renderStats(); drawRoute(); drawMarkers(); renderPhotos(); fitRoute(); drawProfile();
     loadTowns(); loadPhotos();
     if (isNew && !A.isTrip && !A.kindSet) openKindPicker(true);
-    else if (isNew) toast('Actividad guardada en tu historial.');
+    else if (isNew) toast(Tx('Actividad guardada en tu historial.'));
   }, 30);
 }
 function showHome() {
@@ -3205,7 +3854,7 @@ function hcWhen(s) {
   const d = new Date(s.start);
   const mins = Math.round((s.end - s.start) / 60000);
   const dur = mins >= 60 ? `${Math.floor(mins / 60)} h ${String(mins % 60).padStart(2, '0')} min` : `${mins} min`;
-  return `${d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}, ${s.type.toLowerCase()} de ${dur}`;
+  return Tx`${d.toLocaleDateString(LOC, { weekday: 'long', day: 'numeric', month: 'long' })}, ${Tx(s.type).toLowerCase()} de ${dur}`;
 }
 // ¿Ya está en Senda? (importada antes, o abierta desde un FIT de la misma hora)
 function hcAlreadyHave(s) {
@@ -3229,32 +3878,32 @@ async function checkHealthNew(manual) {
   if (st.status !== 'ready') { if (manual) openHealthSetup(st.status); return; }
   let res;
   try { res = await NativeHealth.listSessions({ since: Date.now() - HC_DAYS * 86400000 }); }
-  catch (e) { console.error(e); if (manual) toast('No se han podido leer las actividades de Health Connect.'); return; }
+  catch (e) { console.error(e); if (manual) toast(Tx('No se han podido leer las actividades de Health Connect.')); return; }
   const all = (res.sessions || []).filter(s => s.route !== 'no');
   const fresh = all.filter(s => !hcAlreadyHave(s));
   if (manual) {
-    if (!fresh.length) { toast(all.length ? 'Ya tienes en Senda todas las actividades de Health Connect.' : 'No hay actividades con recorrido en Health Connect de los últimos dos meses.', 5000); return; }
+    if (!fresh.length) { toast(all.length ? Tx('Ya tienes en Senda todas las actividades de Health Connect.') : Tx('No hay actividades con recorrido en Health Connect de los últimos dos meses.'), 5000); return; }
     openHealthList(fresh);
     return;
   }
   hcPending = fresh.filter(s => !hcState.dismissed.includes(s.id));
   if (!hcPending.length) return;
   if (hcPending.length === 1) {
-    $('hcBarTitle').textContent = 'Nueva actividad detectada';
-    $('hcBarTitle').textContent = `${kindIcon(guessKind(hcPending[0].type))} Nueva actividad detectada`;
-    $('hcBarText').textContent = hcWhen(hcPending[0]) + '. ¿La añades a Senda?';
-    $('hcBarGo').textContent = 'Añadir';
+    $('hcBarTitle').textContent = Tx('Nueva actividad detectada');
+    $('hcBarTitle').textContent = Tx`${kindIcon(guessKind(hcPending[0].type))} Nueva actividad detectada`;
+    $('hcBarText').textContent = hcWhen(hcPending[0]) + Tx('. ¿La añades a Senda?');
+    $('hcBarGo').textContent = Tx('Añadir');
     $('hcBarGo').onclick = () => { $('hcBar').hidden = true; importHealth([hcPending[0].id]); };
   } else {
-    $('hcBarTitle').textContent = `${hcPending.length} actividades nuevas detectadas`;
-    $('hcBarText').textContent = 'Están en Health Connect y aún no las tienes en Senda.';
-    $('hcBarGo').textContent = 'Ver';
+    $('hcBarTitle').textContent = Tx`${hcPending.length} actividades nuevas detectadas`;
+    $('hcBarText').textContent = Tx('Están en Health Connect y aún no las tienes en Senda.');
+    $('hcBarGo').textContent = Tx('Ver');
     $('hcBarGo').onclick = () => { $('hcBar').hidden = true; openHealthList(hcPending); };
   }
   $('hcBarLater').onclick = () => {
     $('hcBar').hidden = true;
     hcState.dismissed.push(...hcPending.map(s => s.id)); hcSave();
-    toast('Vale. Puedes añadirlas cuando quieras desde el menú, en «Detectar actividades».', 5000);
+    toast(Tx('Vale. Puedes añadirlas cuando quieras desde el menú, en «Detectar actividades».'), 5000);
   };
   $('hcBar').hidden = false;
 }
@@ -3266,49 +3915,49 @@ function closeHealth() { $('hcModal').classList.remove('on'); }
 function openHealthSetup(status) {
   const info = $('hcInfo'); info.innerHTML = ''; $('hcList').innerHTML = ''; $('hcList').hidden = true;
   const p = txt => { const e = document.createElement('p'); e.textContent = txt; info.appendChild(e); };
-  $('hcTitle').textContent = 'Detectar actividades';
+  $('hcTitle').textContent = Tx('Detectar actividades');
   if (status === 'not_installed' || status === 'update_required' || status === 'unavailable') {
-    p('Senda puede encontrar sola tus actividades nuevas, sin exportarlas desde Zepp. Para eso usa Health Connect, la app de Android que comparte datos de salud entre aplicaciones.');
-    p(status === 'update_required' ? 'Tienes Health Connect, pero hay que actualizarlo.' : 'No tienes Health Connect instalado en este móvil.');
-    hcButtons([['Cerrar', 'btn-line', closeHealth], [status === 'update_required' ? 'Actualizar Health Connect' : 'Instalar Health Connect', 'btn-main', async () => { closeHealth(); await NativeHealth.openInstall(); toast('Cuando lo tengas, vuelve a Senda y entra otra vez en «Detectar actividades».', 6000); }]]);
+    p(Tx('Senda puede encontrar sola tus actividades nuevas, sin exportarlas desde Zepp. Para eso usa Health Connect, la app de Android que comparte datos de salud entre aplicaciones.'));
+    p(status === 'update_required' ? Tx('Tienes Health Connect, pero hay que actualizarlo.') : Tx('No tienes Health Connect instalado en este móvil.'));
+    hcButtons([[Tx('Cerrar'), 'btn-line', closeHealth], [status === 'update_required' ? Tx('Actualizar Health Connect') : Tx('Instalar Health Connect'), 'btn-main', async () => { closeHealth(); await NativeHealth.openInstall(); toast(Tx('Cuando lo tengas, vuelve a Senda y entra otra vez en «Detectar actividades».'), 6000); }]]);
   } else if (status === 'no_permission') {
     p('Faltan dos cosas, solo esta vez:');
     const ol = document.createElement('ol');
-    for (const s of ['En la app de tu reloj activa la sincronización con Health Connect. En Zepp: Perfil, luego «Enlace de cuenta de terceros» y Health Connect.', 'Aquí: pulsa «Dar permiso» y deja que Senda lea tus ejercicios y sus rutas. Elige «Permitir todo».']) { const li = document.createElement('li'); li.textContent = s; ol.appendChild(li); }
+    for (const s of [Tx('En la app de tu reloj activa la sincronización con Health Connect. En Zepp: Perfil, luego «Enlace de cuenta de terceros» y Health Connect.'), Tx('Aquí: pulsa «Dar permiso» y deja que Senda lea tus ejercicios y sus rutas. Elige «Permitir todo».')]) { const li = document.createElement('li'); li.textContent = s; ol.appendChild(li); }
     info.appendChild(ol);
-    hcButtons([['Cerrar', 'btn-line', closeHealth], ['Dar permiso', 'btn-main', async () => {
+    hcButtons([[Tx('Cerrar'), 'btn-line', closeHealth], [Tx('Dar permiso'), 'btn-main', async () => {
       try {
         const r = await NativeHealth.requestAccess();
-        if (r.granted) { closeHealth(); renderHistory(); toast('¡Conectado! Buscando actividades…'); checkHealthNew(true); }
-        else toast('Sin ese permiso Senda no puede ver tus actividades.', 5000);
-      } catch (e) { console.error(e); toast('No se pudo pedir el permiso.'); }
+        if (r.granted) { closeHealth(); renderHistory(); toast(Tx('¡Conectado! Buscando actividades…')); checkHealthNew(true); }
+        else toast(Tx('Sin ese permiso Senda no puede ver tus actividades.'), 5000);
+      } catch (e) { console.error(e); toast(Tx('No se pudo pedir el permiso.')); }
     }]]);
   } else if (status === 'ready') {
-    p('Senda está conectada a Health Connect. Cada vez que la abras, te avisará si hay actividades nuevas para añadir.');
-    hcButtons([['Cerrar', 'btn-line', closeHealth], ['Buscar ahora', 'btn-main', () => { closeHealth(); checkHealthNew(true); }]]);
+    p(Tx('Senda está conectada a Health Connect. Cada vez que la abras, te avisará si hay actividades nuevas para añadir.'));
+    hcButtons([[Tx('Cerrar'), 'btn-line', closeHealth], [Tx('Buscar ahora'), 'btn-main', () => { closeHealth(); checkHealthNew(true); }]]);
   } else {
-    p('Ahora mismo no se puede usar Health Connect. Vuelve a intentarlo en un rato.');
-    hcButtons([['Cerrar', 'btn-main', closeHealth]]);
+    p(Tx('Ahora mismo no se puede usar Health Connect. Vuelve a intentarlo en un rato.'));
+    hcButtons([[Tx('Cerrar'), 'btn-main', closeHealth]]);
   }
   $('hcModal').classList.add('on');
 }
 function openHealthList(list) {
-  $('hcTitle').textContent = list.length === 1 ? 'Actividad nueva' : 'Actividades nuevas';
+  $('hcTitle').textContent = list.length === 1 ? Tx('Actividad nueva') : Tx('Actividades nuevas');
   const info = $('hcInfo'); info.innerHTML = '';
-  const p = document.createElement('p'); p.textContent = 'Estas actividades están en Health Connect y todavía no las tienes en Senda. Marca las que quieras añadir y elige de qué tipo es cada una.'; info.appendChild(p);
+  const p = document.createElement('p'); p.textContent = Tx('Estas actividades están en Health Connect y todavía no las tienes en Senda. Marca las que quieras añadir y elige de qué tipo es cada una.'); info.appendChild(p);
   const box = $('hcList'); box.innerHTML = ''; box.hidden = false;
   for (const s of list) {
     const lab = document.createElement('label');
     const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = s.id; cb.checked = true;
-    const st = document.createElement('strong'); st.textContent = s.title || s.type;
-    const sub = document.createElement('span'); sub.className = 'sp-sub'; sub.textContent = hcWhen(s) + (hcOrigin(s.origin) ? `, de ${hcOrigin(s.origin)}` : '');
+    const st = document.createElement('strong'); st.textContent = s.title || Tx(s.type);
+    const sub = document.createElement('span'); sub.className = 'sp-sub'; sub.textContent = hcWhen(s) + (hcOrigin(s.origin) ? Tx`, de ${hcOrigin(s.origin)}` : '');
     const k = document.createElement('span'); k.className = 'sp-km'; k.textContent = '';
-    const sel = document.createElement('select'); sel.className = 'hc-kind'; sel.dataset.id = s.id; sel.setAttribute('aria-label', 'Tipo de actividad');
+    const sel = document.createElement('select'); sel.className = 'hc-kind'; sel.dataset.id = s.id; sel.setAttribute('aria-label', Tx('Tipo de actividad'));
     for (const kk of KIND_ORDER) { const o = document.createElement('option'); o.value = kk; o.textContent = `${kindIcon(kk)} ${kindName(kk)}`; sel.appendChild(o); }
     sel.value = guessKind(s.type, s.distance, (s.end - s.start) / 1000);
     lab.append(cb, st, k, sub, sel); box.appendChild(lab);
   }
-  hcButtons([['Cancelar', 'btn-line', closeHealth], ['Añadir', 'btn-main', () => {
+  hcButtons([[Tx('Cancelar'), 'btn-line', closeHealth], [Tx('Añadir'), 'btn-main', () => {
     const ids = [...box.querySelectorAll('input:checked')].map(i => i.value);
     const kinds = {}; box.querySelectorAll('select.hc-kind').forEach(s => kinds[s.dataset.id] = s.value);
     closeHealth();
@@ -3334,7 +3983,7 @@ function hcToActivity(d) {
 }
 async function importHealth(ids, kinds) {
   const done = []; let noRoute = 0, failed = 0;
-  toast(ids.length === 1 ? 'Añadiendo la actividad…' : `Añadiendo ${ids.length} actividades…`, 8000);
+  toast(ids.length === 1 ? Tx('Añadiendo la actividad…') : Tx`Añadiendo ${ids.length} actividades…`, 8000);
   for (const id of ids) {
     try {
       const d = await NativeHealth.readSession({ id });
@@ -3348,9 +3997,9 @@ async function importHealth(ids, kinds) {
     } catch (e) { console.error(e); failed++; }
   }
   hcSave();
-  if (!done.length) { toast(noRoute ? 'Esa actividad no tiene recorrido GPS en Health Connect.' : 'No se ha podido añadir. Vuelve a intentarlo.', 5000); return; }
-  if (done.length === 1) showActivity(done[0], true); else { showHome(); toast(`${done.length} actividades añadidas.`); }
-  if (noRoute || failed) setTimeout(() => toast(`${noRoute + failed} no se pudieron añadir (sin recorrido GPS o con error).`, 5000), 2500);
+  if (!done.length) { toast(noRoute ? Tx('Esa actividad no tiene recorrido GPS en Health Connect.') : Tx('No se ha podido añadir. Vuelve a intentarlo.'), 5000); return; }
+  if (done.length === 1) showActivity(done[0], true); else { showHome(); toast(Tx`${done.length} actividades añadidas.`); }
+  if (noRoute || failed) setTimeout(() => toast(Tx`${noRoute + failed} no se pudieron añadir (sin recorrido GPS o con error).`, 5000), 2500);
   fetchTownsInBackground(done);
 }
 // Tarjeta en el inicio para quien aún no lo tiene configurado
@@ -3360,14 +4009,14 @@ async function renderHealthCard() {
   if (st.status === 'ready' || st.status === 'web' || st.status === 'error') return;
   if (!$('homeView').classList.contains('on') || document.getElementById('hcCard')) return;
   const c = document.createElement('div'); c.className = 'hc-card'; c.id = 'hcCard';
-  const h = document.createElement('h3'); h.textContent = 'Que Senda encuentre tus actividades sola';
+  const h = document.createElement('h3'); h.textContent = Tx('Que Senda encuentre tus actividades sola');
   const p = document.createElement('p'); p.textContent = st.status === 'no_permission'
-    ? 'Ya tienes Health Connect. Falta conectarlo para que Senda te avise de cada actividad nueva, sin exportar nada desde Zepp.'
-    : 'Con Health Connect, Senda te avisará de cada actividad nueva sin exportarla desde Zepp. Necesitas instalarlo una vez.';
+    ? Tx('Ya tienes Health Connect. Falta conectarlo para que Senda te avise de cada actividad nueva, sin exportar nada desde Zepp.')
+    : Tx('Con Health Connect, Senda te avisará de cada actividad nueva sin exportarla desde Zepp. Necesitas instalarlo una vez.');
   const row = document.createElement('div'); row.className = 'row';
-  const b1 = document.createElement('button'); b1.type = 'button'; b1.className = 'btn-main'; b1.textContent = 'Configurar'; b1.onclick = () => openHealthSetup(st.status);
-  const b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'btn-line'; b2.textContent = 'No, gracias';
-  b2.onclick = () => { localStorage.setItem('senda.hc.card', 'off'); c.remove(); toast('Si cambias de idea, está en el menú: «Detectar actividades».', 5000); };
+  const b1 = document.createElement('button'); b1.type = 'button'; b1.className = 'btn-main'; b1.textContent = Tx('Configurar'); b1.onclick = () => openHealthSetup(st.status);
+  const b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'btn-line'; b2.textContent = Tx('No, gracias');
+  b2.onclick = () => { localStorage.setItem('senda.hc.card', 'off'); c.remove(); toast(Tx('Si cambias de idea, está en el menú: «Detectar actividades».'), 5000); };
   row.append(b1, b2); c.append(h, p, row);
   const list = $('homeList'); list.insertBefore(c, list.firstChild);
 }
@@ -3391,7 +4040,7 @@ function driveMark(kind, ids) {
 async function driveToken(interactive) {
   if (drive.token && Date.now() - drive.tokenAt < 45 * 60000) return drive.token;
   const r = await NativeDrive.authorize({ interactive: !!interactive });
-  if (r.needsUi) { const e = new Error('Hace falta entrar con Google'); e.code = 'NEEDS_UI'; throw e; }
+  if (r.needsUi) { const e = new Error(Tx('Hace falta entrar con Google')); e.code = 'NEEDS_UI'; throw e; }
   drive.token = r.token; drive.tokenAt = Date.now();
   if (r.email) { const s = driveState(); s.email = r.email; driveSave(s); }
   return drive.token;
@@ -3404,7 +4053,7 @@ async function gfetch(url, opts = {}, retry = true) {
     drive.token = null;
     return gfetch(url, opts, false);
   }
-  if (!r.ok) { const e = new Error('Google Drive respondió ' + r.status); e.status = r.status; throw e; }
+  if (!r.ok) { const e = new Error(Tx('Google Drive respondió ') + r.status); e.status = r.status; throw e; }
   return r;
 }
 async function driveList() {
@@ -3437,7 +4086,7 @@ async function driveBackup(manual) {
   if (!loadHistory().length && !loadTrips().length) return; // nunca sustituir una copia por nada
   drive.busy = true;
   try {
-    driveStatus('Comprobando la copia en Google Drive…');
+    driveStatus(Tx('Comprobando la copia en Google Drive…'));
     const files = await driveList();
     const byName = new Map(files.map(f => [f.name, f]));
     const del = st.del || {};
@@ -3452,7 +4101,7 @@ async function driveBackup(manual) {
     const todo = recs.filter(r => !byName.has('foto-' + r.id + '.jpg'));
     for (let i = 0; i < todo.length; i++) {
       const r = todo[i];
-      driveStatus(`Subiendo fotos a Google Drive: ${i + 1} de ${todo.length}…`);
+      driveStatus(Tx`Subiendo fotos a Google Drive: ${i + 1} de ${todo.length}…`);
       await driveUpload('foto-' + r.id + '.jpg', r.blob, 'image/jpeg', {
         act: String(r.act || ''), time: String(r.time || ''), lat: String(r.lat ?? ''), lon: String(r.lon ?? ''),
         manual: r.manual ? '1' : '0', src: String(r.src || '').slice(0, 80)
@@ -3463,18 +4112,18 @@ async function driveBackup(manual) {
       const f = byName.get('foto-' + pid + '.jpg');
       if (f) { try { await gfetch(`${DRIVE_API}/${f.id}`, { method: 'DELETE' }); } catch {} }
     }
-    driveStatus('Guardando tus actividades en Google Drive…');
+    driveStatus(Tx('Guardando tus actividades en Google Drive…'));
     const data = JSON.stringify({ app: 'senda', version: 4, date: Date.now(), appVersion: APP_VERSION, caminatas: cams, viajes: trips, borrados: del });
     const nFotos = recs.length + (remote ? 0 : 0);
     await driveUpload('senda-datos.json', new Blob([data], { type: 'application/json' }), 'application/json',
       { caminatas: String(cams.length), viajes: String(trips.length), fotos: String(nFotos), fecha: String(Date.now()) }, jf && jf.id);
     const s2 = driveState(); s2.last = Date.now(); s2.dirty = false; s2.del = {}; driveSave(s2);
     driveStatus('');
-    if (manual) toast('Copia guardada en Google Drive.');
+    if (manual) toast(Tx('Copia guardada en Google Drive.'));
     renderDriveModal();
   } catch (e) {
     console.error(e); driveStatus('');
-    if (manual) toast(e.code === 'NEEDS_UI' ? 'Vuelve a conectar tu cuenta de Google.' : 'No se ha podido hacer la copia en Google Drive. Revisa la conexión.', 5000);
+    if (manual) toast(e.code === 'NEEDS_UI' ? Tx('Vuelve a conectar tu cuenta de Google.') : Tx('No se ha podido hacer la copia en Google Drive. Revisa la conexión.'), 5000);
   } finally { drive.busy = false; }
 }
 async function driveFindBackup() {
@@ -3489,8 +4138,8 @@ async function driveRestore(found) {
   drive.busy = true;
   try {
     if (!found) found = await driveFindBackup();
-    if (!found) { toast('No hay ninguna copia de Senda en esta cuenta de Google.'); return; }
-    driveStatus('Descargando tus actividades…'); driveFoundProg('Descargando tus actividades…');
+    if (!found) { toast(Tx('No hay ninguna copia de Senda en esta cuenta de Google.')); return; }
+    driveStatus(Tx('Descargando tus actividades…')); driveFoundProg(Tx('Descargando tus actividades…'));
     const data = await (await gfetch(`${DRIVE_API}/${found.file.id}?alt=media`)).json();
     const st = driveState(), del = st.del || {};
     const cams = driveMerge(loadHistory(), data.caminatas, del.cam);
@@ -3502,7 +4151,7 @@ async function driveRestore(found) {
     let ok = 0;
     for (let i = 0; i < fotos.length; i++) {
       const f = fotos[i], p = f.appProperties || {};
-      const txt = `Descargando fotos: ${i + 1} de ${fotos.length}…`; driveStatus(txt); driveFoundProg(txt);
+      const txt = Tx`Descargando fotos: ${i + 1} de ${fotos.length}…`; driveStatus(txt); driveFoundProg(txt);
       try {
         const blob = await (await gfetch(`${DRIVE_API}/${f.id}?alt=media`)).blob();
         await photoPut({ id: f.name.slice(5, -4), act: p.act, time: p.time ? +p.time : null, lat: +p.lat, lon: +p.lon, src: p.src || null, manual: p.manual === '1', blob: new Blob([blob], { type: 'image/jpeg' }) });
@@ -3512,27 +4161,27 @@ async function driveRestore(found) {
     const s2 = driveState(); s2.connected = true; s2.dirty = false; s2.last = found.fecha || Date.now(); s2.restored = Date.now(); driveSave(s2);
     driveStatus(''); $('driveFound').classList.remove('on');
     renderHistory(); renderDriveModal();
-    { const nc = data.caminatas ? data.caminatas.length : 0; toast(`Copia recuperada: ${nc} ${nc === 1 ? 'actividad' : 'actividades'}` + (ok ? ` y ${ok} ${ok === 1 ? 'foto' : 'fotos'}.` : '.'), 6000); }
+    { const nc = data.caminatas ? data.caminatas.length : 0; toast(Tx`Copia recuperada: ${nc} ${nc === 1 ? Tx('actividad') : Tx('actividades')}` + (ok ? Tx` y ${ok} ${ok === 1 ? Tx('foto') : Tx('fotos')}.` : '.'), 6000); }
   } catch (e) {
     console.error(e); driveStatus(''); driveFoundProg('');
-    toast('No se ha podido recuperar la copia. Revisa la conexión y vuelve a intentarlo.', 5000);
+    toast(Tx('No se ha podido recuperar la copia. Revisa la conexión y vuelve a intentarlo.'), 5000);
   } finally { drive.busy = false; }
 }
 function driveFoundProg(txt) { const el = $('driveFoundProg'); if (el) { el.textContent = txt; el.hidden = !txt; } }
 function showDriveFound(found) {
   const f = new Date(found.fecha);
-  $('driveFoundText').textContent = `Hay una copia de Senda en tu Google Drive del ${f.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })} a las ${f.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}, con ${found.caminatas} ${found.caminatas === 1 ? 'actividad' : 'actividades'}` + (found.viajes ? `, ${found.viajes} ${found.viajes === 1 ? 'viaje' : 'viajes'}` : '') + (found.fotos ? ` y ${found.fotos} ${found.fotos === 1 ? 'foto' : 'fotos'}` : '') + '.';
+  $('driveFoundText').textContent = Tx`Hay una copia de Senda en tu Google Drive del ${f.toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' })} a las ${f.toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' })}, con ${found.caminatas} ${found.caminatas === 1 ? Tx('actividad') : Tx('actividades')}` + (found.viajes ? Tx`, ${found.viajes} ${found.viajes === 1 ? Tx('viaje') : Tx('viajes')}` : '') + (found.fotos ? Tx` y ${found.fotos} ${found.fotos === 1 ? Tx('foto') : Tx('fotos')}` : '') + '.';
   driveFoundProg('');
   $('driveFoundGo').onclick = () => driveRestore(found);
   $('driveFound').classList.add('on');
 }
 async function driveConnect() {
   try {
-    driveStatus('Conectando con Google…');
+    driveStatus(Tx('Conectando con Google…'));
     drive.token = null;
     await driveToken(true);
     const s = driveState(); s.connected = true; driveSave(s);
-    driveStatus('Buscando una copia en tu Drive…');
+    driveStatus(Tx('Buscando una copia en tu Drive…'));
     const found = await driveFindBackup();
     driveStatus('');
     renderDriveModal();
@@ -3540,11 +4189,11 @@ async function driveConnect() {
     else { const s2 = driveState(); s2.dirty = true; driveSave(s2); driveBackup(true); }
   } catch (e) {
     console.error(e); driveStatus('');
-    toast(e && e.code === 'DENIED' ? 'No se ha dado permiso a Senda para usar Google Drive.' : 'No se ha podido conectar con Google. Inténtalo de nuevo.', 5000);
+    toast(e && e.code === 'DENIED' ? Tx('No se ha dado permiso a Senda para usar Google Drive.') : Tx('No se ha podido conectar con Google. Inténtalo de nuevo.'), 5000);
   }
 }
 async function driveDisconnect() {
-  if (!confirm('¿Desconectar Google Drive? Tu copia se queda en Drive, pero Senda dejará de actualizarla.')) return;
+  if (!confirm(Tx('¿Desconectar Google Drive? Tu copia se queda en Drive, pero Senda dejará de actualizarla.'))) return;
   try { if (drive.token) await NativeDrive.clearToken({ token: drive.token }); await NativeDrive.signOut(); } catch {}
   drive.token = null;
   const s = driveState(); s.connected = false; driveSave(s);
@@ -3557,18 +4206,18 @@ function renderDriveModal() {
   const btn = (t, fn, main) => { const b = document.createElement('button'); b.type = 'button'; b.className = main ? 'btn-main' : 'btn-line'; b.textContent = t; b.onclick = fn; $('driveActions').appendChild(b); };
   $('driveActions').innerHTML = '';
   if (!s.connected) {
-    p('Guarda una copia automática de tus actividades, viajes y fotos en tu cuenta de Google. Si cambias de móvil o lo formateas, al instalar Senda de nuevo la recuperas.');
-    p('La copia va a una carpeta privada de Senda en tu Drive: no la verás entre tus archivos, pero ocupa algo de espacio de tu cuenta.').className = 'note';
-    btn('Cerrar', () => $('driveModal').classList.remove('on'));
-    btn('Conectar con Google', driveConnect, true);
+    p(Tx('Guarda una copia automática de tus actividades, viajes y fotos en tu cuenta de Google. Si cambias de móvil o lo formateas, al instalar Senda de nuevo la recuperas.'));
+    p(Tx('La copia va a una carpeta privada de Senda en tu Drive: no la verás entre tus archivos, pero ocupa algo de espacio de tu cuenta.')).className = 'note';
+    btn(Tx('Cerrar'), () => $('driveModal').classList.remove('on'));
+    btn(Tx('Conectar con Google'), driveConnect, true);
   } else {
-    p(s.email ? `Conectado como ${s.email}.` : 'Conectado con tu cuenta de Google.');
-    p(s.last ? `Última copia: ${new Date(s.last).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })} a las ${new Date(s.last).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}.` : 'Todavía no se ha hecho ninguna copia.');
-    p('Senda hace la copia sola cuando añades o cambias algo. También puedes hacerla ahora.').className = 'note';
-    btn('Cerrar', () => $('driveModal').classList.remove('on'));
-    btn('Desconectar', driveDisconnect);
-    btn('Recuperar', () => driveRestore(null));
-    btn('Hacer copia ahora', () => driveBackup(true), true);
+    p(s.email ? Tx`Conectado como ${s.email}.` : Tx('Conectado con tu cuenta de Google.'));
+    p(s.last ? Tx`Última copia: ${new Date(s.last).toLocaleDateString(LOC, { day: 'numeric', month: 'long' })} a las ${new Date(s.last).toLocaleTimeString(LOC, { hour: '2-digit', minute: '2-digit' })}.` : Tx('Todavía no se ha hecho ninguna copia.'));
+    p(Tx('Senda hace la copia sola cuando añades o cambias algo. También puedes hacerla ahora.')).className = 'note';
+    btn(Tx('Cerrar'), () => $('driveModal').classList.remove('on'));
+    btn(Tx('Desconectar'), driveDisconnect);
+    btn(Tx('Recuperar'), () => driveRestore(null));
+    btn(Tx('Hacer copia ahora'), () => driveBackup(true), true);
   }
 }
 function openDriveModal() { renderDriveModal(); driveStatus(''); $('driveModal').classList.add('on'); }
@@ -3621,17 +4270,17 @@ function v3SetFmt(f) {
 let v3Ctx = null;
 function v3Audio() { if (!v3Ctx) v3Ctx = new (window.AudioContext || window.webkitAudioContext)(); return v3Ctx; }
 function v3MusicLabel() {
-  $('v3musicName').textContent = V3.music ? V3.music.name : 'Sin música';
+  $('v3musicName').textContent = V3.music ? V3.music.name : Tx('Sin música');
   $('v3musicOff').hidden = !V3.music;
-  $('v3musicPick').textContent = V3.music ? 'Cambiar' : 'Elegir canción';
+  $('v3musicPick').textContent = V3.music ? Tx('Cambiar') : Tx('Elegir canción');
 }
 async function v3PickMusic(file) {
   if (!file) return;
-  $('v3musicName').textContent = 'Cargando la canción…';
+  $('v3musicName').textContent = Tx('Cargando la canción…');
   try {
     const buf = await v3Audio().decodeAudioData(await file.arrayBuffer());
     V3.music = { name: file.name.replace(/\.[^.]+$/, ''), buf };
-  } catch (e) { console.error(e); V3.music = null; toast('No se ha podido leer esa canción. Prueba con un MP3.'); }
+  } catch (e) { console.error(e); V3.music = null; toast(Tx('No se ha podido leer esa canción. Prueba con un MP3.')); }
   v3MusicLabel();
 }
 function v3MusicStart(toRecord) {
@@ -3659,7 +4308,7 @@ function v3Load() {
   if (window.maplibregl) return Promise.resolve();
   return new Promise((res, rej) => {
     const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'lib/maplibre/maplibre-gl.css'; document.head.appendChild(css);
-    const s = document.createElement('script'); s.src = 'lib/maplibre/maplibre-gl.js'; s.onload = res; s.onerror = () => rej(new Error('No se pudo cargar el mapa 3D'));
+    const s = document.createElement('script'); s.src = 'lib/maplibre/maplibre-gl.js'; s.onload = res; s.onerror = () => rej(new Error(Tx('No se pudo cargar el mapa 3D')));
     document.head.appendChild(s);
   });
 }
@@ -3735,7 +4384,7 @@ function v3Timeline(s) {
   return { ft: Math.min(F, t - V3_PAUSE * V3.photos.length) };
 }
 // Modos de cámara: seguir el camino, orbitar alrededor o mirar siempre al norte
-const V3_CAMS = { follow: 'Seguir', orbit: 'Órbita', fixed: 'Fija' };
+const V3_CAMS = { follow: Tx('Seguir'), orbit: Tx('Órbita'), fixed: Tx('Fija') };
 const V3_ORBIT = 360 / 26;   // grados por segundo: una vuelta cada 26 s
 V3.cam = (() => { try { return localStorage.getItem('senda.v3cam') || 'follow'; } catch { return 'follow'; } })();
 V3.zoom = (() => { try { return localStorage.getItem('senda.v3zoom') || 'mid'; } catch { return 'mid'; } })();
@@ -3811,7 +4460,7 @@ function v3DrawOverlay(s, st) {
     const tl = v3Lines(g, title, Math.min(LW - 100, 1500), 2);
     tl.forEach((l, i) => g.fillText(l, 50, LH - 380 - (tl.length - 1 - i) * 88));
     g.font = '500 40px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.9)';
-    let sub = A.isTrip ? `${A.stages.length} etapas` : `${kindIcon(A.kind)} ${fmtDate(A.start)}`;
+    let sub = A.isTrip ? Tx`${A.stages.length} etapas` : `${kindIcon(A.kind)} ${fmtDate(A.start)}`;
     const nt = !A.isTrip ? nearestTown(towns) : null; if (nt) sub += `, ${nt.name}`;
     g.fillText(sub, 50, LH - 320);
     g.fillStyle = '#C8102E'; g.fillRect(50, LH - 288, 140, 10); g.fillStyle = '#fff'; g.fillRect(200, LH - 288, 140, 10);
@@ -3845,7 +4494,7 @@ function v3DrawOverlay(s, st) {
     if (row2) {
       let x = 70;
       if (stage != null) {
-        const lbl = `Etapa ${stage + 1}`;
+        const lbl = Tx`Etapa ${stage + 1}`;
         g.font = '700 34px "Barlow Semi Condensed", sans-serif';
         const lw = g.measureText(lbl).width + 28;
         g.fillStyle = v3StageColor(stage); g.beginPath(); g.roundRect ? g.roundRect(x - 4, 208, lw, 46, 10) : g.rect(x - 4, 208, lw, 46); g.fill();
@@ -3885,14 +4534,14 @@ function v3DrawOverlay(s, st) {
     g.fillText(v3Lines(g, title, 920, 1)[0], 80 + dx, Y0 + 90);
     const C = A.isTrip ? caminoInfo(A) : null;
     g.fillStyle = '#5C6B69'; g.font = '500 32px Barlow, sans-serif';
-    g.fillText(A.isTrip ? `${A.stages.length} etapas` + (C ? (C.arrived ? ' · ¡Llegada a Santiago!' : C.remaining != null ? ` · quedan ${fmtKm(C.remaining * 1000)} km a Santiago` : '') : '') : `${kindIcon(A.kind)} ${kindName(A.kind)}, ${fmtDate(A.start)}`, 80 + dx, Y0 + 140);
+    g.fillText(A.isTrip ? Tx`${A.stages.length} etapas` + (C ? (C.arrived ? Tx(' · ¡Llegada a Santiago!') : C.remaining != null ? Tx` · quedan ${fmtKm(C.remaining * 1000)} km a Santiago` : '') : '') : `${kindIcon(A.kind)} ${kindName(A.kind)}, ${fmtDate(A.start)}`, 80 + dx, Y0 + 140);
     const h = Math.floor(A.elapsed / 3600), m = Math.round(A.elapsed % 3600 / 60);
     const time = A.isTrip || A.elapsed >= 3600 ? [`${h}:${String(m).padStart(2, '0')}`, 'h'] : [fmtClock(A.elapsed), 'min'];
     const pw = 445, gap = 30, py = Y0 + 180, ph = 128;
     const spd = speedPlate(A);
-    plate(g, 80 + dx, py, pw, ph, '#C8102E', '#fff', 'Distancia', fmtKm(A.distance), 'km');
-    plate(g, 80 + dx + pw + gap, py, pw, ph, '#F2B705', '#1E2B2A', 'Tiempo', time[0], time[1]);
-    plate(g, 80 + dx, py + ph + 24, pw, ph, '#1E2B2A', '#F4EFE3', 'Desnivel', fmtDesnivel(A), 'm');
+    plate(g, 80 + dx, py, pw, ph, '#C8102E', '#fff', Tx('Distancia'), fmtKm(A.distance), 'km');
+    plate(g, 80 + dx + pw + gap, py, pw, ph, '#F2B705', '#1E2B2A', Tx('Tiempo'), time[0], time[1]);
+    plate(g, 80 + dx, py + ph + 24, pw, ph, '#1E2B2A', '#F4EFE3', Tx('Desnivel'), fmtDesnivel(A), 'm');
     plate(g, 80 + dx + pw + gap, py + ph + 24, pw, ph, '#0B5F6A', '#fff', spd[0], spd[1], spd[2]);
     g.globalAlpha = 1;
   }
@@ -3905,7 +4554,7 @@ function v3DrawOverlay(s, st) {
   g.textAlign = 'right'; g.font = '600 32px Barlow, sans-serif'; g.fillText('DanLab', LW - 48, WY + 2);
   const dw = g.measureText('DanLab').width; g.textAlign = 'left';
   drawDanlab(g, LW - 48 - dw - 56, WY - 22, 44, '#fff');
-  g.font = '500 22px Barlow, sans-serif'; g.globalAlpha = 0.8; g.fillText('Imágenes © Esri · Relieve © Mapzen / AWS', 48, LH - 30);
+  g.font = '500 22px Barlow, sans-serif'; g.globalAlpha = 0.8; g.fillText(Tx('Imágenes © Esri · Relieve © Mapzen / AWS'), 48, LH - 30);
   g.shadowBlur = 0; g.globalAlpha = 1;
   g.restore();
   g.restore();
@@ -3920,7 +4569,7 @@ function v3Frame(now) {
   if (V3.rec) v3Compose();
   const pct = Math.round(s / V3.len * 100);
   $('v3prog').style.width = pct + '%';
-  if (V3.rec) $('v3status').textContent = `Grabando el vídeo… ${pct} %`;
+  if (V3.rec) $('v3status').textContent = Tx`Grabando el vídeo… ${pct} %`;
   if (s >= V3.len) { v3Stop(true); return; }
   V3.raf = requestAnimationFrame(v3Frame);
 }
@@ -3937,12 +4586,12 @@ function v3Start() {
   V3.ov = v3Overview(); V3.bearing = V3.ov.bearing; V3.shown = new Set(); V3.photos.forEach(p => p.at = null);
   if (!V3.rec) v3MusicStart(false);
   V3.playing = true; V3.last = 0; V3.t0 = performance.now();
-  $('v3play').textContent = 'Parar';
+  $('v3play').textContent = Tx('Parar');
   V3.raf = requestAnimationFrame(v3Frame);
 }
 function v3Stop(finished) {
   V3.playing = false; cancelAnimationFrame(V3.raf);
-  $('v3play').textContent = 'Ver el vuelo';
+  $('v3play').textContent = Tx('Ver el vuelo');
   if (V3.rec) {
     const r = V3.rec;
     if (finished) { setTimeout(() => { try { r.mr.stop(); } catch {} v3MusicStop(); }, 250); }
@@ -3960,7 +4609,7 @@ async function v3Preload() {
     if (!$('view3d').classList.contains('on')) return false;
     const p = v3At(V3.total * i / n), q = v3At(V3.total * i / n + Math.max(120, V3.total * 0.03));
     V3.map.jumpTo({ center: [p.lon, p.lat], zoom: v3FollowZoom(), pitch: 62, bearing: v3Bearing(p, q) });
-    $('v3status').textContent = `Preparando el vuelo… ${Math.round((i + 1) / (n + 1) * 100)} %`;
+    $('v3status').textContent = Tx`Preparando el vuelo… ${Math.round((i + 1) / (n + 1) * 100)} %`;
     $('v3prog').style.width = Math.round((i + 1) / (n + 1) * 100) + '%';
     await idle();
   }
@@ -3977,7 +4626,7 @@ function v3Mime(audio) {
 }
 async function v3Record() {
   if (V3.busy) return;
-  if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) { toast('Este móvil no permite grabar vídeo desde Senda.'); return; }
+  if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) { toast(Tx('Este móvil no permite grabar vídeo desde Senda.')); return; }
   V3.busy = true; v3Buttons(false);
   let wake = null; try { wake = await navigator.wakeLock.request('screen'); } catch {}
   $('v3status').hidden = false;
@@ -3992,7 +4641,7 @@ async function v3Record() {
   const stream = new MediaStream([...c.captureStream(30).getVideoTracks(), ...audioTracks]);
   let mr;
   try { mr = new MediaRecorder(stream, mime ? { mimeType: mime, videoBitsPerSecond: 5000000 } : { videoBitsPerSecond: 5000000 }); }
-  catch (e) { console.error(e); v3MusicStop(); V3.busy = false; v3Buttons(true); $('v3status').hidden = true; toast('No se ha podido empezar a grabar el vídeo.'); return; }
+  catch (e) { console.error(e); v3MusicStop(); V3.busy = false; v3Buttons(true); $('v3status').hidden = true; toast(Tx('No se ha podido empezar a grabar el vídeo.')); return; }
   const chunks = [];
   V3.rec = { canvas: c, mr, cancelled: false };
   mr.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
@@ -4001,7 +4650,7 @@ async function v3Record() {
     V3.rec = null; V3.busy = false; v3Buttons(true);
     try { wake && wake.release(); } catch {}
     $('v3status').hidden = true;
-    if (cancelled) { toast('Grabación cancelada.'); return; }
+    if (cancelled) { toast(Tx('Grabación cancelada.')); return; }
     const type = (mime || 'video/webm').split(';')[0];
     v3ShowResult(new Blob(chunks, { type }));
   };
@@ -4015,7 +4664,7 @@ function v3ShowResult(blob) {
   v3Blob = blob;
   const v = $('v3video'); v.src = URL.createObjectURL(blob);
   $('v3result').classList.add('on');
-  $('v3resInfo').textContent = `Vídeo de ${Math.round(V3.len)} segundos (${(blob.size / 1048576).toLocaleString('es-ES', { maximumFractionDigits: 1 })} MB).` + (/webm/.test(blob.type) ? ' Está en formato WebM: algunas apps, como WhatsApp, puede que no lo acepten.' : '') + (V3.music ? ' Si lo subes a Instagram o YouTube, usa música propia o libre: pueden silenciar canciones con derechos.' : '');
+  $('v3resInfo').textContent = Tx`Vídeo de ${Math.round(V3.len)} segundos (${(blob.size / 1048576).toLocaleString(LOC, { maximumFractionDigits: 1 })} MB).` + (/webm/.test(blob.type) ? Tx(' Está en formato WebM: algunas apps, como WhatsApp, puede que no lo acepten.') : '') + (V3.music ? Tx(' Si lo subes a Instagram o YouTube, usa música propia o libre: pueden silenciar canciones con derechos.') : '');
 }
 async function v3ShareVideo() {
   if (!v3Blob) return;
@@ -4023,7 +4672,7 @@ async function v3ShareVideo() {
   const name = 'senda-' + new Date(A.start || Date.now()).toISOString().slice(0, 10) + '.' + ext;
   try {
     if (NATIVE) {
-      $('v3share').disabled = true; $('v3resInfo').textContent = 'Preparando el vídeo para compartir…';
+      $('v3share').disabled = true; $('v3resInfo').textContent = Tx('Preparando el vídeo para compartir…');
       const CH = 3 * 1024 * 1024;
       for (let o = 0; o < v3Blob.size; o += CH) {
         const data = await blobToB64(v3Blob.slice(o, o + CH));
@@ -4031,18 +4680,18 @@ async function v3ShareVideo() {
         else await NativeFS.appendFile({ path: name, data, directory: 'CACHE' });
       }
       const { uri } = await NativeFS.getUri({ path: name, directory: 'CACHE' });
-      $('v3share').disabled = false; $('v3resInfo').textContent = 'Listo.';
-      await NativeShare.share({ files: [uri], dialogTitle: 'Compartir el vídeo' });
+      $('v3share').disabled = false; $('v3resInfo').textContent = Tx('Listo.');
+      await NativeShare.share({ files: [uri], dialogTitle: Tx('Compartir el vídeo') });
       return;
     }
     const file = new File([v3Blob], name, { type: v3Blob.type });
     if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(v3Blob); a.download = name; document.body.appendChild(a); a.click(); a.remove();
-    toast('Vídeo guardado en Descargas.');
+    toast(Tx('Vídeo guardado en Descargas.'));
   } catch (e) {
     $('v3share').disabled = false;
     if (e && /cancel|abort/i.test(String(e.message || e.name || e))) return;
-    console.error(e); toast('No se ha podido compartir el vídeo.');
+    console.error(e); toast(Tx('No se ha podido compartir el vídeo.'));
   }
 }
 function v3CloseResult() { $('v3result').classList.remove('on'); const v = $('v3video'); if (v.src) { URL.revokeObjectURL(v.src); v.removeAttribute('src'); } v3Blob = null; }
@@ -4054,24 +4703,24 @@ async function v3EnsureTowns() {
     const missing = cur.stages.filter(s => !s.cachedTowns);
     for (let i = 0; i < missing.length; i++) {
       if (!$('view3d').classList.contains('on')) return;
-      $('v3status').textContent = `Buscando los pueblos del recorrido… ${i + 1} de ${missing.length}`;
+      $('v3status').textContent = Tx`Buscando los pueblos del recorrido… ${i + 1} de ${missing.length}`;
       const s = missing[i];
       const res = await queryTowns(s.points, s.distance, s.kind);
       if (res) { s.cachedTowns = res; saveTowns(s.id, res); }
     }
     if (missing.length && A === cur) loadTowns();
   } else if (!cur.cachedTowns) {
-    $('v3status').textContent = 'Buscando los pueblos del recorrido…';
+    $('v3status').textContent = Tx('Buscando los pueblos del recorrido…');
     const res = await queryTowns(cur.points, cur.distance, cur.kind);
     if (res) { cur.cachedTowns = res; saveTowns(cur.id, res); if (A === cur) { towns = res.slice(0, 15); renderTowns(); } }
   }
-  $('v3status').textContent = 'Cargando el mapa 3D…';
+  $('v3status').textContent = Tx('Cargando el mapa 3D…');
 }
 async function open3D() {
   if (!A || A.points.length < 2) return;
   stopAnim(false);
   $('view3d').classList.add('on'); $('view3d').setAttribute('aria-hidden', 'false');
-  $('v3status').hidden = false; $('v3status').textContent = 'Cargando el mapa 3D…'; $('v3prog').style.width = '0%';
+  $('v3status').hidden = false; $('v3status').textContent = Tx('Cargando el mapa 3D…'); $('v3prog').style.width = '0%';
   v3Buttons(false);
   try { await v3Load(); } catch (e) { toast(e.message); close3D(); return; }
   await v3EnsureTowns();
@@ -4089,9 +4738,9 @@ async function open3D() {
     style: {
       version: 8,
       sources: {
-        sat: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 19, attribution: 'Imágenes © Esri' },
+        sat: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 19, attribution: Tx('Imágenes © Esri') },
         names: { type: 'raster', tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'], tileSize: 256, maxzoom: 19 },
-        dem: { type: 'raster-dem', tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], tileSize: 256, encoding: 'terrarium', maxzoom: 15, attribution: 'Relieve: Mapzen / AWS' }
+        dem: { type: 'raster-dem', tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], tileSize: 256, encoding: 'terrarium', maxzoom: 15, attribution: Tx('Relieve: Mapzen / AWS') }
       },
       layers: [
         { id: 'bg', type: 'background', paint: { 'background-color': '#7FA88E' } },
@@ -4255,7 +4904,7 @@ $('musicInput').onchange = e => { const f = e.target.files && e.target.files[0];
 $('v3musicOff').onclick = () => { v3MusicStop(); V3.music = null; v3MusicLabel(); };
 function v3DurLabel() {
   const n = V3.photos ? V3.photos.length : 0;
-  $('v3durTxt').textContent = v3FmtSecs(V3.dur) + (n ? ` + ${n * V3_PAUSE} s fotos` : '');
+  $('v3durTxt').textContent = v3FmtSecs(V3.dur) + (n ? Tx` + ${n * V3_PAUSE} s fotos` : '');
 }
 $('v3dur').oninput = e => { V3.dur = +e.target.value; v3DurLabel(); };
 $('v3share').onclick = v3ShareVideo;
@@ -4347,21 +4996,21 @@ async function buildShareImage(onProgress) {
   let sub;
   if (A.isTrip) {
     const n = A.stages.length;
-    sub = `${n} ${n === 1 ? 'etapa' : 'etapas'}, del ${new Date(A.start).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })} al ${new Date(A.end).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+    sub = Tx`${n} ${n === 1 ? Tx('etapa') : Tx('etapas')}, del ${new Date(A.start).toLocaleDateString(LOC, { day: 'numeric', month: 'long' })} al ${new Date(A.end).toLocaleDateString(LOC, { day: 'numeric', month: 'long', year: 'numeric' })}`;
   } else {
     sub = fmtDate(A.start);
     const near = nearestTown(towns) ? nearestTown(towns).name : null;
-    if (near) sub += `, cerca de ${near}`;
+    if (near) sub += Tx`, cerca de ${near}`;
   }
   g.fillText(sub, 60, MH + 130);
   // los tres datos principales
   const h = Math.floor(A.elapsed / 3600), m = Math.round(A.elapsed % 3600 / 60);
   const time = A.isTrip || A.elapsed >= 3600 ? [`${h}:${String(m).padStart(2, '0')}`, 'h'] : [fmtClock(A.elapsed), 'min'];
   const gap = 18, pw = (W - 120 - gap) / 2, py = MH + 160, ph = 116, py2 = py + ph + gap;
-  plate(g, 60, py, pw, ph, '#C8102E', '#fff', 'Distancia', fmtKm(A.distance), 'km');
-  plate(g, 60 + pw + gap, py, pw, ph, '#F2B705', '#1E2B2A', 'Tiempo', time[0], time[1]);
-  plate(g, 60, py2, pw, ph, '#1E2B2A', '#F4EFE3', 'Desnivel', fmtDesnivel(A), 'm');
-  plate(g, 60 + pw + gap, py2, pw, ph, '#0B5F6A', '#fff', 'Velocidad', fmtDec(avgSpeed(A)), 'km/h');
+  plate(g, 60, py, pw, ph, '#C8102E', '#fff', Tx('Distancia'), fmtKm(A.distance), 'km');
+  plate(g, 60 + pw + gap, py, pw, ph, '#F2B705', '#1E2B2A', Tx('Tiempo'), time[0], time[1]);
+  plate(g, 60, py2, pw, ph, '#1E2B2A', '#F4EFE3', Tx('Desnivel'), fmtDesnivel(A), 'm');
+  plate(g, 60 + pw + gap, py2, pw, ph, '#0B5F6A', '#fff', Tx('Velocidad'), fmtDec(avgSpeed(A)), 'km/h');
   // perfil de altitud
   const P = A.points.filter(q => q.es != null);
   if (P.length > 2) {
@@ -4395,23 +5044,23 @@ function setShareProg(p) {
   const pct = Math.max(0, Math.min(100, Math.round(p * 100)));
   $('shareBar').style.width = pct + '%';
   $('sharePct').textContent = pct + ' %';
-  $('shareInfo').textContent = pct < 90 ? 'Preparando el mapa…' : 'Terminando la imagen…';
+  $('shareInfo').textContent = pct < 90 ? Tx('Preparando el mapa…') : Tx('Terminando la imagen…');
 }
 async function openShare() {
   $('shareModal').classList.add('on');
-  $('shareInfo').textContent = 'Preparando la imagen…';
+  $('shareInfo').textContent = Tx('Preparando la imagen…');
   $('shareGo').disabled = true; $('shareImg').removeAttribute('src'); $('shareImg').hidden = true;
   $('shareProg').hidden = false; setShareProg(0);
   try {
     shareBlob = await buildShareImage(setShareProg);
     $('shareImg').src = URL.createObjectURL(shareBlob);
     $('shareImg').hidden = false; $('shareProg').hidden = true;
-    $('shareInfo').textContent = 'Así quedará. Pulsa Compartir para mandarla por WhatsApp, subirla a redes o guardarla.';
+    $('shareInfo').textContent = Tx('Así quedará. Pulsa Compartir para mandarla por WhatsApp, subirla a redes o guardarla.');
     $('shareGo').disabled = false;
   } catch (e) {
     console.error(e);
     $('shareProg').hidden = true;
-    $('shareInfo').textContent = 'No se ha podido preparar la imagen.';
+    $('shareInfo').textContent = Tx('No se ha podido preparar la imagen.');
   }
 }
 async function doShare() {
@@ -4422,17 +5071,17 @@ async function doShare() {
       const data = await blobToB64(shareBlob);
       await NativeFS.writeFile({ path: name, data, directory: 'CACHE' });
       const { uri } = await NativeFS.getUri({ path: name, directory: 'CACHE' });
-      await NativeShare.share({ files: [uri], dialogTitle: 'Compartir la actividad' });
+      await NativeShare.share({ files: [uri], dialogTitle: Tx('Compartir la actividad') });
       return;
     }
     const file = new File([shareBlob], name, { type: 'image/png' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
     const a = document.createElement('a'); a.href = URL.createObjectURL(shareBlob); a.download = name;
     document.body.appendChild(a); a.click(); a.remove();
-    toast('Imagen guardada en Descargas.');
+    toast(Tx('Imagen guardada en Descargas.'));
   } catch (e) {
     if (e && /cancel|abort/i.test(String(e.message || e.name || e))) return;
-    console.error(e); toast('No se ha podido compartir la imagen.');
+    console.error(e); toast(Tx('No se ha podido compartir la imagen.'));
   }
 }
 function closeShare() {
@@ -4442,10 +5091,10 @@ function closeShare() {
 }
 async function showMapsInfo() {
   const s = await tileStats();
-  const mb = (s.bytes / 1048576).toLocaleString('es-ES', { maximumFractionDigits: 0 });
-  if (!s.n) { toast('Todavía no hay mapas guardados. Se guardan solos al ver tus actividades con conexión.', 6000); return; }
-  if (confirm(`Senda guarda los trozos de mapa que ves para poder enseñártelos sin conexión. Ahora ocupan ${mb} MB.\n\n¿Quieres borrarlos para liberar espacio? Se volverán a descargar cuando los veas con conexión.`)) {
-    await tileClear(); toast('Mapas guardados borrados.');
+  const mb = (s.bytes / 1048576).toLocaleString(LOC, { maximumFractionDigits: 0 });
+  if (!s.n) { toast(Tx('Todavía no hay mapas guardados. Se guardan solos al ver tus actividades con conexión.'), 6000); return; }
+  if (confirm(Tx`Senda guarda los trozos de mapa que ves para poder enseñártelos sin conexión. Ahora ocupan ${mb} MB.\n\n¿Quieres borrarlos para liberar espacio? Se volverán a descargar cuando los veas con conexión.`)) {
+    await tileClear(); toast(Tx('Mapas guardados borrados.'));
   }
 }
 function openMenu() {
@@ -4467,7 +5116,7 @@ function confirmTripModal() {
   closeTripModal();
   pendingTripId = trip.id;
   if ($('homeView').classList.contains('on')) renderHistory();
-  toast('Viaje creado. Elige los archivos de sus etapas.');
+  toast(Tx('Viaje creado. Elige los archivos de sus etapas.'));
   $('fileInput').click();
 }
 $('btnMenu').onclick = openMenu;
@@ -4484,10 +5133,11 @@ $('drawer').addEventListener('click', e => {
   if (act === 'trip') openTripModal();
   if (act === 'drive') openDriveModal();
   if (act === 'coffee') $('coffeeModal').classList.add('on');
-  if (act === 'backup' || act === 'backupPhotos') { if (loadHistory().length) exportBackup(act === 'backupPhotos'); else toast('Todavía no hay actividades que copiar.'); }
+  if (act === 'backup' || act === 'backupPhotos') { if (loadHistory().length) exportBackup(act === 'backupPhotos'); else toast(Tx('Todavía no hay actividades que copiar.')); }
   if (act === 'restore') $('backupInput').click();
   if (act === 'about') $('aboutModal').classList.add('on');
   if (act === 'news') showNews(CHANGELOG.slice(0, 2), false);
+  if (act === 'lang') { try { localStorage.setItem('senda.lang', LANG === 'en' ? 'es' : 'en'); } catch {} location.reload(); }
   if (act === 'guide') showGuide();
   if (act === 'maps') showMapsInfo();
   if (act === 'health') hcStatus().then(st => st.status === 'ready' ? checkHealthNew(true) : openHealthSetup(st.status));
@@ -4513,15 +5163,15 @@ async function startUpdate(v) {
     const { allowed } = await NativeUpdate.canInstall();
     if (!allowed) {
       pendingUpdate = v;
-      $('updateTitle').textContent = 'Un permiso, solo esta vez';
-      $('updateText').textContent = 'Android te pedirá dejar que Senda instale sus actualizaciones. Activa «Permitir de esta fuente» y vuelve a Senda: la actualización seguirá sola.';
+      $('updateTitle').textContent = Tx('Un permiso, solo esta vez');
+      $('updateText').textContent = Tx('Android te pedirá dejar que Senda instale sus actualizaciones. Activa «Permitir de esta fuente» y vuelve a Senda: la actualización seguirá sola.');
       await NativeUpdate.openInstallSettings();
       return;
     }
     pendingUpdate = null;
     $('updateGo').hidden = true; $('updateLater').hidden = true;
-    $('updateTitle').textContent = `Descargando Senda ${v.version}`;
-    $('updateText').textContent = 'Al terminar se abrirá el instalador: solo tendrás que pulsar «Instalar» o «Actualizar».';
+    $('updateTitle').textContent = Tx`Descargando Senda ${v.version}`;
+    $('updateText').textContent = Tx('Al terminar se abrirá el instalador: solo tendrás que pulsar «Instalar» o «Actualizar».');
     $('updateProg').hidden = false; $('updateBarFill').style.width = '0%'; $('updatePct').textContent = '0 %';
     const sub = await NativeUpdate.addListener('updateProgress', p => {
       $('updateBarFill').style.width = p.pct + '%'; $('updatePct').textContent = p.pct + ' %';
@@ -4532,9 +5182,9 @@ async function startUpdate(v) {
   } catch (e) {
     console.error(e);
     $('updateProg').hidden = true; $('updateGo').hidden = false; $('updateLater').hidden = false;
-    $('updateTitle').textContent = 'No se pudo actualizar';
-    $('updateText').textContent = 'Revisa la conexión y vuelve a intentarlo.';
-    $('updateGo').textContent = 'Reintentar';
+    $('updateTitle').textContent = Tx('No se pudo actualizar');
+    $('updateText').textContent = Tx('Revisa la conexión y vuelve a intentarlo.');
+    $('updateGo').textContent = Tx('Reintentar');
   }
 }
 async function checkUpdate(manual) {
@@ -4551,15 +5201,15 @@ async function checkUpdate(manual) {
     if (v && versionNewer(v.version, APP_VERSION)) {
       const skipped = JSON.parse(localStorage.getItem('senda.update.later') || 'null');
       if (!manual && skipped && skipped.v === v.version && Date.now() - skipped.t < 24 * 3600000) return;
-      $('updateTitle').textContent = 'Hay una versión nueva de Senda';
-      $('updateText').textContent = `Tienes la ${APP_VERSION} y ya está la ${v.version}. Se instala encima, sin perder nada.`;
+      $('updateTitle').textContent = Tx('Hay una versión nueva de Senda');
+      $('updateText').textContent = Tx`Tienes la ${APP_VERSION} y ya está la ${v.version}. Se instala encima, sin perder nada.`;
       $('updateProg').hidden = true; $('updateGo').hidden = false; $('updateLater').hidden = false; $('updateGo').disabled = false;
       $('updateGo').onclick = () => startUpdate(v);
       $('updateLater').onclick = () => { $('updateBar').hidden = true; localStorage.setItem('senda.update.later', JSON.stringify({ v: v.version, t: Date.now() })); };
       $('updateBar').hidden = false;
-    } else if (manual) toast('Tienes la última versión de Senda.');
+    } else if (manual) toast(Tx('Tienes la última versión de Senda.'));
   } catch (e) {
-    if (manual) toast('No se ha podido comprobar. Revisa la conexión.');
+    if (manual) toast(Tx('No se ha podido comprobar. Revisa la conexión.'));
   }
 }
 if (NATIVE) {
@@ -4612,27 +5262,27 @@ function openStagePick() {
   const trips = loadTrips();
   const tripIds = new Set(trips.map(x => x.id));
   const list = loadHistory().filter(e => e.tripId !== tripId).sort((x, y) => (y.pts[0][3] || 0) - (x.pts[0][3] || 0));
-  if (!list.length) { toast('No tienes otras actividades guardadas. Usa «Añadir etapa» para abrir un archivo.', 5000); return; }
+  if (!list.length) { toast(Tx('No tienes otras actividades guardadas. Usa «Añadir etapa» para abrir un archivo.'), 5000); return; }
   const box = $('stagePickList'); box.innerHTML = '';
   const loose = list.filter(e => !e.tripId || !tripIds.has(e.tripId));
   const other = list.filter(e => e.tripId && tripIds.has(e.tripId));
   const row = e => {
     const lab = document.createElement('label');
     const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = e.id;
-    cb.onchange = () => { const n = box.querySelectorAll('input:checked').length; $('stagePickOk').disabled = !n; $('stagePickOk').textContent = n ? `Añadir ${n}` : 'Añadir'; };
+    cb.onchange = () => { const n = box.querySelectorAll('input:checked').length; $('stagePickOk').disabled = !n; $('stagePickOk').textContent = n ? Tx`Añadir ${n}` : Tx('Añadir'); };
     const st = document.createElement('strong'); st.textContent = titleFor(e.name, e.pts[0][3], kindOf(e), e.title);
     const km = document.createElement('span'); km.className = 'sp-km'; km.textContent = fmtKm(e.session.distance) + ' km';
     const sub = document.createElement('span'); sub.className = 'sp-sub';
     const tr = e.tripId && trips.find(x => x.id === e.tripId);
-    sub.textContent = (e.pts[0][3] ? new Date(e.pts[0][3]).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '') + (tr ? `, ahora en «${tr.name}»` : '');
+    sub.textContent = (e.pts[0][3] ? new Date(e.pts[0][3]).toLocaleDateString(LOC, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '') + (tr ? Tx`, ahora en «${tr.name}»` : '');
     lab.append(cb, st, km, sub);
     return lab;
   };
   const group = txt => { const d = document.createElement('div'); d.className = 'sp-group'; d.textContent = txt; return d; };
-  if (loose.length) { if (other.length) box.appendChild(group('Actividades sueltas')); loose.forEach(e => box.appendChild(row(e))); }
-  if (other.length) { box.appendChild(group('En otros viajes (se moverán a este)')); other.forEach(e => box.appendChild(row(e))); }
-  $('stagePickInfo').textContent = `Marca las actividades que quieres añadir a «${A.trip.name}». Se ordenarán solas por fecha.`;
-  $('stagePickOk').disabled = true; $('stagePickOk').textContent = 'Añadir';
+  if (loose.length) { if (other.length) box.appendChild(group(Tx('Actividades sueltas'))); loose.forEach(e => box.appendChild(row(e))); }
+  if (other.length) { box.appendChild(group(Tx('En otros viajes (se moverán a este)'))); other.forEach(e => box.appendChild(row(e))); }
+  $('stagePickInfo').textContent = Tx`Marca las actividades que quieres añadir a «${A.trip.name}». Se ordenarán solas por fecha.`;
+  $('stagePickOk').disabled = true; $('stagePickOk').textContent = Tx('Añadir');
   $('stagePickModal').classList.add('on');
 }
 function confirmStagePick() {
@@ -4644,7 +5294,7 @@ function confirmStagePick() {
   saveHistory(list);
   $('stagePickModal').classList.remove('on');
   showTrip(tripId);
-  toast(`${ids.length} ${ids.length === 1 ? 'etapa añadida' : 'etapas añadidas'} al viaje.`);
+  toast(Tx`${ids.length} ${ids.length === 1 ? Tx('etapa añadida') : Tx('etapas añadidas')} al viaje.`);
 }
 $('btnAddFromSaved').onclick = openStagePick;
 $('stagePickOk').onclick = confirmStagePick;
@@ -4652,25 +5302,25 @@ $('stagePickCancel').onclick = () => $('stagePickModal').classList.remove('on');
 $('stagePickModal').addEventListener('click', e => { if (e.target.id === 'stagePickModal') $('stagePickModal').classList.remove('on'); });
 $('hcModal').addEventListener('click', e => { if (e.target.id === 'hcModal') closeHealth(); });
 $('btnDelTrip').onclick = () => {
-  if (!confirm(`¿Borrar el viaje "${A.name}"? Sus etapas no se borran: pasan a actividades sueltas.`)) return;
+  if (!confirm(Tx`¿Borrar el viaje "${A.name}"? Sus etapas no se borran: pasan a actividades sueltas.`)) return;
   const id = A.trip.id;
   saveTrips(loadTrips().filter(x => x.id !== id));
   const list = loadHistory(); list.forEach(e => { if (e.tripId === id) e.tripId = null; }); saveHistory(list);
-  showHome(); toast('Viaje borrado. Sus etapas siguen en tu historial.');
+  showHome(); toast(Tx('Viaje borrado. Sus etapas siguen en tu historial.'));
 };
 $('btnDelAct').onclick = () => {
-  if (!confirm('¿Borrar esta actividad del historial?')) return;
+  if (!confirm(Tx('¿Borrar esta actividad del historial?'))) return;
   const tripId = A.tripId;
   photosDeleteActivity(A.id).catch(() => {});
   saveHistory(loadHistory().filter(x => x.id !== A.id));
   if (tripId && tripStages(tripId).length) showTrip(tripId); else showHome();
-  toast('Actividad borrada.');
+  toast(Tx('Actividad borrada.'));
 };
 $('btnPhotos').onclick = () => NATIVE ? findNativePhotos() : $('photoInput').click();
 $('btnPhotosManual').onclick = () => $('photoInput').click();
 if (NATIVE) {
   $('btnPhotosManual').hidden = false;
-  $('photoNote').textContent = 'Pulsa «Buscar fotos» y Senda mirará en tu galería las fotos que hiciste durante la actividad para que elijas cuáles publicar.';
+  $('photoNote').textContent = Tx('Pulsa «Buscar fotos» y Senda mirará en tu galería las fotos que hiciste durante la actividad para que elijas cuáles publicar.');
 }
 $('photoInput').onchange = e => { if (e.target.files.length) addPhotos([...e.target.files]); e.target.value = ''; };
 $('btnPlay').onclick = () => anim.on ? stopAnim(false) : startAnim();
@@ -4692,7 +5342,7 @@ $('pickNone').onclick = () => { pickState.forEach(p => p.on = false); $('pickGri
 // Instalación como app
 let installEvt = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); if (NATIVE) return; installEvt = e; $('menuInstall').hidden = false; });
-window.addEventListener('appinstalled', () => { $('menuInstall').hidden = true; installEvt = null; toast('Senda instalada. Ya la tienes en la pantalla de inicio.'); });
+window.addEventListener('appinstalled', () => { $('menuInstall').hidden = true; installEvt = null; toast(Tx('Senda instalada. Ya la tienes en la pantalla de inicio.')); });
 if (!NATIVE && 'serviceWorker' in navigator && location.protocol.startsWith('http')) {
   // Si hay una versión nueva publicada, se instala y la app se recarga sola una vez
   const hadController = !!navigator.serviceWorker.controller;
@@ -4711,7 +5361,7 @@ if (!NATIVE && 'serviceWorker' in navigator && location.protocol.startsWith('htt
   });
   if (sessionStorage.getItem('senda.updated')) {
     sessionStorage.removeItem('senda.updated');
-    setTimeout(() => toast('Senda se ha actualizado a la versión ' + APP_VERSION + '.'), 600);
+    setTimeout(() => toast(Tx('Senda se ha actualizado a la versión ') + APP_VERSION + '.'), 600);
   }
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('lightbox').classList.remove('on'); closeMenu(); closeTripModal(); closeHealth(); $('aboutModal').classList.remove('on'); $('stagePickModal').classList.remove('on'); closeShare(); if (pickState) closePick(); } });
@@ -4724,7 +5374,7 @@ initStore().then(async () => {
   if (!localStorage.getItem('senda.climbfix.v1')) {
     const l = loadHistory(); let n = 0;
     l.forEach(e => { if (checkClimb(e)) n++; });
-    if (n) { saveHistory(l); setTimeout(() => toast(`He corregido el desnivel de ${n} ${n === 1 ? 'actividad que tenía' : 'actividades que tenían'} datos imposibles.`, 6000), 1500); }
+    if (n) { saveHistory(l); setTimeout(() => toast(Tx`He corregido el desnivel de ${n} ${n === 1 ? Tx('actividad que tenía') : Tx('actividades que tenían')} datos imposibles.`, 6000), 1500); }
     localStorage.setItem('senda.climbfix.v1', '1');
   }
   if (!localStorage.getItem('senda.townsfix.v1')) {
