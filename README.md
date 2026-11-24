@@ -55,6 +55,12 @@ Elige tu Camino y desde dónde sales, y Senda te dice cuántos kilómetros te qu
 **📈 Estadísticas y récords**
 Kilómetros, horas y desnivel por meses y por años, y tus récords: la más larga, la de más desnivel, la más rápida y el mejor mes.
 
+**🎉 Tu año en Senda y medallas**
+Un resumen de tu año para compartir, medallas por tus logros y un mapa con todas tus rutas y los pueblos por los que has pasado.
+
+**🐚 Credencial del Camino**
+Guarda una foto de cada sello en su etapa y comparte tu credencial del peregrino.
+
 **🎬 Vuelo 3D y vídeo**
 Un vuelo sobre el relieve siguiendo tus pasos, con chinchetas, kilómetros y tus fotos. Se graba en vertical, horizontal o cuadrado, con la canción que elijas de tu móvil.
 

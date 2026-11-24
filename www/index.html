@@ -146,6 +146,62 @@ button { cursor: pointer; }
 .coffee-thanks { color: var(--muted); font-size: 13px; margin: 0; }
 #driveActions { flex-wrap: wrap; }
 .btn-hist { margin-top: 16px; }
+.btn-year { background: linear-gradient(90deg, #C8102E, #F2B705) !important; color: #fff !important; border: 0 !important; }
+/* Medallas */
+.medals { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin-top: 8px; }
+.medal { display: grid; justify-items: center; gap: 4px; text-align: center; padding: 10px 4px; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+.medal .m-ic { width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-size: 28px; background: radial-gradient(circle at 35% 30%, #FFE9A8, #F2B705 60%, #C98F00); box-shadow: 0 0 0 3px #fff, 0 0 0 5px #C98F00; }
+.medal b { font-size: 13px; line-height: 1.15; }
+.medal small { font-size: 11px; color: var(--muted); line-height: 1.2; }
+.medal.locked .m-ic { background: var(--line); box-shadow: 0 0 0 3px var(--panel), 0 0 0 5px var(--line); filter: grayscale(1); opacity: .55; }
+.medal.locked b { color: var(--muted); }
+.m-bar { width: 80%; height: 5px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.m-bar i { display: block; height: 100%; background: #F2B705; }
+.medal-big { font-size: 64px; width: 110px; height: 110px; margin: 6px auto 12px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #FFE9A8, #F2B705 60%, #C98F00); box-shadow: 0 0 0 5px #fff, 0 0 0 8px #C98F00; }
+#medalModal .modal-box { text-align: center; }
+/* Mapa de todas las rutas y pueblos */
+#statsMap { height: 300px; border-radius: 12px; overflow: hidden; margin-top: 8px; background: #7FA88E; }
+.town-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.town-chips span { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 14px; }
+.town-chips span b { color: var(--gr); font-weight: 700; margin-left: 4px; }
+/* Tu año en Senda */
+#yearView { position: fixed; inset: 0; z-index: 2550; background: #14201F; color: #fff; overflow-y: auto; display: none; }
+#yearView.on { display: block; }
+.yv-top { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px; background: rgba(20,32,31,.9); backdrop-filter: blur(6px); }
+.yv-top b { font: 700 20px "Barlow Semi Condensed", sans-serif; }
+.yv-top button { background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff; border-radius: 8px; padding: 7px 12px; font-weight: 600; }
+.yv-card { min-height: 62vh; display: flex; flex-direction: column; justify-content: center; padding: 34px 24px; border-bottom: 1px solid rgba(255,255,255,.08); max-width: 640px; margin: 0 auto; }
+.yv-card .k { text-transform: uppercase; letter-spacing: .12em; font-size: 13px; font-weight: 700; color: #F2B705; }
+.yv-card .big { font: 700 clamp(64px, 20vw, 120px)/1 "Barlow Semi Condensed", sans-serif; margin: 8px 0 4px; }
+.yv-card .big small { font-size: .35em; font-weight: 600; margin-left: 6px; color: rgba(255,255,255,.8); }
+.yv-card p { font-size: 19px; line-height: 1.4; color: rgba(255,255,255,.88); margin: 8px 0 0; }
+.yv-card p b { color: #fff; }
+.yv-card h2 { font: 700 34px/1.1 "Barlow Semi Condensed", sans-serif; margin: 6px 0; color: #fff; }
+.yv-hero { background: linear-gradient(160deg, #C8102E 0%, #7A0A1C 60%, #14201F 100%); }
+.yv-months { display: flex; align-items: flex-end; gap: 5px; height: 150px; margin-top: 18px; }
+.yv-months div { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%; gap: 4px; font-size: 11px; color: rgba(255,255,255,.7); }
+.yv-months i { display: block; width: 100%; background: rgba(255,255,255,.25); border-radius: 4px 4px 0 0; min-height: 2px; }
+.yv-months i.best { background: #F2B705; }
+#yearMap { height: 340px; border-radius: 14px; overflow: hidden; margin-top: 16px; background: #7FA88E; }
+.yv-medals { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.yv-medals span { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border-radius: 999px; padding: 6px 12px 6px 6px; font-size: 15px; }
+.yv-medals span i { font-style: normal; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #F2B705; }
+.yv-share { padding: 28px 24px 48px; text-align: center; }
+.yv-share .btn-main { font-size: 18px; padding: 14px 26px; }
+/* Credencial del Camino */
+.credencial { margin-top: 14px; border-radius: 12px; padding: 14px 12px; background: #F3E6C8; color: #3B2A14; border: 1px solid #D9C291; box-shadow: inset 0 0 30px rgba(140,100,40,.18); }
+.credencial h3 { margin: 0 0 2px; font: 700 20px "Barlow Semi Condensed", sans-serif; color: #7A2E12; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.credencial h3 button { font: 600 13px Barlow, sans-serif; background: transparent; border: 1px solid #B08A4A; color: #7A2E12; border-radius: 8px; padding: 5px 9px; }
+.credencial > p { margin: 0 0 10px; font-size: 13px; color: #6B5330; }
+.cred-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cred-cell { position: relative; aspect-ratio: 1; border: 1.5px dashed #B08A4A; border-radius: 8px; display: grid; place-items: center; text-align: center; padding: 4px; background: rgba(255,255,255,.25); }
+.cred-cell .cc-n { position: absolute; top: 3px; left: 6px; font: 700 12px "Barlow Semi Condensed", sans-serif; color: #7A2E12; }
+.cred-cell .cc-t { position: absolute; bottom: 3px; left: 4px; right: 4px; font-size: 10px; line-height: 1.1; color: #6B5330; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cred-cell button.cc-add { background: transparent; border: 0; color: #7A2E12; font: 600 13px Barlow, sans-serif; display: grid; gap: 2px; justify-items: center; }
+.cred-cell button.cc-add span { font-size: 24px; line-height: 1; }
+.cred-cell img { width: 78%; height: 70%; object-fit: cover; border-radius: 50%; border: 3px solid rgba(122,46,18,.55); mix-blend-mode: multiply; cursor: pointer; }
+.cred-cell .cc-more { position: absolute; top: 3px; right: 6px; font-size: 11px; font-weight: 700; color: #7A2E12; }
+#stampModal img { width: 100%; max-height: 60vh; object-fit: contain; border-radius: 10px; background: #000; }
 .home-kinds { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 0 0; color: var(--muted); font-size: 15px; }
 .home-kinds b { color: var(--ink); font-weight: 600; }
 .w-ic { margin-right: 6px; }
@@ -498,6 +554,7 @@ select.pill { appearance: none; padding-right: 14px; }
         <div class="signpost" id="homeTotals"></div>
         <p class="home-kinds" id="homeKinds" hidden></p>
         <button class="btn-share btn-hist" id="btnHistHome" type="button">Ver el historial</button>
+        <button class="btn-share btn-year" id="btnYearHome" type="button" hidden>Tu año en Senda</button>
         <button class="btn-share" id="btnStatsHome" type="button">Estadísticas y récords</button>
       </div>
       <div id="welcome" class="welcome" hidden>
@@ -568,7 +625,15 @@ select.pill { appearance: none; padding-right: 14px; }
         <div class="chart-box"><canvas id="statsChart"></canvas></div>
         <div class="st-table" id="statsTable"></div>
       </div>
+      <button class="btn-share btn-year" id="btnYearStats" type="button">Tu año en Senda</button>
       <div class="section st-rec"><h2>Récords</h2><div id="statsRecords"></div></div>
+      <div class="section"><div class="section-head"><h2>Medallas</h2><span class="note" id="medalCount"></span></div><div class="medals" id="medalGrid"></div></div>
+      <div class="section"><h2>Tu mapa</h2><p class="note" id="statsMapNote"></p><div id="statsMap"></div>
+        <h2 style="margin-top:18px">Pueblos por los que has pasado</h2><p class="note" id="townsNote"></p>
+        <div class="town-chips" id="townChips"></div>
+        <button class="trip-link" id="townsMore" type="button" hidden>Ver todos</button>
+        <button class="trip-link" id="townsFetch" type="button" hidden>Buscar los pueblos que faltan</button>
+      </div>
     </div>
   </section>
 
@@ -630,6 +695,12 @@ select.pill { appearance: none; padding-right: 14px; }
           <div class="camino-ends"><span id="caminoFrom"></span><span>Santiago</span></div>
           <div class="facts" id="caminoFacts"></div>
           <p class="note" id="caminoNote"></p>
+          <div class="credencial" id="credencial">
+            <h3><span>Mi credencial</span><button type="button" id="credShare">Compartir</button></h3>
+            <p>Haz una foto a cada sello (del albergue, la iglesia, el bar…) y guárdala en su etapa.</p>
+            <div class="cred-grid" id="credGrid"></div>
+          </div>
+          <input id="stampInput" type="file" accept="image/*" hidden>
           <button class="trip-link" id="caminoEdit" type="button">Cambiar el Camino o los kilómetros</button>
         </div>
 
@@ -700,6 +771,7 @@ select.pill { appearance: none; padding-right: 14px; }
   <button class="item" data-act="home" type="button">Inicio</button>
   <button class="item" data-act="hist" type="button">Historial</button>
   <button class="item" data-act="stats" type="button">Estadísticas</button>
+  <button class="item" data-act="year" type="button">Tu año en Senda</button>
   <h3>Añadir</h3>
   <button class="item primary" data-act="add" type="button">Añadir actividad</button>
   <button class="item" data-act="trip" type="button">Nuevo viaje</button>
@@ -861,6 +933,27 @@ select.pill { appearance: none; padding-right: 14px; }
     </div>
   </div>
 </div>
+<div id="yearView" role="dialog" aria-modal="true" aria-labelledby="yvTitle">
+  <div class="yv-top"><b id="yvTitle">Tu año en Senda</b><button type="button" id="yvClose">Cerrar</button></div>
+  <div id="yvBody"></div>
+  <div class="yv-share"><button class="btn-main" id="yvShare" type="button">Compartir mi año</button></div>
+</div>
+<div class="modal" id="medalModal" role="dialog" aria-modal="true" aria-labelledby="medalTitle">
+  <div class="modal-box">
+    <p class="news-kicker">¡Medalla nueva!</p>
+    <div class="medal-big" id="medalIcon"></div>
+    <h2 id="medalTitle"></h2>
+    <p id="medalText"></p>
+    <div class="modal-actions"><button class="btn-line" id="medalSee" type="button">Ver mis medallas</button><button class="btn-main" id="medalOk" type="button">¡Genial!</button></div>
+  </div>
+</div>
+<div class="modal" id="stampModal" role="dialog" aria-modal="true" aria-labelledby="stampTitle">
+  <div class="modal-box">
+    <h2 id="stampTitle">Sello</h2>
+    <img id="stampImg" alt="">
+    <div class="modal-actions"><button class="btn-line" id="stampDel" type="button">Quitar sello</button><button class="btn-main" id="stampClose" type="button">Cerrar</button></div>
+  </div>
+</div>
 <div class="modal" id="dupModal" role="dialog" aria-modal="true" aria-labelledby="dupTitle">
   <div class="modal-box news-box">
     <h2 id="dupTitle">Actividades repetidas</h2>
@@ -941,6 +1034,100 @@ select.pill { appearance: none; padding-right: 14px; }
 const LANG = (() => { try { const s = localStorage.getItem('senda.lang'); if (s === 'es' || s === 'en') return s; } catch {} return /^es\b/i.test(navigator.language || 'es') ? 'es' : 'en'; })();
 const LOC = LANG === 'en' ? 'en-GB' : 'es-ES';
 const EN = {
+"Primer paso": "First step",
+"Tu primera actividad en Senda": "Your first activity in Senda",
+"Diez de una": "Ten in one go",
+"Una salida de 10 km o más": "An outing of 10 km or more",
+"Veinte de una": "Twenty in one go",
+"Una salida de 20 km o más": "An outing of 20 km or more",
+"Maratón": "Marathon",
+"Una salida de 42,2 km o más": "An outing of 42.2 km or more",
+"Mil metros": "A thousand metres",
+"Subir 1.000 m en una sola salida": "Climb 1,000 m in a single outing",
+"Alta montaña": "High mountains",
+"Llegar a 2.000 m de altitud": "Reach 2,000 m of altitude",
+"Madrugador": "Early bird",
+"Empezar una salida antes de las 7 de la mañana": "Start an outing before 7 in the morning",
+"100 km": "100 km",
+"100 km entre todas tus actividades": "100 km across all your activities",
+"500 km": "500 km",
+"500 km entre todas tus actividades": "500 km across all your activities",
+"1.000 km": "1,000 km",
+"1.000 km entre todas tus actividades": "1,000 km across all your activities",
+"Everest": "Everest",
+"Subir entre todas tus salidas la altura del Everest (8.849 m)": "Climb the height of Everest (8,849 m) across all your outings",
+"Constante": "Consistent",
+"Salir al menos una vez por semana, cuatro semanas seguidas": "Get out at least once a week, four weeks in a row",
+"Por etapas": "Stage by stage",
+"Un viaje de 3 etapas o más": "A trip of 3 stages or more",
+"Sobre ruedas": "On wheels",
+"Tu primera salida en bici": "Your first bike ride",
+"¡Santiago!": "Santiago!",
+"Llegar a Santiago de Compostela": "Reach Santiago de Compostela",
+"{} / {} semanas": "{} / {} weeks",
+"{} de {}": "{} of {}",
+"Todas tus rutas juntas: donde más se repiten, más fuerte sale el color.": "All your routes together: the more they overlap, the stronger the colour.",
+"Ver todos ({})": "See all ({})",
+"1 pueblo o ciudad.": "1 town or city.",
+"{} pueblos y ciudades.": "{} towns and cities.",
+" Faltan los de {} {}.": " Missing for {} {}.",
+"Todavía no se han buscado los pueblos de {} {}.": "Towns haven't been looked up yet for {} {}.",
+"Ninguno todavía.": "None yet.",
+"Buscando pueblos… {} de {}": "Looking for towns… {} of {}",
+"Buscar los pueblos que faltan": "Find the missing towns",
+"Como correr <b>{}</b> maratones seguidos.": "Like running <b>{}</b> marathons back to back.",
+"<b>{}</b> veces el Camino desde Sarria a Santiago.": "<b>{}</b> times the Camino from Sarria to Santiago.",
+"El <b>{} %</b> del Camino desde Sarria a Santiago.": "<b>{} %</b> of the Camino from Sarria to Santiago.",
+"Has subido <b>{}</b> veces el Everest.": "You've climbed Everest <b>{}</b> times.",
+"Has subido <b>{}</b> veces el Teide.": "You've climbed Mount Teide <b>{}</b> times.",
+"Has subido <b>{}</b> veces la Torre Eiffel.": "You've climbed the Eiffel Tower <b>{}</b> times.",
+"Todavía no hay actividades.": "No activities yet.",
+"Tu {} en Senda": "Your {} in Senda",
+"En <b>{}</b> {}, a lo largo de <b>{}</b> {}.": "In <b>{}</b> {}, over <b>{}</b> {}.",
+"día": "day",
+"días": "days",
+"Son <b>{}</b> días enteros en marcha.": "That's <b>{}</b> whole days on the move.",
+"Son <b>{}</b> horas y <b>{}</b> minutos en marcha.": "That's <b>{}</b> hours and <b>{}</b> minutes on the move.",
+"Tu mejor mes": "Your best month",
+"<b>{} km</b> ese mes.": "<b>{} km</b> that month.",
+"Tu salida más larga": "Your longest outing",
+"Y la de más desnivel: <b>+{} m</b>.": "And the one with the most climbing: <b>+{} m</b>.",
+"Pueblos y ciudades": "Towns and cities",
+"Cómo te has movido": "How you got around",
+"Medallas de este año": "This year's medals",
+"Tu mapa del año": "Your map of the year",
+"MI AÑO EN SENDA": "MY YEAR IN SENDA",
+"{} {} · {} {}": "{} {} · {} {}",
+"La más larga: {} km": "Longest: {} km",
+"Mejor mes: {} ({} km)": "Best month: {} ({} km)",
+"{} pueblos y ciudades": "{} towns and cities",
+"{} medallas: ": "{} medals: ",
+"Sello de la etapa {}": "Stamp from stage {}",
+"Añadir otro sello": "Add another stamp",
+"Sello": "Stamp",
+"Añadir el sello de la etapa {}": "Add the stamp for stage {}",
+"Sello guardado en tu credencial.": "Stamp saved to your credential.",
+"No se ha podido guardar el sello.": "The stamp couldn't be saved.",
+"Sello quitado.": "Stamp removed.",
+"Credencial del peregrino": "Pilgrim's credential",
+"{} km · ¡en Santiago!": "{} km · in Santiago!",
+"{} km hechos": "{} km done",
+"🎉 Tu {} en Senda": "🎉 Your {} in Senda",
+"Tu año en Senda": "Your year in Senda",
+"Un resumen de tu año: kilómetros, horas, desnivel, tu mejor mes, tus pueblos y tu mapa, con una imagen para compartir. Está en Estadísticas y en el menú.": "A summary of your year: kilometres, hours, climbing, your best month, your towns and your map, with an image to share. It's in Stats and in the menu.",
+"Medallas": "Medals",
+"Consigue medallas al llegar a 100 km, subir 1.000 m en una salida, madrugar, salir cuatro semanas seguidas… Senda te avisa cuando ganas una.": "Earn medals for reaching 100 km, climbing 1,000 m in one outing, early starts, getting out four weeks in a row… Senda tells you when you win one.",
+"Tu mapa y tus pueblos": "Your map and your towns",
+"En Estadísticas, todas tus rutas juntas en un mapa y la lista de pueblos y ciudades por los que has pasado.": "In Stats, all your routes together on one map and the list of towns and cities you've passed through.",
+"Credencial del Camino": "Camino credential",
+"En los viajes del Camino de Santiago, guarda una foto de cada sello en su etapa y comparte tu credencial.": "In your Camino de Santiago trips, save a photo of each stamp in its stage and share your credential.",
+"Viajes": "Trips",
+"Tiempo": "Time",
+"Desnivel": "Elevation",
+"salida": "outing",
+"salidas": "outings",
+"actividad": "activity",
+"actividades": "activities",
 "El archivo no parece un FIT válido.": "The file doesn't look like a valid FIT file.",
 "FIT dañado: falta una definición.": "Damaged FIT file: a definition is missing.",
 "El archivo XML está dañado.": "The XML file is damaged.",
@@ -1372,6 +1559,22 @@ const EN = {
 "o": "or"
 };
 const ENH = {
+"Tu año en Senda": "Your year in Senda",
+"Medallas": "Medals",
+"Tu mapa": "Your map",
+"Pueblos por los que has pasado": "Towns you've passed through",
+"Ver todos": "See all",
+"Buscar los pueblos que faltan": "Find the missing towns",
+"Mi credencial": "My credential",
+"Compartir": "Share",
+"Haz una foto a cada sello (del albergue, la iglesia, el bar…) y guárdala en su etapa.": "Take a photo of each stamp (from the hostel, the church, the bar…) and save it in its stage.",
+"Compartir mi año": "Share my year",
+"¡Medalla nueva!": "New medal!",
+"Ver mis medallas": "See my medals",
+"¡Genial!": "Great!",
+"Sello": "Stamp",
+"Quitar sello": "Remove stamp",
+"Cerrar": "Close",
 "Actividades repetidas": "Duplicate activities",
 "Me quedo con la que tenga más datos (viaje, fotos, título…) y paso sus fotos a la que se queda.": "I keep the one with the most data (trip, photos, title…) and move the photos to the one that stays.",
 "Quitar repetidas": "Remove duplicates",
@@ -1901,7 +2104,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '3.4.0';
+const APP_VERSION = '3.5.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -1948,6 +2151,12 @@ const kindName = k => (KINDS[k] || KINDS.walk).name;
 const kindIcon = k => (KINDS[k] || KINDS.walk).icon;
 // ---------- Novedades de cada versión (la más nueva primero) ----------
 const CHANGELOG = [
+  { v: '3.5.0', items: [
+    [Tx('🎉'), Tx('Tu año en Senda'), Tx('Un resumen de tu año: kilómetros, horas, desnivel, tu mejor mes, tus pueblos y tu mapa, con una imagen para compartir. Está en Estadísticas y en el menú.')],
+    [Tx('🏅'), Tx('Medallas'), Tx('Consigue medallas al llegar a 100 km, subir 1.000 m en una salida, madrugar, salir cuatro semanas seguidas… Senda te avisa cuando ganas una.')],
+    [Tx('🗺️'), Tx('Tu mapa y tus pueblos'), Tx('En Estadísticas, todas tus rutas juntas en un mapa y la lista de pueblos y ciudades por los que has pasado.')],
+    [Tx('🐚'), Tx('Credencial del Camino'), Tx('En los viajes del Camino de Santiago, guarda una foto de cada sello en su etapa y comparte tu credencial.')]
+  ] },
   { v: '3.4.0', items: [
     [Tx('🧹'), Tx('Sin actividades repetidas'), Tx('Si añades una salida que ya tenías (por ejemplo, en FIT y en GPX), Senda no la repite. Y si ya tenías repetidas, te avisa para quitarlas. También está en el menú: «Buscar repetidas».')]
   ] },
@@ -2072,6 +2281,7 @@ async function removeDuplicates(groups) {
       keep.kind = keep.kind || e.kind || null;
       keep.towns = keep.towns || e.towns || null;
       for (const p of await photosForActivity(e.id)) { p.act = keep.id; await photoPut(p); }
+      for (const p of await photosForActivity(stampKey(e.id))) { p.act = stampKey(keep.id); await photoPut(p); }
       drop.add(e.id);
     }
   }
@@ -2105,6 +2315,414 @@ async function checkDuplicates(manual) {
   };
   $('dupNo').onclick = () => { try { localStorage.setItem('senda.dupsno', sig); } catch {} $('dupModal').classList.remove('on'); };
   $('dupModal').classList.add('on');
+}
+
+// ---------- Medallas ----------
+const EVEREST = 8849;
+function sortedEntries() { return loadHistory().filter(e => walkDate(e)).sort((a, b) => walkDate(a) - walkDate(b)); }
+function entryMaxEle2(e) { let m = -1e9; for (const p of e.pts) if (p[2] != null && p[2] > m) m = p[2]; return m > -1e8 ? m : null; }
+function reachedSantiago(e) { const p = e.pts[e.pts.length - 1]; return p && haversine({ lat: p[0], lon: p[1] }, SANTIAGO) < 2500; }
+function weekKey(t) { const d = new Date(t); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return +d; }
+// Cada medalla: con qué actividad se consiguió y, si no, cuánto falta
+const MEDALS = [
+  { id: 'first', ic: '👣', name: Tx('Primer paso'), desc: Tx('Tu primera actividad en Senda'), single: e => true },
+  { id: 'km10', ic: '🔟', name: Tx('Diez de una'), desc: Tx('Una salida de 10 km o más'), single: e => e.session.distance >= 10000, best: e => e.session.distance / 1000, goal: 10, unit: 'km' },
+  { id: 'km20', ic: '🥾', name: Tx('Veinte de una'), desc: Tx('Una salida de 20 km o más'), single: e => e.session.distance >= 20000, best: e => e.session.distance / 1000, goal: 20, unit: 'km' },
+  { id: 'marathon', ic: '🏅', name: Tx('Maratón'), desc: Tx('Una salida de 42,2 km o más'), single: e => e.session.distance >= 42195, best: e => e.session.distance / 1000, goal: 42.2, unit: 'km' },
+  { id: 'up1000', ic: '⛰️', name: Tx('Mil metros'), desc: Tx('Subir 1.000 m en una sola salida'), single: e => (e.session.ascent || 0) >= 1000, best: e => e.session.ascent || 0, goal: 1000, unit: 'm' },
+  { id: 'alt2000', ic: '🏔️', name: Tx('Alta montaña'), desc: Tx('Llegar a 2.000 m de altitud'), single: e => (entryMaxEle2(e) || 0) >= 2000, best: e => entryMaxEle2(e) || 0, goal: 2000, unit: 'm' },
+  { id: 'early', ic: '🌅', name: Tx('Madrugador'), desc: Tx('Empezar una salida antes de las 7 de la mañana'), single: e => { const h = new Date(walkDate(e)).getHours(); return h >= 3 && h < 7; } },
+  { id: 'tot100', ic: '💯', name: Tx('100 km'), desc: Tx('100 km entre todas tus actividades'), total: e => e.session.distance / 1000, goal: 100, unit: 'km' },
+  { id: 'tot500', ic: '🚀', name: Tx('500 km'), desc: Tx('500 km entre todas tus actividades'), total: e => e.session.distance / 1000, goal: 500, unit: 'km' },
+  { id: 'tot1000', ic: '🌍', name: Tx('1.000 km'), desc: Tx('1.000 km entre todas tus actividades'), total: e => e.session.distance / 1000, goal: 1000, unit: 'km' },
+  { id: 'everest', ic: '🗻', name: Tx('Everest'), desc: Tx('Subir entre todas tus salidas la altura del Everest (8.849 m)'), total: e => e.session.ascent || 0, goal: EVEREST, unit: 'm' },
+  { id: 'streak4', ic: '🔥', name: Tx('Constante'), desc: Tx('Salir al menos una vez por semana, cuatro semanas seguidas'), streak: 4 },
+  { id: 'trip3', ic: '🗺️', name: Tx('Por etapas'), desc: Tx('Un viaje de 3 etapas o más'), trip: 3 },
+  { id: 'bike', ic: '🚴', name: Tx('Sobre ruedas'), desc: Tx('Tu primera salida en bici'), single: e => !!(KINDS[kindOf(e)] && KINDS[kindOf(e)].bike) },
+  { id: 'santiago', ic: '🐚', name: Tx('¡Santiago!'), desc: Tx('Llegar a Santiago de Compostela'), single: reachedSantiago }
+];
+// Devuelve, por medalla: { got: fecha o null, entry, progress (0..1), text }
+function medalStatus() {
+  const list = sortedEntries(), out = {};
+  const trips = loadTrips();
+  for (const M of MEDALS) {
+    let got = null, entry = null, prog = 0, text = '';
+    if (M.single) {
+      const e = list.find(M.single);
+      if (e) { got = walkDate(e); entry = e; prog = 1; }
+      else if (M.best) { const b = Math.max(0, ...list.map(M.best)); prog = Math.min(.99, b / M.goal); text = `${fmtDec(b, M.unit === 'km' ? 1 : 0)} / ${fmtNum(M.goal)} ${M.unit}`; }
+    } else if (M.total) {
+      let acc = 0;
+      for (const e of list) { acc += M.total(e); if (acc >= M.goal) { got = walkDate(e); entry = e; break; } }
+      prog = Math.min(1, acc / M.goal);
+      if (!got) text = `${fmtNum(acc)} / ${fmtNum(M.goal)} ${M.unit}`;
+    } else if (M.streak) {
+      const weeks = [...new Set(list.map(e => weekKey(walkDate(e))))].sort((a, b) => a - b);
+      let run = 0, best = 0, prev = null;
+      for (const w of weeks) {
+        run = prev != null && Math.round((w - prev) / 604800000) === 1 ? run + 1 : 1;
+        prev = w; best = Math.max(best, run);
+        if (run >= M.streak && !got) { got = w + 6 * 864e5; entry = list.filter(e => weekKey(walkDate(e)) === w).pop() || null; }
+      }
+      prog = Math.min(1, best / M.streak); if (!got) text = Tx`${best} / ${M.streak} semanas`;
+    } else if (M.trip) {
+      for (const tr of trips) {
+        const st = list.filter(e => e.tripId === tr.id);
+        if (st.length >= M.trip) { const d = walkDate(st[M.trip - 1]); if (!got || d < got) { got = d; entry = st[M.trip - 1]; } }
+      }
+      prog = got ? 1 : Math.min(.99, Math.max(0, ...trips.map(tr => list.filter(e => e.tripId === tr.id).length)) / M.trip);
+    }
+    out[M.id] = { got, entry, prog: got ? 1 : prog, text };
+  }
+  return out;
+}
+function renderMedals() {
+  const S = medalStatus(), box = $('medalGrid'); box.innerHTML = '';
+  let n = 0;
+  for (const M of MEDALS) {
+    const s = S[M.id]; if (s.got) n++;
+    const d = document.createElement('button'); d.type = 'button'; d.className = 'medal' + (s.got ? '' : ' locked');
+    const ic = document.createElement('span'); ic.className = 'm-ic'; ic.setAttribute('aria-hidden', 'true'); ic.textContent = M.ic;
+    const b = document.createElement('b'); b.textContent = M.name;
+    const sm = document.createElement('small');
+    sm.textContent = s.got ? new Date(s.got).toLocaleDateString(LOC, { day: 'numeric', month: 'short', year: 'numeric' }) : (s.text || M.desc);
+    d.append(ic, b, sm);
+    if (!s.got && s.prog > 0) { const bar = document.createElement('span'); bar.className = 'm-bar'; const i = document.createElement('i'); i.style.width = Math.round(s.prog * 100) + '%'; bar.appendChild(i); d.appendChild(bar); }
+    d.onclick = () => toast(`${M.ic} ${M.name}: ${M.desc}` + (s.got ? '' : s.text ? ` (${s.text})` : ''), 4500);
+    box.appendChild(d);
+  }
+  $('medalCount').textContent = Tx`${n} de ${MEDALS.length}`;
+}
+// Avisa de las medallas nuevas (la primera vez solo las apunta, sin avisar)
+let medalQueue = [];
+function checkMedals() {
+  const S = medalStatus();
+  const got = MEDALS.filter(M => S[M.id].got).map(M => M.id);
+  let seen = null;
+  try { seen = JSON.parse(localStorage.getItem('senda.medals') || 'null'); } catch {}
+  try { localStorage.setItem('senda.medals', JSON.stringify(got)); } catch {}
+  if (!seen) return;
+  medalQueue = medalQueue.concat(got.filter(id => !seen.includes(id) && !medalQueue.includes(id)));
+  showNextMedal();
+}
+function showNextMedal() {
+  if (!medalQueue.length) return;
+  if (document.querySelector('.modal.on') || $('yearView').classList.contains('on') || $('view3d').classList.contains('on')) { clearTimeout(showNextMedal.t); showNextMedal.t = setTimeout(showNextMedal, 2500); return; }
+  const id = medalQueue.shift(), M = MEDALS.find(x => x.id === id); if (!M) { showNextMedal(); return; }
+  $('medalIcon').textContent = M.ic; $('medalTitle').textContent = M.name; $('medalText').textContent = M.desc;
+  $('medalModal').classList.add('on');
+}
+// ---------- Tu mapa y los pueblos ----------
+let statsMap = null, statsLayer = null, townsAll = false;
+function statsFiltered() {
+  const all = loadHistory();
+  return all.filter(e => (ST.kind === 'all' || kindOf(e) === ST.kind) && (ST.year === 'all' || (walkDate(e) && new Date(walkDate(e)).getFullYear() === ST.year)));
+}
+function townsOf(list) {
+  const m = new Map(); let missing = 0;
+  for (const e of list) {
+    if (!e.towns) { missing++; continue; }
+    for (const tw of e.towns) {
+      if (!(tw.dist < 1000) || !['city', 'town', 'village', 'hamlet'].includes(tw.type)) continue;
+      const k = tw.name; const o = m.get(k) || { name: k, n: 0, type: tw.type, last: 0 };
+      o.n++; o.last = Math.max(o.last, walkDate(e)); m.set(k, o);
+    }
+  }
+  return { towns: [...m.values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, LOC)), missing };
+}
+function renderStatsMap() {
+  const list = statsFiltered();
+  $('statsMapNote').textContent = list.length ? Tx('Todas tus rutas juntas: donde más se repiten, más fuerte sale el color.') : '';
+  $('statsMap').hidden = !list.length;
+  if (list.length) {
+    if (!statsMap) {
+      statsMap = L.map('statsMap', { preferCanvas: true, zoomControl: false, attributionControl: true });
+      satelliteLayer().addTo(statsMap);
+      statsLayer = L.layerGroup().addTo(statsMap);
+    }
+    setTimeout(() => {
+      statsMap.invalidateSize(); statsLayer.clearLayers();
+      const all = [];
+      for (const e of list) {
+        const ll = e.pts.filter((_, i) => i % 3 === 0).map(p => [p[0], p[1]]);
+        if (ll.length < 2) continue;
+        all.push(ll[0], ll[ll.length - 1]);
+        L.polyline(ll, { color: '#FF3B30', weight: 3, opacity: .45 }).addTo(statsLayer)
+          .on('click', () => { fromStats = true; fromHist = false; showActivity(unpackActivity(e), false); });
+      }
+      if (all.length) statsMap.fitBounds(L.latLngBounds(all), { padding: [24, 24], maxZoom: 14 });
+    }, 40);
+  }
+  const { towns: tw, missing } = townsOf(list);
+  const box = $('townChips'); box.innerHTML = '';
+  const show = townsAll ? tw : tw.slice(0, 30);
+  for (const o of show) { const s = document.createElement('span'); s.textContent = o.name; if (o.n > 1) { const b = document.createElement('b'); b.textContent = '×' + o.n; s.appendChild(b); } box.appendChild(s); }
+  $('townsMore').hidden = townsAll || tw.length <= 30;
+  $('townsMore').textContent = Tx`Ver todos (${tw.length})`;
+  $('townsNote').textContent = !list.length ? '' : tw.length
+    ? (tw.length === 1 ? Tx('1 pueblo o ciudad.') : Tx`${tw.length} pueblos y ciudades.`) + (missing ? Tx` Faltan los de ${missing} ${missing === 1 ? Tx('actividad') : Tx('actividades')}.` : '')
+    : missing ? Tx`Todavía no se han buscado los pueblos de ${missing} ${missing === 1 ? Tx('actividad') : Tx('actividades')}.` : Tx('Ninguno todavía.');
+  $('townsFetch').hidden = !missing;
+}
+async function fetchMissingTowns() {
+  const list = statsFiltered().filter(e => !e.towns);
+  if (!list.length) return;
+  $('townsFetch').disabled = true;
+  let k = 0;
+  for (const e of list) {
+    k++; $('townsFetch').textContent = Tx`Buscando pueblos… ${k} de ${list.length}`;
+    await fetchTownsInBackground([unpackActivity(e)]);
+  }
+  $('townsFetch').disabled = false; $('townsFetch').textContent = Tx('Buscar los pueblos que faltan');
+  if ($('statsView').classList.contains('on')) renderStatsMap();
+}
+// ---------- Tu año en Senda ----------
+let yearMap = null, yearSel = null;
+function yearToShow() {
+  const now = new Date();
+  const years = [...new Set(loadHistory().map(e => walkDate(e)).filter(Boolean).map(d => new Date(d).getFullYear()))].sort((a, b) => b - a);
+  if (ST.year !== 'all' && ST.year != null && $('statsView').classList.contains('on')) return ST.year;
+  // en enero todavía se enseña el año que acaba de terminar
+  const y = now.getMonth() === 0 && years.includes(now.getFullYear() - 1) ? now.getFullYear() - 1 : now.getFullYear();
+  return years.includes(y) ? y : years[0];
+}
+function yearData(y) {
+  const list = loadHistory().filter(e => walkDate(e) && new Date(walkDate(e)).getFullYear() === y);
+  const km = list.reduce((s, e) => s + (e.session.distance || 0), 0) / 1000;
+  const secs = list.reduce((s, e) => s + (e.session.elapsed || 0), 0);
+  const up = list.reduce((s, e) => s + (e.session.ascent || 0), 0);
+  const days = new Set(list.map(e => new Date(walkDate(e)).toDateString())).size;
+  const months = Array.from({ length: 12 }, (_, m) => list.filter(e => new Date(walkDate(e)).getMonth() === m).reduce((s, e) => s + e.session.distance / 1000, 0));
+  const bestM = months.indexOf(Math.max(...months));
+  const longest = list.slice().sort((a, b) => b.session.distance - a.session.distance)[0];
+  const climb = list.slice().sort((a, b) => (b.session.ascent || 0) - (a.session.ascent || 0))[0];
+  const kinds = {}; list.forEach(e => { const k = kindOf(e); kinds[k] = (kinds[k] || 0) + e.session.distance / 1000; });
+  const { towns } = townsOf(list);
+  const S = medalStatus();
+  const medals = MEDALS.filter(M => S[M.id].got && new Date(S[M.id].got).getFullYear() === y);
+  const trips = loadTrips().filter(tr => list.some(e => e.tripId === tr.id));
+  return { y, list, km, secs, up, days, months, bestM, longest, climb, kinds, towns, medals, trips };
+}
+function compareKm(km) {
+  const out = [];
+  if (km >= 42.195) out.push(Tx`Como correr <b>${fmtDec(km / 42.195, 1)}</b> maratones seguidos.`);
+  if (km >= 115) out.push(Tx`<b>${fmtDec(km / 115, 1)}</b> veces el Camino desde Sarria a Santiago.`);
+  else out.push(Tx`El <b>${Math.round(km / 115 * 100)} %</b> del Camino desde Sarria a Santiago.`);
+  return out;
+}
+function compareUp(up) {
+  if (up >= EVEREST) return Tx`Has subido <b>${fmtDec(up / EVEREST, 1)}</b> veces el Everest.`;
+  if (up >= 3715) return Tx`Has subido <b>${fmtDec(up / 3715, 1)}</b> veces el Teide.`;
+  return Tx`Has subido <b>${fmtDec(up / 330, 1)}</b> veces la Torre Eiffel.`;
+}
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+function openYear() {
+  const y = yearToShow();
+  if (!y) { toast(Tx('Todavía no hay actividades.')); return; }
+  yearSel = y;
+  const D = yearData(y);
+  $('yvTitle').textContent = Tx`Tu ${y} en Senda`;
+  const hh = Math.floor(D.secs / 3600);
+  const card = (cls, html) => `<section class="yv-card ${cls}">${html}</section>`;
+  let h = '';
+  h += card('yv-hero', `<span class="k">${esc(Tx`Tu ${y} en Senda`)}</span><div class="big">${fmtNum(D.km)}<small>km</small></div>
+    <p>${Tx`En <b>${D.list.length}</b> ${D.list.length === 1 ? Tx('salida') : Tx('salidas')}, a lo largo de <b>${D.days}</b> ${D.days === 1 ? Tx('día') : Tx('días')}.`}</p>
+    ${compareKm(D.km).map(s => `<p>${s}</p>`).join('')}`);
+  h += card('', `<span class="k">${esc(Tx('Tiempo'))}</span><div class="big">${fmtNum(hh)}<small>h</small></div>
+    <p>${hh >= 24 ? Tx`Son <b>${fmtDec(hh / 24, 1)}</b> días enteros en marcha.` : Tx`Son <b>${hh}</b> horas y <b>${Math.round(D.secs % 3600 / 60)}</b> minutos en marcha.`}</p>`);
+  h += card('', `<span class="k">${esc(Tx('Desnivel'))}</span><div class="big">+${fmtNum(D.up)}<small>m</small></div><p>${compareUp(D.up)}</p>`);
+  const ML = MONTHS.map(m => m.slice(0, 1).toUpperCase());
+  const mx = Math.max(1e-9, ...D.months);
+  h += card('', `<span class="k">${esc(Tx('Tu mejor mes'))}</span><h2>${esc(MONTHS[D.bestM].charAt(0).toUpperCase() + MONTHS[D.bestM].slice(1))}</h2>
+    <p>${Tx`<b>${fmtNum(D.months[D.bestM])} km</b> ese mes.`}</p>
+    <div class="yv-months">${D.months.map((v, i) => `<div><i class="${i === D.bestM ? 'best' : ''}" style="height:${Math.round(v / mx * 100)}%"></i>${ML[i]}</div>`).join('')}</div>`);
+  if (D.longest) {
+    const e = D.longest, tt = titleFor(e.name, walkDate(e), kindOf(e), e.title);
+    h += card('', `<span class="k">${esc(Tx('Tu salida más larga'))}</span><div class="big">${fmtKm(e.session.distance)}<small>km</small></div><p><b>${esc(kindIcon(kindOf(e)) + ' ' + tt)}</b></p>`
+      + (D.climb && D.climb.session.ascent ? `<p>${Tx`Y la de más desnivel: <b>+${fmtNum(D.climb.session.ascent)} m</b>.`}</p>` : ''));
+  }
+  if (D.towns.length) {
+    h += card('', `<span class="k">${esc(Tx('Pueblos y ciudades'))}</span><div class="big">${D.towns.length}</div>
+      <p>${esc(D.towns.slice(0, 12).map(o => o.name).join(' · '))}${D.towns.length > 12 ? '…' : ''}</p>`);
+  }
+  const ks = KIND_ORDER.filter(k => D.kinds[k]);
+  if (ks.length > 1) h += card('', `<span class="k">${esc(Tx('Cómo te has movido'))}</span>${ks.map(k => `<p><b>${kindIcon(k)} ${esc(kindName(k))}</b>: ${fmtNum(D.kinds[k])} km</p>`).join('')}`);
+  if (D.trips.length) h += card('', `<span class="k">${esc(Tx('Viajes'))}</span>${D.trips.map(tr => `<p><b>${esc(tr.name)}</b>${caminoOn(tr, tripStages(tr.id)) ? ' 🐚' : ''}</p>`).join('')}`);
+  if (D.medals.length) h += card('', `<span class="k">${esc(Tx('Medallas de este año'))}</span><div class="big">${D.medals.length}</div>
+    <div class="yv-medals">${D.medals.map(M => `<span><i>${M.ic}</i>${esc(M.name)}</span>`).join('')}</div>`);
+  h += card('', `<span class="k">${esc(Tx('Tu mapa del año'))}</span><div id="yearMap"></div>`);
+  $('yvBody').innerHTML = h;
+  $('yearView').classList.add('on'); $('yearView').scrollTop = 0;
+  if (yearMap) { yearMap.remove(); yearMap = null; }
+  setTimeout(() => {
+    yearMap = L.map('yearMap', { preferCanvas: true, zoomControl: false, attributionControl: true });
+    satelliteLayer().addTo(yearMap);
+    const all = [];
+    for (const e of D.list) {
+      const ll = e.pts.filter((_, i) => i % 3 === 0).map(p => [p[0], p[1]]);
+      if (ll.length < 2) continue; all.push(ll[0], ll[ll.length - 1]);
+      L.polyline(ll, { color: '#ffffff', weight: 6, opacity: .7 }).addTo(yearMap);
+      L.polyline(ll, { color: '#C8102E', weight: 3 }).addTo(yearMap);
+    }
+    if (all.length) yearMap.fitBounds(L.latLngBounds(all), { padding: [24, 24], maxZoom: 13 });
+  }, 60);
+}
+function closeYear() { $('yearView').classList.remove('on'); if (yearMap) { yearMap.remove(); yearMap = null; } }
+async function buildYearImage(onProgress) {
+  const prog = p => { if (onProgress) onProgress(p); };
+  const D = yearData(yearSel);
+  await Promise.all(['700 60px "Barlow Semi Condensed"', '500 26px Barlow', '600 28px "Barlow Semi Condensed"'].map(f => document.fonts.load(f).catch(() => {})));
+  const W = 1080, H = 1920, MH = 820;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  const segs = D.list.map(e => e.pts.filter((_, i) => i % 3 === 0).map(p => ({ lat: p[0], lon: p[1] }))).filter(s => s.length > 1);
+  g.fillStyle = '#14201F'; g.fillRect(0, 0, W, H);
+  if (segs.length) await drawShareMap(g, W, MH, segs, null, p => prog(p * 0.85), 300);
+  const grad = g.createLinearGradient(0, MH - 220, 0, MH); grad.addColorStop(0, 'rgba(20,32,31,0)'); grad.addColorStop(1, 'rgba(20,32,31,1)');
+  g.fillStyle = grad; g.fillRect(0, MH - 220, W, 220);
+  g.fillStyle = '#14201F'; g.fillRect(0, MH - 1, W, H - MH + 1);
+  g.fillStyle = 'rgba(20,32,31,.75)'; g.fillRect(0, 0, W, 150);
+  g.fillStyle = '#F2B705'; g.font = '700 34px Barlow, sans-serif'; g.textBaseline = 'alphabetic';
+  g.fillText(Tx('MI AÑO EN SENDA'), 60, 70);
+  g.fillStyle = '#fff'; g.font = '700 64px "Barlow Semi Condensed", sans-serif'; g.fillText(String(D.y), 60, 130);
+  // km grande
+  g.fillStyle = '#fff'; g.font = '700 200px "Barlow Semi Condensed", sans-serif';
+  const kmT = fmtNum(D.km); g.fillText(kmT, 60, MH + 150);
+  const kw = g.measureText(kmT).width; g.font = '600 64px "Barlow Semi Condensed", sans-serif'; g.fillStyle = 'rgba(255,255,255,.8)'; g.fillText('km', 76 + kw, MH + 150);
+  g.font = '500 36px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.88)';
+  g.fillText(Tx`${D.list.length} ${D.list.length === 1 ? Tx('salida') : Tx('salidas')} · ${D.days} ${D.days === 1 ? Tx('día') : Tx('días')}`, 60, MH + 210);
+  const hh = Math.floor(D.secs / 3600);
+  const gap = 18, pw = (W - 120 - gap) / 2, py = MH + 260, ph = 116;
+  plate(g, 60, py, pw, ph, '#C8102E', '#fff', Tx('Tiempo'), fmtNum(hh), 'h');
+  plate(g, 60 + pw + gap, py, pw, ph, '#F2B705', '#1E2B2A', Tx('Desnivel'), '+' + fmtNum(D.up), 'm');
+  // comparaciones y datos
+  const strip = s => s.replace(/<\/?b>/g, '');
+  const lines = [...compareKm(D.km).map(strip), strip(compareUp(D.up))];
+  if (D.longest) lines.push(Tx`La más larga: ${fmtKm(D.longest.session.distance)} km`);
+  lines.push(Tx`Mejor mes: ${MONTHS[D.bestM]} (${fmtNum(D.months[D.bestM])} km)`);
+  if (D.towns.length) lines.push(Tx`${D.towns.length} pueblos y ciudades`);
+  if (D.medals.length) lines.push(Tx`${D.medals.length} medallas: ` + D.medals.slice(0, 6).map(M => M.ic).join(' '));
+  g.font = '500 38px Barlow, sans-serif';
+  let y = py + ph + 80;
+  for (const l of lines) {
+    if (y > H - 170) break;
+    g.fillStyle = '#F2B705'; g.beginPath(); g.arc(72, y - 12, 7, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#fff'; let s = l; while (g.measureText(s).width > W - 150 && s.length > 4) s = s.slice(0, -2); if (s !== l) s = s.trim() + '…';
+    g.fillText(s, 96, y); y += 64;
+  }
+  try { const icon = await loadImg('icon-senda-192.png'); g.save(); g.beginPath(); g.roundRect ? g.roundRect(60, H - 110, 64, 64, 15) : g.rect(60, H - 110, 64, 64); g.clip(); g.drawImage(icon, 60, H - 110, 64, 64); g.restore(); } catch {}
+  g.fillStyle = '#fff'; g.font = '700 44px "Barlow Semi Condensed", sans-serif'; g.fillText('Senda', 140, H - 64);
+  g.textAlign = 'right'; g.font = '600 34px Barlow, sans-serif'; g.fillText('DanLab', W - 60, H - 66);
+  const dw = g.measureText('DanLab').width; g.textAlign = 'left'; drawDanlab(g, W - 60 - dw - 60, H - 110, 50, '#fff');
+  prog(0.97);
+  const blob = await new Promise(res => c.toBlob(res, 'image/png'));
+  prog(1); return blob;
+}
+// ---------- Credencial del Camino (sellos) ----------
+const stampKey = id => 'sello:' + id;
+let stampFor = null, stampCur = null;
+async function renderCredencial() {
+  const grid = $('credGrid'); if (!grid || !A || !A.isTrip) return;
+  grid.innerHTML = '';
+  let total = 0;
+  for (let k = 0; k < A.stages.length; k++) {
+    const s = A.stages[k];
+    const recs = (await photosForActivity(stampKey(s.id))).sort((a, b) => a.time - b.time);
+    total += recs.length;
+    const cell = document.createElement('div'); cell.className = 'cred-cell';
+    const n = document.createElement('span'); n.className = 'cc-n'; n.textContent = k + 1;
+    const tw = (s.cachedTowns || []).filter(t => t.dist < 1500 && t.type !== 'locality');
+    const ttl = document.createElement('span'); ttl.className = 'cc-t';
+    ttl.textContent = s.start ? new Date(s.start).toLocaleDateString(LOC, { day: 'numeric', month: 'short' }) + (tw.length ? ' · ' + tw[tw.length - 1].name : '') : '';
+    cell.append(n);
+    if (recs.length) {
+      const img = document.createElement('img'); img.alt = Tx`Sello de la etapa ${k + 1}`;
+      img.src = URL.createObjectURL(recs[0].blob);
+      img.style.transform = `rotate(${(parseInt(recs[0].id.slice(-3), 36) % 17) - 8}deg)`;
+      img.onclick = () => openStamp(recs, 0, k);
+      cell.appendChild(img);
+      const more = document.createElement('button'); more.type = 'button'; more.className = 'cc-more'; more.style.cssText = 'background:none;border:0';
+      more.textContent = recs.length > 1 ? '+' + (recs.length - 1) : '+';
+      more.setAttribute('aria-label', Tx('Añadir otro sello'));
+      more.onclick = () => { if (recs.length > 1) openStamp(recs, 1, k); else pickStamp(s.id); };
+      cell.appendChild(more);
+    } else {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'cc-add';
+      const p = document.createElement('span'); p.setAttribute('aria-hidden', 'true'); p.textContent = '+';
+      b.append(p, document.createTextNode(Tx('Sello')));
+      b.setAttribute('aria-label', Tx`Añadir el sello de la etapa ${k + 1}`);
+      b.onclick = () => pickStamp(s.id);
+      cell.appendChild(b);
+    }
+    cell.appendChild(ttl);
+    grid.appendChild(cell);
+  }
+  $('credShare').hidden = !total;
+}
+function pickStamp(stageId) { stampFor = stageId; $('stampInput').click(); }
+async function saveStamp(file) {
+  if (!file || !stampFor) return;
+  try {
+    const blob = await resizeImage(file, 900, 0.82);
+    await photoPut({ id: 's' + Date.now() + '-' + Math.random().toString(36).slice(2, 6), act: stampKey(stampFor), time: Date.now(), kind: 'sello', blob });
+    toast(Tx('Sello guardado en tu credencial.'));
+  } catch (e) { console.error(e); toast(Tx('No se ha podido guardar el sello.')); }
+  stampFor = null; renderCredencial();
+}
+function openStamp(recs, i, k) {
+  stampCur = { recs, i, k };
+  const r = recs[i];
+  const old = $('stampImg').src; if (old && old.startsWith('blob:')) URL.revokeObjectURL(old);
+  $('stampImg').src = URL.createObjectURL(r.blob);
+  $('stampTitle').textContent = Tx`Sello de la etapa ${k + 1}` + (recs.length > 1 ? ` (${i + 1}/${recs.length})` : '');
+  $('stampModal').classList.add('on');
+}
+async function buildCredImage(onProgress) {
+  const prog = p => { if (onProgress) onProgress(p); };
+  await Promise.all(['700 60px "Barlow Semi Condensed"', '500 26px Barlow'].map(f => document.fonts.load(f).catch(() => {})));
+  const n = A.stages.length, cols = n <= 4 ? 2 : n <= 9 ? 3 : 4, rows = Math.ceil(n / cols);
+  const W = 1080, cell = (W - 120) / cols, H = 300 + rows * cell + 140;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.fillStyle = '#F3E6C8'; g.fillRect(0, 0, W, H);
+  const vg = g.createRadialGradient(W / 2, H / 2, W * 0.3, W / 2, H / 2, W * 0.9); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(140,100,40,.28)');
+  g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  g.strokeStyle = '#B08A4A'; g.lineWidth = 4; g.strokeRect(24, 24, W - 48, H - 48);
+  g.fillStyle = '#7A2E12'; g.font = '700 72px "Barlow Semi Condensed", serif'; g.textBaseline = 'alphabetic';
+  g.fillText(Tx('Credencial del peregrino'), 60, 130);
+  g.fillStyle = '#6B5330'; g.font = '500 34px Barlow, sans-serif';
+  let sub = A.name; while (g.measureText(sub).width > W - 120 && sub.length > 4) sub = sub.slice(0, -2);
+  g.fillText(sub, 60, 185);
+  const C = caminoInfo(A);
+  if (C) { g.font = '500 30px Barlow, sans-serif'; g.fillText(C.arrived ? Tx`${fmtKm(C.done * 1000)} km · ¡en Santiago!` : Tx`${fmtKm(C.done * 1000)} km hechos`, 60, 232); }
+  for (let k = 0; k < n; k++) {
+    prog(k / n * 0.9);
+    const s = A.stages[k], x = 60 + (k % cols) * cell, y = 270 + Math.floor(k / cols) * cell;
+    g.setLineDash([10, 8]); g.strokeStyle = '#B08A4A'; g.lineWidth = 2; g.strokeRect(x + 6, y + 6, cell - 12, cell - 12); g.setLineDash([]);
+    g.fillStyle = '#7A2E12'; g.font = '700 30px "Barlow Semi Condensed", sans-serif'; g.fillText(String(k + 1), x + 18, y + 42);
+    const recs = (await photosForActivity(stampKey(s.id))).sort((a, b) => a.time - b.time);
+    if (recs.length) {
+      try {
+        const img = await loadImg(URL.createObjectURL(recs[0].blob));
+        const r = cell * 0.36, cx = x + cell / 2, cy = y + cell / 2;
+        g.save(); g.translate(cx, cy); g.rotate(((parseInt(recs[0].id.slice(-3), 36) % 17) - 8) * Math.PI / 180);
+        g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); g.clip();
+        const k2 = Math.max(2 * r / img.naturalWidth, 2 * r / img.naturalHeight);
+        g.globalAlpha = .92; g.drawImage(img, -img.naturalWidth * k2 / 2, -img.naturalHeight * k2 / 2, img.naturalWidth * k2, img.naturalHeight * k2);
+        g.restore();
+        g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.strokeStyle = 'rgba(122,46,18,.6)'; g.lineWidth = 6; g.stroke();
+        URL.revokeObjectURL(img.src);
+      } catch {}
+    }
+    if (s.start) { g.fillStyle = '#6B5330'; g.font = '500 24px Barlow, sans-serif'; g.fillText(new Date(s.start).toLocaleDateString(LOC, { day: 'numeric', month: 'short' }), x + 18, y + cell - 22); }
+  }
+  try { const icon = await loadImg('icon-senda-192.png'); g.save(); g.beginPath(); g.roundRect ? g.roundRect(60, H - 104, 56, 56, 13) : g.rect(60, H - 104, 56, 56); g.clip(); g.drawImage(icon, 60, H - 104, 56, 56); g.restore(); } catch {}
+  g.fillStyle = '#3B2A14'; g.font = '700 38px "Barlow Semi Condensed", sans-serif'; g.fillText('Senda', 130, H - 62);
+  g.textAlign = 'right'; g.fillStyle = '#0B5F6A'; g.font = '600 30px Barlow, sans-serif'; g.fillText('DanLab', W - 60, H - 64);
+  const dw = g.measureText('DanLab').width; g.textAlign = 'left'; drawDanlab(g, W - 60 - dw - 58, H - 104, 46, '#0B5F6A');
+  prog(0.97);
+  const blob = await new Promise(res => c.toBlob(res, 'image/png'));
+  prog(1); return blob;
 }
 function showGuide() {
   showHome();
@@ -2253,7 +2871,9 @@ async function initStore() {
 function loadHistory() {
   try { return JSON.parse(mem.hist) || []; } catch { return []; }
 }
+let medalTimer = null;
 function saveHistory(list) {
+  if (!medalTimer) medalTimer = setTimeout(() => { medalTimer = null; try { checkMedals(); } catch (e) { console.error(e); } }, 2500);
   try {
     const before = JSON.parse(mem.hist || '[]').map(x => x.id), now = new Set(list.map(x => x.id));
     driveMark('cam', before.filter(id => !now.has(id)));
@@ -2395,6 +3015,13 @@ function renderHistory() {
     const hk = $('homeKinds'); hk.innerHTML = ''; hk.hidden = ks.length < 2;
     for (const k of ks) { const s = document.createElement('span'); s.textContent = kindIcon(k) + ' ' + kindName(k) + ' '; const b = document.createElement('b'); b.textContent = fmtKm(by[k]) + ' km'; s.appendChild(b); hk.appendChild(s); }
   }
+  {
+    const now = new Date(), mo = now.getMonth();
+    const y = mo === 0 ? now.getFullYear() - 1 : now.getFullYear();
+    const hasY = list.some(e => walkDate(e) && new Date(walkDate(e)).getFullYear() === y);
+    $('btnYearHome').hidden = !((mo === 11 || mo === 0) && hasY);
+    $('btnYearHome').textContent = Tx`🎉 Tu ${y} en Senda`;
+  }
   const tripIds = new Set(trips.map(x => x.id));
   $('btnHistHome').textContent = Tx`Ver el historial (${list.length} ${list.length === 1 ? Tx('actividad') : Tx('actividades')}${trips.length ? Tx`, ${trips.length} ${trips.length === 1 ? Tx('viaje') : Tx('viajes')}` : ''})`;
   drawHomeMap(list, tripIds);
@@ -2499,7 +3126,8 @@ function chips(box, items, cur, onPick) {
     box.appendChild(b);
   }
 }
-function renderStatsView() {
+function renderStatsView() { renderStatsViewCore(); try { renderMedals(); renderStatsMap(); } catch (e) { console.error(e); } }
+function renderStatsViewCore() {
   const all = loadHistory();
   const years = [...new Set(all.map(e => walkDate(e)).filter(Boolean).map(d => new Date(d).getFullYear()))].sort((a, b) => b - a);
   if (ST.year == null || (ST.year !== 'all' && !years.includes(ST.year))) ST.year = years[0] || 'all';
@@ -3314,7 +3942,7 @@ function renderStats() {
   $('colorMode').querySelector('option[value="hr"]').disabled = !A.hasHr;
   $('colorMode').querySelector('option[value="v"]').disabled = !A.hasTime;
   renderCamino();
-  if (isTrip) { renderTripStats(); renderStages(); return; }
+  if (isTrip) { renderTripStats(); renderStages(); if (!$('caminoSection').hidden) renderCredencial(); return; }
   renderTripBar();
   $('actTitle').textContent = titleFor(A.name, A.start, A.kind || A.sport, A.title);
   const sub = [fmtDate(A.start)];
@@ -3932,6 +4560,7 @@ function handleBack() {
   if ($('drawer').classList.contains('on')) { closeMenu(); return; }
   if (pickState) { closePick(); return; }
   if ($('shareModal').classList.contains('on')) { closeShare(); return; }
+  if ($('yearView').classList.contains('on')) { closeYear(); return; }
   const openModal = document.querySelector('.modal.on');
   if (openModal) { openModal.classList.remove('on'); return; }
   if (placing) { endPlacing(); return; }
@@ -5057,14 +5686,18 @@ function drawDanlab(g, x, y, size, color) {
 function lon2x(lon, z) { return (lon + 180) / 360 * 256 * 2 ** z; }
 function lat2y(lat, z) { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 256 * 2 ** z; }
 function loadImg(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
-async function drawShareMap(g, W, H, P, stageOf, onProgress) {
+async function drawShareMap(g, W, H, P, stageOf, onProgress, padTop) {
+  // P puede ser una ruta (lista de puntos) o varias (lista de listas)
+  const multi = Array.isArray(P[0]);
+  const segs = multi ? P : [P];
   let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
-  for (const q of P) { minLat = Math.min(minLat, q.lat); maxLat = Math.max(maxLat, q.lat); minLon = Math.min(minLon, q.lon); maxLon = Math.max(maxLon, q.lon); }
+  for (const S of segs) for (const q of S) { minLat = Math.min(minLat, q.lat); maxLat = Math.max(maxLat, q.lat); minLon = Math.min(minLon, q.lon); maxLon = Math.max(maxLon, q.lon); }
   const pad = 90;
   let z = 17;
-  while (z > 3 && (lon2x(maxLon, z) - lon2x(minLon, z) > W - 2 * pad || lat2y(minLat, z) - lat2y(maxLat, z) > H - 2 * pad)) z--;
+  const pt = padTop || 0;
+  while (z > 3 && (lon2x(maxLon, z) - lon2x(minLon, z) > W - 2 * pad || lat2y(minLat, z) - lat2y(maxLat, z) > H - 2 * pad - pt)) z--;
   const cx = (lon2x(minLon, z) + lon2x(maxLon, z)) / 2, cy = (lat2y(minLat, z) + lat2y(maxLat, z)) / 2;
-  const ox = cx - W / 2, oy = cy - H / 2;
+  const ox = cx - W / 2, oy = cy - H / 2 - pt / 2;
   g.fillStyle = '#7FA88E'; g.fillRect(0, 0, W, H);
   let ok = 0, total = 0, done = 0;
   const layers = ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -5089,6 +5722,11 @@ async function drawShareMap(g, W, H, P, stageOf, onProgress) {
   if (ok < total / 4) { g.fillStyle = '#E9E2D0'; g.fillRect(0, 0, W, H); }
   const X = q => lon2x(q.lon, z) - ox, Y = q => lat2y(q.lat, z) - oy;
   const line = (pts, color, w) => { g.beginPath(); pts.forEach((q, i) => i ? g.lineTo(X(q), Y(q)) : g.moveTo(X(q), Y(q))); g.strokeStyle = color; g.lineWidth = w; g.lineJoin = 'round'; g.lineCap = 'round'; g.stroke(); };
+  if (multi) {
+    for (const S of segs) line(S, 'rgba(255,255,255,.8)', 9);
+    for (const S of segs) line(S, '#C8102E', 5);
+    return;
+  }
   line(P, 'rgba(255,255,255,.95)', 14);
   if (stageOf) {
     let cur = [], k = stageOf(P[0]);
@@ -5171,20 +5809,22 @@ async function buildShareImage(onProgress) {
   prog(1);
   return blob;
 }
-let shareBlob = null;
+let shareBlob = null, shareBuilder = null, shareName = null;
 function setShareProg(p) {
   const pct = Math.max(0, Math.min(100, Math.round(p * 100)));
   $('shareBar').style.width = pct + '%';
   $('sharePct').textContent = pct + ' %';
   $('shareInfo').textContent = pct < 90 ? Tx('Preparando el mapa…') : Tx('Terminando la imagen…');
 }
-async function openShare() {
+async function openShare(builder, name) {
+  shareBuilder = typeof builder === 'function' ? builder : buildShareImage;
+  shareName = name || ('senda-' + new Date((A && A.start) || Date.now()).toISOString().slice(0, 10) + '.png');
   $('shareModal').classList.add('on');
   $('shareInfo').textContent = Tx('Preparando la imagen…');
   $('shareGo').disabled = true; $('shareImg').removeAttribute('src'); $('shareImg').hidden = true;
   $('shareProg').hidden = false; setShareProg(0);
   try {
-    shareBlob = await buildShareImage(setShareProg);
+    shareBlob = await shareBuilder(setShareProg);
     $('shareImg').src = URL.createObjectURL(shareBlob);
     $('shareImg').hidden = false; $('shareProg').hidden = true;
     $('shareInfo').textContent = Tx('Así quedará. Pulsa Compartir para mandarla por WhatsApp, subirla a redes o guardarla.');
@@ -5197,7 +5837,7 @@ async function openShare() {
 }
 async function doShare() {
   if (!shareBlob) return;
-  const name = 'senda-' + new Date(A.start || Date.now()).toISOString().slice(0, 10) + '.png';
+  const name = shareName || 'senda.png';
   try {
     if (NATIVE) {
       const data = await blobToB64(shareBlob);
@@ -5272,6 +5912,7 @@ $('drawer').addEventListener('click', e => {
   if (act === 'lang') { try { localStorage.setItem('senda.lang', LANG === 'en' ? 'es' : 'en'); } catch {} location.reload(); }
   if (act === 'guide') showGuide();
   if (act === 'dups') checkDuplicates(true);
+  if (act === 'year') openYear();
   if (act === 'maps') showMapsInfo();
   if (act === 'health') hcStatus().then(st => st.status === 'ready' ? checkHealthNew(true) : openHealthSetup(st.status));
   if (act === 'install' && installEvt) { installEvt.prompt(); installEvt.userChoice.finally(() => { installEvt = null; $('menuInstall').hidden = true; }); }
@@ -5372,6 +6013,24 @@ $('btnBrand').onclick = () => { fromHist = false; fromStats = false; if ($('hist
 $('btnBack').onclick = () => { fromHist = false; fromStats = false; if ($('histView').classList.contains('on') || $('statsView').classList.contains('on')) renderHome(); else showHome(); };
 $('btnHist').onclick = () => { if ($('actView').classList.contains('on') && history.state && history.state.v === 'act') { fromHist = true; fromStats = false; history.back(); } else showHist(); };
 $('btnStatsHome').onclick = showStats;
+$('btnYearHome').onclick = openYear;
+$('btnYearStats').onclick = openYear;
+$('yvClose').onclick = closeYear;
+$('yvShare').onclick = () => openShare(buildYearImage, `senda-${yearSel}.png`);
+$('medalOk').onclick = () => { $('medalModal').classList.remove('on'); setTimeout(showNextMedal, 400); };
+$('medalSee').onclick = () => { $('medalModal').classList.remove('on'); medalQueue = []; showStats(); setTimeout(() => $('medalGrid').scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); };
+$('townsMore').onclick = () => { townsAll = true; renderStatsMap(); };
+$('townsFetch').onclick = fetchMissingTowns;
+$('credShare').onclick = () => openShare(buildCredImage, 'senda-credencial.png');
+$('stampInput').onchange = e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; saveStamp(f); };
+$('stampClose').onclick = () => $('stampModal').classList.remove('on');
+$('stampDel').onclick = async () => {
+  if (!stampCur) return;
+  const r = stampCur.recs[stampCur.i];
+  await photoDelete(r.id);
+  $('stampModal').classList.remove('on'); stampCur = null;
+  toast(Tx('Sello quitado.')); renderCredencial();
+};
 $('kindChip').onclick = () => openKindPicker(false);
 $('kindModal').addEventListener('click', e => { if (e.target.id === 'kindModal') $('kindModal').classList.remove('on'); });
 document.querySelectorAll('#statsMetric button').forEach(b => b.onclick = () => { ST.metric = b.dataset.m; renderStatsView(); });
@@ -5445,6 +6104,7 @@ $('btnDelAct').onclick = () => {
   if (!confirm(Tx('¿Borrar esta actividad del historial?'))) return;
   const tripId = A.tripId;
   photosDeleteActivity(A.id).catch(() => {});
+  photosDeleteActivity(stampKey(A.id)).catch(() => {});
   saveHistory(loadHistory().filter(x => x.id !== A.id));
   if (tripId && tripStages(tripId).length) showTrip(tripId); else showHome();
   toast(Tx('Actividad borrada.'));
@@ -5519,6 +6179,7 @@ initStore().then(async () => {
   renderHistory();
   checkNews();
   setTimeout(() => { if (!$('newsModal').classList.contains('on')) checkDuplicates(false); }, 1500);
+  setTimeout(checkMedals, 2500);
   if (NativeInbox) { NativeInbox.addListener('filesShared', takeShared); takeShared(); }
   if (NATIVE) {
     $('menuDrive').hidden = false;
