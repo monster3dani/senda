@@ -302,6 +302,19 @@ button { cursor: pointer; }
 .about-box h2 { margin-bottom: 2px; }
 .about-box .ver { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
 .about-box .by { color: var(--danlab); font-weight: 600; margin: 0 0 10px; }
+.about-box .dl-more { display: inline-block; margin: -4px 0 12px; color: var(--danlab); font-weight: 600; background: none; border: 0; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+.apps-box { max-height: 88vh; overflow: auto; }
+.apps-box .apps-sub { margin: 0 0 12px; color: var(--muted); }
+.dl-app { display: grid; grid-template-columns: 56px 1fr; align-items: start; align-content: start; gap: 4px 12px; padding: 14px 0; border-top: 1px solid var(--line); }
+.dl-app img.dl-ic { grid-row: 1 / span 2; width: 56px; height: 56px; border-radius: 14px; object-fit: cover; background: var(--line); }
+.dl-app h3 { margin: 0; font: 700 19px/1.2 "Barlow Semi Condensed", sans-serif; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.dl-app .dl-car { font: 600 12px Barlow, sans-serif; color: #fff; background: var(--danlab); border-radius: 6px; padding: 2px 7px; }
+.dl-app p { margin: 0; font-size: 15px; grid-column: 2; }
+.dl-app p.dl-note { color: var(--muted); font-size: 13px; }
+.dl-app .dl-btns { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.dl-app .dl-btns button { padding: 8px 14px; font-size: 15px; }
+.dl-app img.dl-qr { grid-column: 2; width: 150px; height: 150px; margin-top: 8px; background: #fff; padding: 6px; border-radius: 8px; }
+.apps-msg { color: var(--muted); padding: 10px 0; }
 
 /* Health Connect */
 .hc-bar { position: fixed; z-index: 2250; left: 10px; right: 10px; top: calc(66px + env(safe-area-inset-top, 0px));
@@ -893,9 +906,18 @@ select.pill { appearance: none; padding-right: 14px; }
     <h2 id="aboutTitle">Senda</h2>
     <p class="ver">Versión <span class="app-ver"></span></p>
     <p class="by">Una app de DanLab</p>
+    <button class="dl-more" id="btnDlApps" type="button">Otras apps de DanLab</button>
     <p>Tus actividades y viajes por etapas sobre el mapa, con su perfil, su animación, tus fotos y los pueblos por los que pasaste. Lee los archivos GPX, TCX y FIT que exporta Zepp.</p>
     <p>Mapas de OpenStreetMap y OpenTopoMap. Poblaciones de OpenStreetMap.</p>
     <div class="modal-actions"><button class="btn-line" id="aboutUpdate" type="button" hidden>Buscar actualizaciones</button><button class="btn-main" id="aboutClose" type="button">Cerrar</button></div>
+  </div>
+</div>
+<div class="modal" id="appsModal" role="dialog" aria-modal="true" aria-labelledby="appsTitle">
+  <div class="modal-box apps-box">
+    <h2 id="appsTitle">Otras apps de DanLab</h2>
+    <p class="apps-sub">Todas gratis y sin publicidad</p>
+    <div id="appsList"></div>
+    <div class="modal-actions"><button class="btn-main" id="appsClose" type="button">Cerrar</button></div>
   </div>
 </div>
 <div class="modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
@@ -1036,6 +1058,20 @@ select.pill { appearance: none; padding-right: 14px; }
 const LANG = (() => { try { const s = localStorage.getItem('senda.lang'); if (s === 'es' || s === 'en') return s; } catch {} return /^es\b/i.test(navigator.language || 'es') ? 'es' : 'en'; })();
 const LOC = LANG === 'en' ? 'en-GB' : 'es-ES';
 const EN = {
+"Compartir enlace": "Share link",
+"Enlace copiado.": "Link copied.",
+"Cargando…": "Loading…",
+"Ahora mismo no hay otras apps que enseñar.": "There are no other apps to show right now.",
+"No se ha podido cargar la lista. Comprueba la conexión.": "Couldn't load the list. Check your connection.",
+"🚗 Para la pantalla del coche": "🚗 For the car screen",
+"Ver": "View",
+"Abrir": "Open",
+"Descargar": "Download",
+"Código QR": "QR code",
+"Código QR de {}": "QR code for {}",
+"Para que otra persona la descargue con su móvil": "So someone else can download it with their phone",
+"Otras apps de DanLab": "Other DanLab apps",
+"En «Acerca de Senda» puedes ver mis otras apps, todas gratis y sin publicidad.": "In “About Senda” you can see my other apps, all free and ad-free.",
 "Zona {}": "Area {}",
 "Todas": "All",
 "Mapa: {}": "Map: {}",
@@ -1566,6 +1602,9 @@ const EN = {
 "o": "or"
 };
 const ENH = {
+"Otras apps de DanLab": "Other DanLab apps",
+"Todas gratis y sin publicidad": "All free and ad-free",
+"Cerrar": "Close",
 "Tu año en Senda": "Your year in Senda",
 "Medallas": "Medals",
 "Tu mapa": "Your map",
@@ -2111,7 +2150,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '3.5.1';
+const APP_VERSION = '3.6.0';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -2158,6 +2197,9 @@ const kindName = k => (KINDS[k] || KINDS.walk).name;
 const kindIcon = k => (KINDS[k] || KINDS.walk).icon;
 // ---------- Novedades de cada versión (la más nueva primero) ----------
 const CHANGELOG = [
+  { v: '3.6.0', items: [
+    [Tx('🧪'), Tx('Otras apps de DanLab'), Tx('En «Acerca de Senda» puedes ver mis otras apps, todas gratis y sin publicidad.')]
+  ] },
   { v: '3.5.0', items: [
     [Tx('🎉'), Tx('Tu año en Senda'), Tx('Un resumen de tu año: kilómetros, horas, desnivel, tu mejor mes, tus pueblos y tu mapa, con una imagen para compartir. Está en Estadísticas y en el menú.')],
     [Tx('🏅'), Tx('Medallas'), Tx('Consigue medallas al llegar a 100 km, subir 1.000 m en una salida, madrugar, salir cuatro semanas seguidas… Senda te avisa cuando ganas una.')],
@@ -2775,6 +2817,105 @@ async function buildCredImage(onProgress) {
   prog(0.97);
   const blob = await new Promise(res => c.toBlob(res, 'image/png'));
   prog(1); return blob;
+}
+
+// ---------- Otras apps de DanLab ----------
+// La lista es común a todas las apps y está en GitHub: si cambia allí, Senda la ve sola.
+const NativeApps = NATIVE ? CAP.registerPlugin('SendaApps') : null;
+const DL_BASE = 'https://raw.githubusercontent.com/monster3dani/danlab-apps/main/';
+const DL_SELF = 'senda';
+async function dlList() {
+  let c = null;
+  try { c = JSON.parse(localStorage.getItem('senda.dlapps') || 'null'); } catch {}
+  if (c && c.data && Date.now() - c.t < 10 * 60000) return c.data;
+  try {
+    const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 12000);
+    const r = await fetch(DL_BASE + 'apps.json', { cache: 'no-store', signal: ctl.signal });
+    clearTimeout(tm);
+    if (!r.ok) throw new Error(r.status);
+    const data = await r.json();
+    if (!data || !Array.isArray(data.apps)) throw new Error('formato');
+    try { localStorage.setItem('senda.dlapps', JSON.stringify({ t: Date.now(), data })); } catch {}
+    return data;
+  } catch (e) { return c ? c.data : null; }
+}
+// Iconos y QR: en la caché del móvil, renovados como mucho una vez por semana
+async function dlImg(rel) {
+  let url;
+  try { url = new URL(rel, DL_BASE).href; } catch { return null; }
+  if (!('caches' in window)) return url;
+  try {
+    const cache = await caches.open('danlab-apps');
+    let meta = {};
+    try { meta = JSON.parse(localStorage.getItem('senda.dlimgs') || '{}'); } catch {}
+    const hit = await cache.match(url);
+    if (hit && Date.now() - (meta[url] || 0) < 7 * 864e5) return URL.createObjectURL(await hit.blob());
+    try {
+      const r = await fetch(url, { cache: 'no-store' });
+      if (r.ok) {
+        await cache.put(url, r.clone()); meta[url] = Date.now();
+        try { localStorage.setItem('senda.dlimgs', JSON.stringify(meta)); } catch {}
+        return URL.createObjectURL(await r.blob());
+      }
+    } catch {}
+    if (hit) return URL.createObjectURL(await hit.blob());
+  } catch {}
+  return url;
+}
+const dlText = o => !o ? '' : typeof o === 'string' ? o : (o[LANG] || o.es || Object.values(o).find(v => typeof v === 'string') || '');
+function openExternal(url) { if (!url) return; if (NATIVE) location.href = url; else window.open(url, '_blank', 'noopener'); }
+async function shareLink(a) {
+  const text = `${a.name}: ${dlText(a.desc)}`;
+  try {
+    if (NativeShare) { await NativeShare.share({ title: a.name, text, url: a.url, dialogTitle: Tx('Compartir enlace') }); return; }
+    if (navigator.share) { await navigator.share({ title: a.name, text, url: a.url }); return; }
+    await navigator.clipboard.writeText(a.url); toast(Tx('Enlace copiado.'));
+  } catch (e) { /* cancelado */ }
+}
+async function openDlApps() {
+  $('aboutModal').classList.remove('on');
+  $('appsModal').classList.add('on');
+  const box = $('appsList');
+  box.innerHTML = ''; const msg = document.createElement('p'); msg.className = 'apps-msg'; msg.textContent = Tx('Cargando…'); box.appendChild(msg);
+  const data = await dlList();
+  const apps = data ? data.apps.filter(a => a && a.id !== DL_SELF && a.name && (a.url || a.package)) : [];
+  if (!apps.length) { msg.textContent = data ? Tx('Ahora mismo no hay otras apps que enseñar.') : Tx('No se ha podido cargar la lista. Comprueba la conexión.'); return; }
+  let inst = {};
+  const pk = apps.filter(a => a.device !== 'car' && a.package).map(a => a.package);
+  if (NativeApps && pk.length) { try { inst = (await NativeApps.installed({ packages: pk })).installed || {}; } catch {} }
+  box.innerHTML = '';
+  for (const a of apps) {
+    const car = a.device === 'car';
+    const row = document.createElement('div'); row.className = 'dl-app';
+    const ic = document.createElement('img'); ic.className = 'dl-ic'; ic.alt = ''; ic.loading = 'lazy';
+    if (a.icon) dlImg(a.icon).then(u => { if (u) ic.src = u; });
+    const h = document.createElement('h3'); h.textContent = a.name;
+    if (car) { const b = document.createElement('span'); b.className = 'dl-car'; b.textContent = Tx('🚗 Para la pantalla del coche'); h.appendChild(b); }
+    const d = document.createElement('p'); d.textContent = dlText(a.desc);
+    row.append(ic, h, d);
+    if (dlText(a.note)) { const n = document.createElement('p'); n.className = 'dl-note'; n.textContent = dlText(a.note); row.appendChild(n); }
+    const btns = document.createElement('div'); btns.className = 'dl-btns';
+    const mk = (txt, cls, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = cls; b.textContent = txt; b.onclick = fn; btns.appendChild(b); return b; };
+    if (car) {
+      if (a.url) mk(Tx('Ver'), 'btn-main', () => openExternal(a.url));
+      if (a.url) mk(Tx('Compartir enlace'), 'btn-line', () => shareLink(a));
+    } else if (a.package && inst[a.package]) {
+      mk(Tx('Abrir'), 'btn-main', async () => { try { await NativeApps.open({ package: a.package }); } catch { openExternal(a.url); } });
+    } else if (a.url) {
+      mk(Tx('Descargar'), 'btn-main', () => openExternal(a.url));
+      if (a.qr) {
+        const q = mk(Tx('Código QR'), 'btn-line', async () => {
+          let img = row.querySelector('img.dl-qr');
+          if (img) { img.remove(); return; }
+          img = document.createElement('img'); img.className = 'dl-qr'; img.alt = Tx`Código QR de ${a.name}`;
+          const u = await dlImg(a.qr); if (u) { img.src = u; row.appendChild(img); }
+        });
+        q.title = Tx('Para que otra persona la descargue con su móvil');
+      }
+    }
+    row.appendChild(btns);
+    box.appendChild(row);
+  }
 }
 function showGuide() {
   showHome();
@@ -6065,6 +6206,9 @@ $('btnBrand').onclick = () => { fromHist = false; fromStats = false; if ($('hist
 $('btnBack').onclick = () => { fromHist = false; fromStats = false; if ($('histView').classList.contains('on') || $('statsView').classList.contains('on')) renderHome(); else showHome(); };
 $('btnHist').onclick = () => { if ($('actView').classList.contains('on') && history.state && history.state.v === 'act') { fromHist = true; fromStats = false; history.back(); } else showHist(); };
 $('btnStatsHome').onclick = showStats;
+$('btnDlApps').onclick = openDlApps;
+$('appsClose').onclick = () => $('appsModal').classList.remove('on');
+$('appsModal').addEventListener('click', e => { if (e.target.id === 'appsModal') $('appsModal').classList.remove('on'); });
 $('btnYearHome').onclick = openYear;
 $('btnYearStats').onclick = openYear;
 $('yvClose').onclick = closeYear;

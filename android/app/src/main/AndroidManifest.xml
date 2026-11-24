@@ -102,5 +102,10 @@
 
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
+        <!-- Para saber si las otras apps de DanLab ya están instaladas y poder abrirlas -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
     </queries>
 </manifest>
