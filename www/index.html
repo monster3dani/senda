@@ -160,6 +160,8 @@ button { cursor: pointer; }
 .medal-big { font-size: 64px; width: 110px; height: 110px; margin: 6px auto 12px; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 35% 30%, #FFE9A8, #F2B705 60%, #C98F00); box-shadow: 0 0 0 5px #fff, 0 0 0 8px #C98F00; }
 #medalModal .modal-box { text-align: center; }
 /* Mapa de todas las rutas y pueblos */
+.yv-zones button { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.3); }
+.yv-zones button[aria-pressed="true"] { background: #F2B705; color: #14201F; border-color: #F2B705; }
 #statsMap { height: 300px; border-radius: 12px; overflow: hidden; margin-top: 8px; background: #7FA88E; }
 .town-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .town-chips span { background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; font-size: 14px; }
@@ -628,7 +630,7 @@ select.pill { appearance: none; padding-right: 14px; }
       <button class="btn-share btn-year" id="btnYearStats" type="button">Tu año en Senda</button>
       <div class="section st-rec"><h2>Récords</h2><div id="statsRecords"></div></div>
       <div class="section"><div class="section-head"><h2>Medallas</h2><span class="note" id="medalCount"></span></div><div class="medals" id="medalGrid"></div></div>
-      <div class="section"><h2>Tu mapa</h2><p class="note" id="statsMapNote"></p><div id="statsMap"></div>
+      <div class="section"><h2>Tu mapa</h2><p class="note" id="statsMapNote"></p><div class="st-chips" id="statsZones"></div><div id="statsMap"></div>
         <h2 style="margin-top:18px">Pueblos por los que has pasado</h2><p class="note" id="townsNote"></p>
         <div class="town-chips" id="townChips"></div>
         <button class="trip-link" id="townsMore" type="button" hidden>Ver todos</button>
@@ -1034,6 +1036,11 @@ select.pill { appearance: none; padding-right: 14px; }
 const LANG = (() => { try { const s = localStorage.getItem('senda.lang'); if (s === 'es' || s === 'en') return s; } catch {} return /^es\b/i.test(navigator.language || 'es') ? 'es' : 'en'; })();
 const LOC = LANG === 'en' ? 'en-GB' : 'es-ES';
 const EN = {
+"Zona {}": "Area {}",
+"Todas": "All",
+"Mapa: {}": "Map: {}",
+"y 1 ruta más en otro sitio": "and 1 more route elsewhere",
+"y {} rutas más en otros sitios": "and {} more routes elsewhere",
 "Primer paso": "First step",
 "Tu primera actividad en Senda": "Your first activity in Senda",
 "Diez de una": "Ten in one go",
@@ -2104,7 +2111,7 @@ function analyze(act) {
 const $ = id => document.getElementById(id);
 const STORE_KEY = 'senda.historial.v1';
 const TRIP_KEY = 'senda.viajes.v1';
-const APP_VERSION = '3.5.0';
+const APP_VERSION = '3.5.1';
 const COFFEE_URL = 'https://paypal.me/AndySans';
 // Las versiones nuevas se publican en las Releases del repositorio público de Senda en GitHub
 const UPDATE_URL = 'https://api.github.com/repos/monster3dani/senda/releases/latest';
@@ -2430,10 +2437,61 @@ function townsOf(list) {
   }
   return { towns: [...m.values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name, LOC)), missing };
 }
+// Agrupa las rutas por zonas (si unas están en Barcelona y otras en Italia, el mapa de todo junto no deja ver ninguna)
+function routeZones(list) {
+  const zones = [];
+  for (const e of list) {
+    if (!e.pts || e.pts.length < 2) continue;
+    let a = 90, b = -90, c = 180, d = -180;
+    for (const p of e.pts) { a = Math.min(a, p[0]); b = Math.max(b, p[0]); c = Math.min(c, p[1]); d = Math.max(d, p[1]); }
+    const ctr = { lat: (a + b) / 2, lon: (c + d) / 2 };
+    let z = zones.find(z => haversine(z.ctr, ctr) < 60000);
+    if (!z) { z = { ctr, items: [], km: 0 }; zones.push(z); }
+    z.items.push(e); z.km += (e.session.distance || 0) / 1000;
+    const n = z.items.length; z.ctr = { lat: (z.ctr.lat * (n - 1) + ctr.lat) / n, lon: (z.ctr.lon * (n - 1) + ctr.lon) / n };
+  }
+  zones.sort((x, y) => y.km - x.km);
+  const rank = { city: 0, town: 1, village: 2, hamlet: 3 };
+  zones.forEach((z, i) => {
+    const cnt = {};
+    for (const e of z.items) for (const tw of (e.towns || [])) if (rank[tw.type] != null && tw.dist < 15000) { const k = tw.name; cnt[k] = (cnt[k] || 0) + 1 + (3 - rank[tw.type]) * 2; }
+    const best = Object.keys(cnt).sort((x, y) => cnt[y] - cnt[x])[0];
+    z.name = best || Tx`Zona ${i + 1}`;
+  });
+  return zones;
+}
+// Dibuja las rutas en un mapa Leaflet con un botón por zona; empieza en la zona con más km
+function drawZonesMap(map, layer, list, chipsBox, onRoute) {
+  layer.clearLayers();
+  const zones = routeZones(list);
+  for (const e of list) {
+    const ll = e.pts.filter((_, i) => i % 3 === 0).map(p => [p[0], p[1]]);
+    if (ll.length < 2) continue;
+    L.polyline(ll, { color: '#ffffff', weight: 7, opacity: .75 }).addTo(layer);
+    const pl = L.polyline(ll, { color: '#E0102E', weight: 4, opacity: .9 }).addTo(layer);
+    // punto de salida: se ve aunque el mapa esté muy alejado
+    const mk = L.circleMarker(ll[0], { radius: 6, color: '#fff', weight: 2, fillColor: '#E0102E', fillOpacity: 1 }).addTo(layer);
+    if (onRoute) { pl.on('click', () => onRoute(e)); mk.on('click', () => onRoute(e)); }
+  }
+  const fit = zs => {
+    const pts = [];
+    for (const z of zs) for (const e of z.items) for (let i = 0; i < e.pts.length; i += 10) pts.push([e.pts[i][0], e.pts[i][1]]);
+    if (pts.length) map.fitBounds(L.latLngBounds(pts), { padding: [28, 28], maxZoom: 14 });
+  };
+  chipsBox.innerHTML = '';
+  chipsBox.hidden = zones.length < 2;
+  if (zones.length > 1) {
+    const items = zones.map((z, i) => [i, `${z.name} · ${z.items.length}`]);
+    items.push(['all', Tx('Todas')]);
+    const pick = v => { chips(chipsBox, items, v, pick); fit(v === 'all' ? zones : [zones[v]]); };
+    pick(0);
+  } else fit(zones);
+  return zones;
+}
 function renderStatsMap() {
   const list = statsFiltered();
   $('statsMapNote').textContent = list.length ? Tx('Todas tus rutas juntas: donde más se repiten, más fuerte sale el color.') : '';
-  $('statsMap').hidden = !list.length;
+  $('statsMap').hidden = !list.length; if (!list.length) $('statsZones').hidden = true;
   if (list.length) {
     if (!statsMap) {
       statsMap = L.map('statsMap', { preferCanvas: true, zoomControl: false, attributionControl: true });
@@ -2441,16 +2499,8 @@ function renderStatsMap() {
       statsLayer = L.layerGroup().addTo(statsMap);
     }
     setTimeout(() => {
-      statsMap.invalidateSize(); statsLayer.clearLayers();
-      const all = [];
-      for (const e of list) {
-        const ll = e.pts.filter((_, i) => i % 3 === 0).map(p => [p[0], p[1]]);
-        if (ll.length < 2) continue;
-        all.push(ll[0], ll[ll.length - 1]);
-        L.polyline(ll, { color: '#FF3B30', weight: 3, opacity: .45 }).addTo(statsLayer)
-          .on('click', () => { fromStats = true; fromHist = false; showActivity(unpackActivity(e), false); });
-      }
-      if (all.length) statsMap.fitBounds(L.latLngBounds(all), { padding: [24, 24], maxZoom: 14 });
+      statsMap.invalidateSize();
+      drawZonesMap(statsMap, statsLayer, list, $('statsZones'), e => { fromStats = true; fromHist = false; showActivity(unpackActivity(e), false); });
     }, 40);
   }
   const { towns: tw, missing } = townsOf(list);
@@ -2550,21 +2600,14 @@ function openYear() {
   if (D.trips.length) h += card('', `<span class="k">${esc(Tx('Viajes'))}</span>${D.trips.map(tr => `<p><b>${esc(tr.name)}</b>${caminoOn(tr, tripStages(tr.id)) ? ' 🐚' : ''}</p>`).join('')}`);
   if (D.medals.length) h += card('', `<span class="k">${esc(Tx('Medallas de este año'))}</span><div class="big">${D.medals.length}</div>
     <div class="yv-medals">${D.medals.map(M => `<span><i>${M.ic}</i>${esc(M.name)}</span>`).join('')}</div>`);
-  h += card('', `<span class="k">${esc(Tx('Tu mapa del año'))}</span><div id="yearMap"></div>`);
+  h += card('', `<span class="k">${esc(Tx('Tu mapa del año'))}</span><div class="st-chips yv-zones" id="yearZones"></div><div id="yearMap"></div>`);
   $('yvBody').innerHTML = h;
   $('yearView').classList.add('on'); $('yearView').scrollTop = 0;
   if (yearMap) { yearMap.remove(); yearMap = null; }
   setTimeout(() => {
     yearMap = L.map('yearMap', { preferCanvas: true, zoomControl: false, attributionControl: true });
     satelliteLayer().addTo(yearMap);
-    const all = [];
-    for (const e of D.list) {
-      const ll = e.pts.filter((_, i) => i % 3 === 0).map(p => [p[0], p[1]]);
-      if (ll.length < 2) continue; all.push(ll[0], ll[ll.length - 1]);
-      L.polyline(ll, { color: '#ffffff', weight: 6, opacity: .7 }).addTo(yearMap);
-      L.polyline(ll, { color: '#C8102E', weight: 3 }).addTo(yearMap);
-    }
-    if (all.length) yearMap.fitBounds(L.latLngBounds(all), { padding: [24, 24], maxZoom: 13 });
+    drawZonesMap(yearMap, L.layerGroup().addTo(yearMap), D.list, $('yearZones'), null);
   }, 60);
 }
 function closeYear() { $('yearView').classList.remove('on'); if (yearMap) { yearMap.remove(); yearMap = null; } }
@@ -2575,7 +2618,8 @@ async function buildYearImage(onProgress) {
   const W = 1080, H = 1920, MH = 820;
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d');
-  const segs = D.list.map(e => e.pts.filter((_, i) => i % 3 === 0).map(p => ({ lat: p[0], lon: p[1] }))).filter(s => s.length > 1);
+  const zones = routeZones(D.list), main = zones[0] ? zones[0].items : [];
+  const segs = main.map(e => e.pts.filter((_, i) => i % 3 === 0).map(p => ({ lat: p[0], lon: p[1] }))).filter(s => s.length > 1);
   g.fillStyle = '#14201F'; g.fillRect(0, 0, W, H);
   if (segs.length) await drawShareMap(g, W, MH, segs, null, p => prog(p * 0.85), 300);
   const grad = g.createLinearGradient(0, MH - 220, 0, MH); grad.addColorStop(0, 'rgba(20,32,31,0)'); grad.addColorStop(1, 'rgba(20,32,31,1)');
@@ -2585,6 +2629,14 @@ async function buildYearImage(onProgress) {
   g.fillStyle = '#F2B705'; g.font = '700 34px Barlow, sans-serif'; g.textBaseline = 'alphabetic';
   g.fillText(Tx('MI AÑO EN SENDA'), 60, 70);
   g.fillStyle = '#fff'; g.font = '700 64px "Barlow Semi Condensed", sans-serif'; g.fillText(String(D.y), 60, 130);
+  if (zones.length > 1) {
+    g.textAlign = 'right'; g.font = '600 30px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.9)';
+    g.fillText(Tx`Mapa: ${zones[0].name}`, W - 60, 70);
+    g.font = '500 26px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.7)';
+    const rest = D.list.length - zones[0].items.length;
+    g.fillText(rest === 1 ? Tx('y 1 ruta más en otro sitio') : Tx`y ${rest} rutas más en otros sitios`, W - 60, 112);
+    g.textAlign = 'left';
+  }
   // km grande
   g.fillStyle = '#fff'; g.font = '700 200px "Barlow Semi Condensed", sans-serif';
   const kmT = fmtNum(D.km); g.fillText(kmT, 60, MH + 150);
@@ -5723,8 +5775,8 @@ async function drawShareMap(g, W, H, P, stageOf, onProgress, padTop) {
   const X = q => lon2x(q.lon, z) - ox, Y = q => lat2y(q.lat, z) - oy;
   const line = (pts, color, w) => { g.beginPath(); pts.forEach((q, i) => i ? g.lineTo(X(q), Y(q)) : g.moveTo(X(q), Y(q))); g.strokeStyle = color; g.lineWidth = w; g.lineJoin = 'round'; g.lineCap = 'round'; g.stroke(); };
   if (multi) {
-    for (const S of segs) line(S, 'rgba(255,255,255,.8)', 9);
-    for (const S of segs) line(S, '#C8102E', 5);
+    for (const S of segs) line(S, 'rgba(255,255,255,.85)', 12);
+    for (const S of segs) line(S, '#E0102E', 7);
     return;
   }
   line(P, 'rgba(255,255,255,.95)', 14);
